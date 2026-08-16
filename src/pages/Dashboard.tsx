@@ -147,9 +147,6 @@ function Dashboard() {
     profile?.display_name ||
     'player'
 
-  const displayName =
-    profile?.display_name ||
-    username
 
   const firstLetter =
     username.charAt(0).toUpperCase()
