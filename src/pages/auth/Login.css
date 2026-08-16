@@ -1,0 +1,1436 @@
+/* =========================================================
+   APTICKS — NEO BRUTALIST LOGIN
+   ========================================================= */
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+
+  background-color: #050505;
+
+  color: #050505;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+
+  overflow: hidden;
+
+  padding: 60px 30px;
+}
+
+
+/* =========================================================
+   BLACK GRID BACKGROUND
+   ========================================================= */
+
+.login-page::before {
+  content: '';
+
+  position: fixed;
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.045) 1px,
+      transparent 1px
+    );
+
+  background-size: 26px 26px;
+
+  pointer-events: none;
+
+  z-index: 0;
+}
+
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+
+.login-card {
+  width: min(880px, 94vw);
+
+  min-height: 570px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  position: relative;
+
+  z-index: 5;
+
+  background: #ffffff;
+
+  border: 3px solid #050505;
+
+  box-shadow:
+    10px 10px 0 #ffffff;
+
+  animation: cardEnter 0.55s ease-out;
+}
+
+
+@keyframes cardEnter {
+
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+/* =========================================================
+   LEFT BRAND PANEL
+   ========================================================= */
+
+.brand-panel {
+  position: relative;
+
+  overflow: hidden;
+
+  padding: 32px;
+
+  background: #38a8f2;
+
+  border-right: 3px solid #050505;
+}
+
+
+/* =========================================================
+   BRAND HEADER
+   ========================================================= */
+
+.brand-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  position: relative;
+
+  z-index: 5;
+}
+
+
+.brand-logo {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #ffd43b;
+
+  border: 3px solid #050505;
+
+  box-shadow:
+    4px 4px 0 #050505;
+
+  font-size: 21px;
+
+  font-weight: 950;
+
+  line-height: 1;
+}
+
+
+.brand-name {
+  font-size: 18px;
+
+  font-weight: 950;
+
+  letter-spacing: -0.5px;
+}
+
+
+/* =========================================================
+   BRAND LABEL
+   ========================================================= */
+
+.brand-label {
+  display: inline-block;
+
+  margin-top: 70px;
+
+  padding: 7px 9px;
+
+  background: #050505;
+
+  color: #ffffff;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.8px;
+}
+
+
+/* =========================================================
+   BRAND HEADING
+   ========================================================= */
+
+.brand-heading {
+  margin: 20px 0 0;
+
+  font-size: clamp(43px, 5vw, 64px);
+
+  line-height: 0.86;
+
+  letter-spacing: -3px;
+
+  font-weight: 950;
+
+  color: #050505;
+}
+
+
+.brand-heading span {
+  color: #ffffff;
+
+  -webkit-text-stroke: 2px #050505;
+
+  text-shadow:
+    3px 3px 0 #050505;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.brand-description {
+  margin-top: 22px;
+
+  font-size: 13px;
+
+  line-height: 1.55;
+
+  font-weight: 700;
+
+  position: relative;
+
+  z-index: 4;
+}
+
+
+/* =========================================================
+   RED DECORATION
+   ========================================================= */
+
+.red-shape {
+  position: absolute;
+
+  right: -35px;
+  top: 85px;
+
+  width: 105px;
+  height: 65px;
+
+  background: #ff5c60;
+
+  border: 3px solid #050505;
+
+  transform: rotate(13deg);
+
+  box-shadow:
+    5px 5px 0 #050505;
+}
+
+
+/* =========================================================
+   YELLOW CIRCLE
+   ========================================================= */
+
+.yellow-circle {
+  position: absolute;
+
+  width: 120px;
+  height: 120px;
+
+  right: -48px;
+  bottom: -48px;
+
+  border-radius: 50%;
+
+  background: #ffd43b;
+
+  border: 3px solid #050505;
+}
+
+
+/* =========================================================
+   FEATURE STRIP
+   ========================================================= */
+
+.feature-strip {
+  position: absolute;
+
+  left: 32px;
+  right: 32px;
+  bottom: 32px;
+
+  height: 76px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  border: 3px solid #050505;
+
+  z-index: 6;
+}
+
+
+.feature-card {
+  position: relative;
+
+  padding: 10px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  border-right: 3px solid #050505;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  line-height: 1.25;
+}
+
+
+.feature-card:last-child {
+  border-right: none;
+}
+
+
+.feature-card strong {
+  font-size: 14px;
+
+  margin-bottom: 3px;
+}
+
+
+.feature-card b {
+  position: absolute;
+
+  right: 8px;
+  bottom: 7px;
+
+  font-size: 13px;
+}
+
+
+.feature-yellow {
+  background: #ffd43b;
+}
+
+
+.feature-red {
+  background: #ff5c60;
+}
+
+
+.feature-white {
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   RIGHT FORM PANEL
+   ========================================================= */
+
+.form-panel {
+  background: #ffffff;
+
+  padding: 34px;
+
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+
+/* =========================================================
+   FORM HEADING
+   ========================================================= */
+
+.form-eyebrow {
+  font-size: 9px;
+
+  font-weight: 950;
+
+  letter-spacing: 1.5px;
+
+  margin-bottom: 6px;
+}
+
+
+.form-panel h2 {
+  margin: 0;
+
+  font-size: 42px;
+
+  line-height: 1;
+
+  letter-spacing: -2px;
+
+  font-weight: 950;
+}
+
+
+.form-subtitle {
+  margin: 8px 0 28px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  color: #252525;
+}
+
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-size: 10px;
+
+  font-weight: 950;
+
+  letter-spacing: 0.6px;
+
+  color: #050505;
+}
+
+
+/* =========================================================
+   INPUT WRAPPER
+   ========================================================= */
+
+.input-wrapper {
+  position: relative;
+
+  width: 100%;
+}
+
+
+.input-icon {
+  position: absolute;
+
+  left: 12px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  z-index: 2;
+
+  color: #050505;
+
+  font-size: 14px;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.input-wrapper input {
+  width: 100%;
+
+  height: 45px;
+
+  padding:
+    0 13px 0 34px;
+
+  border: 3px solid #050505;
+
+  border-radius: 0;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #050505;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  box-shadow:
+    4px 4px 0 #050505;
+
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
+}
+
+
+.input-wrapper input::placeholder {
+  color: #777777;
+
+  opacity: 1;
+}
+
+
+.input-wrapper input:focus {
+  background: #fffef1;
+
+  transform: translate(2px, 2px);
+
+  box-shadow:
+    2px 2px 0 #050505;
+}
+
+
+/* =========================================================
+   IMPORTANT:
+   BROWSER AUTOFILL TEXT MUST STAY BLACK
+   ========================================================= */
+
+.input-wrapper input:-webkit-autofill,
+.input-wrapper input:-webkit-autofill:hover,
+.input-wrapper input:-webkit-autofill:focus,
+.input-wrapper input:-webkit-autofill:active {
+  -webkit-text-fill-color: #050505 !important;
+
+  color: #050505 !important;
+
+  caret-color: #050505;
+
+  box-shadow:
+    0 0 0 1000px #ffffff inset,
+    4px 4px 0 #050505 !important;
+
+  transition:
+    background-color 9999s ease-in-out 0s;
+}
+
+
+/* =========================================================
+   PASSWORD
+   ========================================================= */
+
+.password-wrapper input {
+  padding-right: 48px;
+}
+
+
+/* =========================================================
+   PASSWORD EYE BUTTON
+   ========================================================= */
+
+.password-toggle {
+  position: absolute;
+
+  right: 9px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 2px solid #050505;
+
+  border-radius: 0;
+
+  background: #ffffff;
+
+  color: #050505;
+
+  cursor: pointer;
+
+  box-shadow: 2px 2px 0 #050505;
+
+  z-index: 5;
+}
+
+
+.password-toggle svg {
+  width: 16px;
+  height: 16px;
+
+  fill: none;
+
+  stroke: #050505;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+}
+
+
+.password-toggle:hover {
+  background: #ffd43b;
+}
+
+
+.password-toggle:active {
+  transform:
+    translate(2px, calc(-50% + 2px));
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   FORM OPTIONS
+   ========================================================= */
+
+.form-options {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-top: 5px;
+
+  margin-bottom: 18px;
+}
+
+
+.remember-label {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  cursor: pointer;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  color: #050505;
+}
+
+
+.remember-label input {
+  appearance: none;
+
+  width: 13px;
+  height: 13px;
+
+  margin: 0;
+
+  background: #ffffff;
+
+  border: 2px solid #050505;
+
+  cursor: pointer;
+
+  position: relative;
+}
+
+
+.remember-label input:checked {
+  background: #ffd43b;
+}
+
+
+.remember-label input:checked::after {
+  content: '✓';
+
+  position: absolute;
+
+  left: 1px;
+  top: -4px;
+
+  font-size: 12px;
+
+  font-weight: 950;
+}
+
+
+.forgot-password {
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: #050505;
+
+  font-family: inherit;
+
+  font-size: 9px;
+
+  font-weight: 950;
+
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+
+.forgot-password:hover {
+  background: #ffd43b;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.form-error {
+  margin: -5px 0 14px;
+
+  padding: 8px;
+
+  background: #ff5c60;
+
+  border: 2px solid #050505;
+
+  box-shadow:
+    3px 3px 0 #050505;
+
+  font-size: 10px;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   SIGN IN BUTTON
+   ========================================================= */
+
+.login-button {
+  width: 100%;
+
+  height: 47px;
+
+  border: 3px solid #050505;
+
+  border-radius: 0;
+
+  background: #ffd43b;
+
+  color: #050505;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 950;
+
+  cursor: pointer;
+
+  box-shadow:
+    5px 5px 0 #050505;
+
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+
+.login-button:hover {
+  background: #ffca0a;
+}
+
+
+.login-button:active {
+  transform: translate(4px, 4px);
+
+  box-shadow:
+    1px 1px 0 #050505;
+}
+
+
+.login-button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.divider {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin: 25px 0 15px;
+}
+
+
+.divider span {
+  height: 2px;
+
+  flex: 1;
+
+  background: #050505;
+}
+
+
+.divider strong {
+  font-size: 8px;
+
+  font-weight: 950;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   OAUTH BUTTONS
+   ========================================================= */
+
+.oauth-button {
+  width: 100%;
+
+  height: 39px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 12px;
+
+  margin-bottom: 11px;
+
+  border: 3px solid #050505;
+
+  border-radius: 0;
+
+  background: #ffffff;
+
+  color: #050505;
+
+  font-family: inherit;
+
+  font-size: 9px;
+
+  font-weight: 950;
+
+  cursor: pointer;
+
+  box-shadow:
+    4px 4px 0 #050505;
+
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    background 0.1s ease;
+}
+
+
+.oauth-button span {
+  flex: 1;
+
+  text-align: center;
+}
+
+
+.oauth-button b {
+  font-size: 12px;
+}
+
+
+.oauth-button:hover {
+  background: #f1f1f1;
+}
+
+
+.oauth-button:active {
+  transform: translate(3px, 3px);
+
+  box-shadow:
+    1px 1px 0 #050505;
+}
+
+
+.oauth-icon {
+  width: 17px;
+  height: 17px;
+
+  flex-shrink: 0;
+}
+
+
+.github-icon {
+  color: #050505;
+}
+
+
+/* =========================================================
+   CREATE ACCOUNT
+   ========================================================= */
+
+.create-account-box {
+  margin-top: 8px;
+
+  padding: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  border: 3px solid #050505;
+
+  background: #f5f2e9;
+
+  box-shadow:
+    4px 4px 0 #ff5c60;
+}
+
+
+.create-account-text {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+.create-account-text strong {
+  font-size: 9px;
+
+  font-weight: 950;
+}
+
+
+.create-account-text span {
+  font-size: 8px;
+
+  font-weight: 600;
+
+  line-height: 1.3;
+}
+
+
+.create-account-button {
+  flex-shrink: 0;
+
+  padding: 10px 13px;
+
+  background: #050505;
+
+  color: #ffffff;
+
+  border: 3px solid #050505;
+
+  box-shadow:
+    3px 3px 0 #38a8f2;
+
+  text-decoration: none;
+
+  font-size: 8px;
+
+  font-weight: 950;
+
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+
+.create-account-button:hover {
+  background: #38a8f2;
+
+  color: #050505;
+}
+
+
+.create-account-button:active {
+  transform: translate(2px, 2px);
+
+  box-shadow:
+    1px 1px 0 #050505;
+}
+
+
+/* =========================================================
+   FLOATING BACKGROUND OBJECTS
+   SMALL VERSION
+   ========================================================= */
+
+.floating-object {
+  position: fixed;
+
+  z-index: 2;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 3px solid #050505;
+
+  font-size: 15px;
+
+  font-weight: 950;
+
+  box-shadow:
+    4px 4px 0 #ffffff;
+
+  pointer-events: none;
+
+  animation:
+    floatAround 7s ease-in-out infinite;
+}
+
+
+.object-plus {
+  left: 7%;
+  top: 27%;
+
+  background: #ffd43b;
+
+  transform: rotate(-8deg);
+}
+
+
+.object-equals {
+  right: 10%;
+  top: 20%;
+
+  background: #32d583;
+
+  transform: rotate(7deg);
+
+  animation-delay: -2s;
+}
+
+
+.object-five {
+  right: 4%;
+  top: 31%;
+
+  background: #ffd43b;
+
+  transform: rotate(8deg);
+
+  animation-delay: -4s;
+}
+
+
+.object-seven {
+  right: 7%;
+  top: 63%;
+
+  background: #38a8f2;
+
+  transform: rotate(7deg);
+
+  animation-delay: -1s;
+}
+
+
+.object-two {
+  left: 9%;
+  bottom: 19%;
+
+  background: #ffffff;
+
+  transform: rotate(-5deg);
+
+  animation-delay: -3s;
+}
+
+
+.object-cross {
+  right: 7%;
+  bottom: 17%;
+
+  background: #ff5c60;
+
+  transform: rotate(9deg);
+
+  animation-delay: -5s;
+}
+
+
+@keyframes floatAround {
+
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -15px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL EQUATION
+   ========================================================= */
+
+.floating-equation {
+  position: fixed;
+
+  top: 16%;
+
+  right: 23%;
+
+  z-index: 1;
+
+  color: #ffffff;
+
+  font-size: 8px;
+
+  letter-spacing: 5px;
+
+  font-weight: 900;
+
+  opacity: 0.8;
+
+  animation:
+    equationFloat 5s ease-in-out infinite;
+}
+
+
+@keyframes equationFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+}
+
+
+/* =========================================================
+   FLOATING CLOCK
+   ========================================================= */
+
+.floating-clock {
+  position: fixed;
+
+  right: 5%;
+  top: 25%;
+
+  z-index: 2;
+
+  width: 55px;
+  height: 55px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  border: 3px solid #050505;
+
+  box-shadow:
+    5px 5px 0 #38a8f2;
+
+  animation:
+    clockFloat 6s ease-in-out infinite;
+}
+
+
+.clock-hand {
+  position: absolute;
+
+  width: 2px;
+
+  height: 19px;
+
+  left: 50%;
+  top: 50%;
+
+  background: #050505;
+
+  transform-origin:
+    50% 100%;
+}
+
+
+.clock-hour {
+  transform:
+    translate(-50%, -100%)
+    rotate(35deg);
+}
+
+
+.clock-minute {
+  height: 23px;
+
+  transform:
+    translate(-50%, -100%)
+    rotate(120deg);
+}
+
+
+.clock-center {
+  position: absolute;
+
+  width: 7px;
+  height: 7px;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  background: #ff5c60;
+
+  border: 2px solid #050505;
+
+  border-radius: 50%;
+}
+
+
+@keyframes clockFloat {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+  .login-page {
+    padding: 30px 15px;
+  }
+
+
+  .login-card {
+    width: min(620px, 96vw);
+
+    grid-template-columns: 1fr;
+
+    box-shadow:
+      7px 7px 0 #ffffff;
+  }
+
+
+  .brand-panel {
+    min-height: 360px;
+
+    border-right: none;
+
+    border-bottom: 3px solid #050505;
+  }
+
+
+  .brand-label {
+    margin-top: 45px;
+  }
+
+
+  .brand-heading {
+    font-size: 45px;
+  }
+
+
+  .feature-strip {
+    bottom: 24px;
+
+    left: 24px;
+    right: 24px;
+  }
+
+
+  .form-panel {
+    padding: 28px;
+  }
+
+
+  .floating-clock {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 520px) {
+
+  .login-page {
+    padding: 15px;
+  }
+
+
+  .login-card {
+    width: 100%;
+
+    box-shadow:
+      5px 5px 0 #ffffff;
+  }
+
+
+  .brand-panel {
+    padding: 22px;
+
+    min-height: 330px;
+  }
+
+
+  .brand-label {
+    margin-top: 35px;
+
+    font-size: 8px;
+  }
+
+
+  .brand-heading {
+    font-size: 38px;
+
+    letter-spacing: -2px;
+  }
+
+
+  .brand-description {
+    font-size: 11px;
+  }
+
+
+  .feature-strip {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+
+    height: 68px;
+  }
+
+
+  .feature-card {
+    padding: 7px;
+
+    font-size: 7px;
+  }
+
+
+  .feature-card strong {
+    font-size: 11px;
+  }
+
+
+  .form-panel {
+    padding: 22px;
+  }
+
+
+  .form-panel h2 {
+    font-size: 36px;
+  }
+
+
+  .create-account-box {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .create-account-button {
+    width: 100%;
+
+    text-align: center;
+  }
+
+
+  .floating-object {
+    width: 27px;
+    height: 27px;
+
+    font-size: 12px;
+
+    border-width: 2px;
+  }
+
+}
