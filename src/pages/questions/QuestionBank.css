@@ -1,0 +1,419 @@
+/* =========================================================
+   APTIVERSE — NEO BRUTALIST QUESTION BANK
+   ========================================================= */
+
+.qb-page {
+  min-height: 100vh;
+  background-color: #061a2d;
+  color: #000000;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+/* Background Grid */
+.qb-bg-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.25;
+  background-image: 
+    linear-gradient(#16344d 1px, transparent 1px),
+    linear-gradient(90deg, #16344d 1px, transparent 1px);
+  background-size: 24px 24px;
+  z-index: 1;
+}
+
+/* Floating Shapes */
+.qb-floating-shape {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  border: 4px solid #000000;
+  pointer-events: none;
+  z-index: 2;
+  user-select: none;
+}
+
+/* Layout */
+.qb-layout {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Sidebar */
+.qb-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  min-height: 100vh;
+  background-color: #ffffff;
+  border-right: 4px solid #000000;
+  display: flex;
+  flex-direction: column;
+}
+
+.qb-logo-area {
+  padding: 24px;
+}
+
+.qb-logo-box {
+  width: 44px;
+  height: 44px;
+  background-color: #ffd43b;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.qb-nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 4px solid transparent;
+  font-weight: 900;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+}
+
+.qb-nav-btn:hover {
+  border-color: #000000;
+  background-color: #e9f6ff;
+}
+
+.qb-nav-btn.active {
+  background-color: #ffd43b;
+  border-color: #000000;
+  box-shadow: 4px 4px 0 #000000;
+}
+
+/* Main Content */
+.qb-main {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+}
+
+@media (min-width: 1024px) {
+  .qb-main {
+    padding: 32px 40px;
+  }
+}
+
+/* Header Bar */
+.qb-header {
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 6px 6px 0 #38aef0;
+  padding: 20px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Stats Arena Card */
+.qb-stats-container {
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 6px 6px 0 #ffd43b;
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.qb-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.qb-stat-card {
+  background: #f8fafc;
+  border: 3px solid #000000;
+  padding: 16px;
+  box-shadow: 3px 3px 0 #000000;
+}
+
+/* Progress bar inside stats */
+.qb-progress-track {
+  width: 100%;
+  height: 14px;
+  background-color: #e2e8f0;
+  border: 2px solid #000000;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.qb-progress-fill {
+  height: 100%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Category Filter Tabs */
+.qb-category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.qb-cat-tab {
+  padding: 10px 18px;
+  border: 3px solid #000000;
+  background-color: #ffffff;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #000000;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qb-cat-tab:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.qb-cat-tab.active {
+  background-color: #ffd43b;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+/* Filter Strip */
+.qb-filter-bar {
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 5px 5px 0 #000000;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.qb-search-input {
+  flex: 1;
+  min-width: 240px;
+  padding: 10px 16px;
+  border: 3px solid #000000;
+  font-weight: 700;
+  font-size: 14px;
+  background-color: #f8fafc;
+  outline: none;
+}
+
+.qb-search-input:focus {
+  background-color: #ffffff;
+  box-shadow: 3px 3px 0 #38aef0;
+}
+
+.qb-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.qb-filter-chip {
+  padding: 6px 12px;
+  border: 2px solid #000000;
+  background-color: #ffffff;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #000000;
+  transition: all 0.1s ease;
+}
+
+.qb-filter-chip:hover {
+  background-color: #f1f5f9;
+}
+
+.qb-filter-chip.active {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Question Table List */
+.qb-table-wrapper {
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 7px 7px 0 #38aef0;
+  overflow-x: auto;
+}
+
+.qb-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.qb-table th {
+  background-color: #071a2b;
+  color: #ffffff;
+  padding: 14px 18px;
+  font-weight: 900;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 4px solid #000000;
+}
+
+.qb-table tr {
+  border-bottom: 3px solid #000000;
+  transition: background-color 0.15s ease;
+}
+
+.qb-table tr:hover {
+  background-color: #fffde7;
+}
+
+.qb-table td {
+  padding: 16px 18px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Difficulty Badges */
+.qb-badge-easy {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #32e875;
+  color: #000000;
+  border: 2px solid #000000;
+  font-weight: 900;
+  font-size: 11px;
+  box-shadow: 2px 2px 0 #000000;
+  text-transform: uppercase;
+}
+
+.qb-badge-medium {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #ffd43b;
+  color: #000000;
+  border: 2px solid #000000;
+  font-weight: 900;
+  font-size: 11px;
+  box-shadow: 2px 2px 0 #000000;
+  text-transform: uppercase;
+}
+
+.qb-badge-hard {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #ff5b5b;
+  color: #ffffff;
+  border: 2px solid #000000;
+  font-weight: 900;
+  font-size: 11px;
+  box-shadow: 2px 2px 0 #000000;
+  text-transform: uppercase;
+}
+
+/* Status Indicator */
+.qb-status-solved {
+  width: 26px;
+  height: 26px;
+  background-color: #32e875;
+  border: 2px solid #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.qb-status-unsolved {
+  width: 26px;
+  height: 26px;
+  background-color: #e2e8f0;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+/* Bookmark Button */
+.qb-star-btn {
+  background: #ffffff;
+  border: 2px solid #000000;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 3px 6px;
+  box-shadow: 2px 2px 0 #000000;
+  transition: all 0.15s ease;
+}
+
+.qb-star-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+.qb-star-btn.bookmarked {
+  background-color: #ffd43b;
+  color: #000000;
+}
+
+.qb-star-btn.unbookmarked {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.qb-star-btn.unbookmarked:hover {
+  color: #000000;
+  background-color: #e2e8f0;
+}
+
+/* Solve Button */
+.qb-solve-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #ffd43b;
+  color: #000000;
+  border: 3px solid #000000;
+  font-weight: 900;
+  font-size: 13px;
+  box-shadow: 3px 3px 0 #000000;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.qb-solve-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000000;
+  background-color: #ffde6a;
+}
+
+.qb-solve-btn.review {
+  background-color: #e9f6ff;
+}
+
+/* Empty State */
+.qb-empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #ffffff;
+}

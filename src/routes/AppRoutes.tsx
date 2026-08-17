@@ -16,6 +16,8 @@ import ChooseUsername from '../pages/auth/ChooseUsername'
 // -----------------------------
 
 import Dashboard from '../pages/Dashboard'
+import QuestionBank from '../pages/questions/QuestionBank'
+import QuestionSolver from '../pages/questions/QuestionSolver'
 
 // -----------------------------
 // 404 Page
@@ -157,6 +159,26 @@ function AppRoutes() {
       <Route
         path="/dashboard"
         element={<Dashboard />}
+      />
+
+      {/* -------------------------
+          Question Bank
+          URL: /questions
+      ------------------------- */}
+
+      <Route
+        path="/questions"
+        element={<QuestionBank />}
+      />
+
+      {/* -------------------------
+          Question Solver
+          URL: /questions/:id
+      ------------------------- */}
+
+      <Route
+        path="/questions/:id"
+        element={<QuestionSolver />}
       />
 
       {/* -------------------------

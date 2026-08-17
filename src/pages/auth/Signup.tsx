@@ -278,7 +278,7 @@ function Signup() {
             </div>
 
             <span className="signup-brand-name">
-              APTICKS
+              APTIVERSE
             </span>
 
           </div>
@@ -388,7 +388,7 @@ function Signup() {
         <section className="signup-form-panel">
 
           <div className="signup-form-eyebrow">
-            JOIN APTICKS
+            JOIN APTIVERSE
           </div>
 
 
@@ -782,7 +782,7 @@ function Signup() {
             <div className="signup-login-text">
 
               <strong>
-                ALREADY ON APTICKS?
+                ALREADY ON APTIVERSE?
               </strong>
 
               <span>

@@ -252,7 +252,7 @@ function Login() {
             </div>
 
             <span className="brand-name">
-              APTICKS
+              APTIVERSE
             </span>
 
           </div>
@@ -402,7 +402,7 @@ function Login() {
           {/* Small heading */}
 
           <div className="form-eyebrow">
-            APTICKS ACCOUNT
+            APTIVERSE ACCOUNT
           </div>
 
 
@@ -748,7 +748,7 @@ function Login() {
             <div className="create-account-text">
 
               <strong>
-                NEW TO APTICKS?
+                NEW TO APTIVERSE?
               </strong>
 
               <span>

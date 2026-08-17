@@ -168,7 +168,7 @@ function ForgotPassword() {
       <main className="forgot-card">
 
 
-        {/* Apticks logo */}
+        {/* AptiVerse logo */}
         <div className="forgot-brand">
 
           <div className="forgot-logo">
@@ -176,7 +176,7 @@ function ForgotPassword() {
           </div>
 
           <span>
-            APTICKS
+            APTIVERSE
           </span>
 
         </div>
@@ -199,7 +199,7 @@ function ForgotPassword() {
         {/* Description */}
         <p className="forgot-description">
           No worries. Enter the email connected
-          to your Apticks account and we'll send
+          to your AptiVerse account and we'll send
           you a reset link.
         </p>
 

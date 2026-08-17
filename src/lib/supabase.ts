@@ -1,5 +1,5 @@
 // Supabase client factory.
-// This lets the rest of Apticks communicate with our
+// This lets the rest of AptiVerse communicate with our
 // Supabase database and authentication system.
 
 import { createClient } from '@supabase/supabase-js'

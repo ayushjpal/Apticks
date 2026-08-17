@@ -414,7 +414,7 @@ function ChooseUsername() {
           </div>
 
           <span className="text-2xl font-black tracking-tight">
-            APTICKS
+            APTIVERSE
           </span>
 
         </div>
@@ -476,7 +476,7 @@ function ChooseUsername() {
             max-w-[480px]
           "
         >
-          Pick a unique username to complete your Apticks profile.
+          Pick a unique username to complete your AptiVerse profile.
         </p>
 
 
@@ -689,7 +689,7 @@ function ChooseUsername() {
           </div>
 
           <p className="text-xs md:text-sm font-bold">
-            Your username will be visible to other Apticks users.
+            Your username will be visible to other AptiVerse users.
           </p>
 
         </div>

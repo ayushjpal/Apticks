@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { QuestionService } from '../services/questionService'
+import type { QuestionBankStats } from '../types/questions'
 
 type Profile = {
   username: string | null
@@ -12,6 +14,7 @@ function Dashboard() {
   const navigate = useNavigate()
 
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [questionStats, setQuestionStats] = useState<QuestionBankStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [loggingOut, setLoggingOut] = useState(false)
 
@@ -56,6 +59,16 @@ function Dashboard() {
         }
 
         setProfile(data)
+
+        // Load Question Bank stats
+        try {
+          const { questions, progressMap } =
+            await QuestionService.getQuestionsWithProgress(user.id)
+          const stats = QuestionService.calculateStats(questions, progressMap)
+          setQuestionStats(stats)
+        } catch (qErr) {
+          console.warn('Could not load dashboard question stats:', qErr)
+        }
       } catch (error) {
         console.error(
           'Dashboard loading error:',
@@ -135,7 +148,7 @@ function Dashboard() {
             font-black
             tracking-wider
           ">
-            LOADING APTICKS...
+            LOADING APTIVERSE...
           </p>
         </div>
       </div>
@@ -316,7 +329,7 @@ function Dashboard() {
 
               <div>
                 <div className="font-black text-xl">
-                  APTICKS
+                  APTIVERSE
                 </div>
 
                 <div className="
@@ -395,8 +408,9 @@ function Dashboard() {
             {/* Question Bank */}
 
             <button
-              type="button"
-              disabled
+              onClick={() =>
+                navigate('/questions')
+              }
               className="
                 w-full
                 flex
@@ -411,8 +425,7 @@ function Dashboard() {
                 font-black
                 text-sm
                 text-left
-                opacity-90
-                cursor-not-allowed
+                transition-all
               "
             >
               <span className="text-lg">
@@ -425,14 +438,14 @@ function Dashboard() {
 
               <span className="
                 text-[8px]
-                bg-[#38aef0]
+                bg-[#32e875]
                 border-2
                 border-black
                 px-1.5
                 py-1
                 shadow-[2px_2px_0_#000]
               ">
-                SOON
+                ACTIVE
               </span>
             </button>
 
@@ -609,7 +622,7 @@ function Dashboard() {
                 tracking-[0.18em]
                 text-black/50
               ">
-                APTICKS / DASHBOARD
+                APTIVERSE / DASHBOARD
               </p>
 
               <h1 className="
@@ -692,7 +705,9 @@ function Dashboard() {
             </button>
 
             <button
-              disabled
+              onClick={() =>
+                navigate('/questions')
+              }
               className="
                 bg-[#38aef0]
                 border-4
@@ -702,7 +717,6 @@ function Dashboard() {
                 py-3
                 font-black
                 text-xs
-                opacity-70
               "
             >
               ▤ QUESTIONS
@@ -851,8 +865,9 @@ function Dashboard() {
                 </button>
 
                 <button
-                  type="button"
-                  disabled
+                  onClick={() =>
+                    navigate('/questions')
+                  }
                   className="
                     bg-[#38aef0]
                     border-4
@@ -862,11 +877,16 @@ function Dashboard() {
                     py-3
                     font-black
                     text-sm
-                    opacity-60
-                    cursor-not-allowed
+                    hover:translate-x-[2px]
+                    hover:translate-y-[2px]
+                    hover:shadow-[2px_2px_0_#000]
+                    active:translate-x-[4px]
+                    active:translate-y-[4px]
+                    active:shadow-none
+                    transition-all
                   "
                 >
-                  PRACTICE QUESTIONS
+                  PRACTICE QUESTIONS →
                 </button>
 
               </div>
@@ -1037,18 +1057,24 @@ function Dashboard() {
                   </h3>
                 </div>
 
-                <span className="
-                  bg-[#38aef0]
-                  border-2
-                  border-black
-                  shadow-[2px_2px_0_#000]
-                  px-2
-                  py-1
-                  text-[8px]
-                  font-black
-                ">
-                  COMING SOON
-                </span>
+                <button
+                  onClick={() => navigate('/questions')}
+                  className="
+                    bg-[#32e875]
+                    border-2
+                    border-black
+                    shadow-[2px_2px_0_#000]
+                    px-2.5
+                    py-1
+                    text-[9px]
+                    font-black
+                    hover:translate-x-[1px]
+                    hover:translate-y-[1px]
+                    transition-all
+                  "
+                >
+                  EXPLORE ALL →
+                </button>
 
               </div>
 
@@ -1070,7 +1096,7 @@ function Dashboard() {
                       text-3xl
                       font-black
                     ">
-                      0
+                      {questionStats?.solvedCount ?? 0}
                     </div>
 
                     <p className="
@@ -1087,7 +1113,7 @@ function Dashboard() {
                       text-black/50
                       font-semibold
                     ">
-                      Start building your practice history.
+                      {questionStats?.totalQuestions ?? 0} total questions available.
                     </p>
                   </div>
 
@@ -1101,7 +1127,7 @@ function Dashboard() {
                       text-3xl
                       font-black
                     ">
-                      0%
+                      {questionStats?.accuracyRate ?? 0}%
                     </div>
 
                     <p className="
@@ -1109,7 +1135,7 @@ function Dashboard() {
                       font-black
                       text-sm
                     ">
-                      ACCURACY
+                      ACCURACY RATE
                     </p>
 
                     <p className="
@@ -1118,7 +1144,7 @@ function Dashboard() {
                       text-black/50
                       font-semibold
                     ">
-                      Your performance will appear here.
+                      {questionStats?.totalPoints ?? 0} total points earned.
                     </p>
                   </div>
 
@@ -1127,34 +1153,55 @@ function Dashboard() {
                 <div className="
                   mt-4
                   border-4
-                  border-dashed
-                  border-black/30
-                  p-6
-                  text-center
+                  border-black
+                  bg-[#f8fafc]
+                  p-5
+                  flex
+                  flex-col
+                  sm:flex-row
+                  items-center
+                  justify-between
+                  gap-4
                 ">
 
-                  <div className="
-                    text-3xl
-                    font-black
-                  ">
-                    ▤
+                  <div>
+                    <p className="
+                      font-black
+                      text-sm
+                    ">
+                      READY FOR APTITUDE TRAINING?
+                    </p>
+
+                    <p className="
+                      mt-0.5
+                      text-xs
+                      font-semibold
+                      text-black/60
+                    ">
+                      Quant • Logical Reasoning • Data Interpretation
+                    </p>
                   </div>
 
-                  <p className="
-                    mt-2
-                    font-black
-                  ">
-                    QUESTION BANK IS NEXT
-                  </p>
-
-                  <p className="
-                    mt-1
-                    text-xs
-                    font-semibold
-                    text-black/50
-                  ">
-                    Quantitative • Logical • Verbal • Technical
-                  </p>
+                  <button
+                    onClick={() => navigate('/questions')}
+                    className="
+                      w-full
+                      sm:w-auto
+                      bg-[#ffd43b]
+                      border-3
+                      border-black
+                      shadow-[3px_3px_0_#000]
+                      px-4
+                      py-2.5
+                      font-black
+                      text-xs
+                      hover:translate-x-[1px]
+                      hover:translate-y-[1px]
+                      transition-all
+                    "
+                  >
+                    START SOLVING →
+                  </button>
 
                 </div>
 
@@ -1421,12 +1468,13 @@ function Dashboard() {
                     transition-all
                   "
                 >
-                  ⚡ JOIN A CONTEST
+                  JOIN A CONTEST →
                 </button>
 
                 <button
-                  type="button"
-                  disabled
+                  onClick={() =>
+                    navigate('/questions')
+                  }
                   className="
                     w-full
                     text-left
@@ -1437,10 +1485,13 @@ function Dashboard() {
                     p-4
                     font-black
                     text-sm
-                    opacity-60
+                    hover:translate-x-[2px]
+                    hover:translate-y-[2px]
+                    hover:shadow-[2px_2px_0_#000]
+                    transition-all
                   "
                 >
-                  ▤ PRACTICE QUESTIONS
+                  PRACTICE QUESTIONS →
                 </button>
 
                 <button
@@ -1463,7 +1514,7 @@ function Dashboard() {
                     transition-all
                   "
                 >
-                  ♛ VIEW LEADERBOARD
+                  VIEW LEADERBOARD →
                 </button>
 
                 <button
@@ -1486,7 +1537,7 @@ function Dashboard() {
                     transition-all
                   "
                 >
-                  ● EDIT PROFILE
+                  EDIT PROFILE →
                 </button>
 
               </div>
@@ -1508,7 +1559,7 @@ function Dashboard() {
             tracking-[0.15em]
             text-white/40
           ">
-            APTICKS • THINK FAST • PLAY SMART
+            APTIVERSE • THINK FAST • PLAY SMART
           </footer>
 
         </main>
