@@ -1,0 +1,528 @@
+/* =========================================================
+   APTIVERSE — NEO BRUTALIST PROFILE MANAGEMENT
+   ========================================================= */
+
+.prof-page {
+  min-height: 100vh;
+  background-color: #061a2d;
+  color: #000000;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  padding-bottom: 60px;
+}
+
+/* Background Grid */
+.prof-bg-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.25;
+  background-image: 
+    linear-gradient(#16344d 1px, transparent 1px),
+    linear-gradient(90deg, #16344d 1px, transparent 1px);
+  background-size: 24px 24px;
+  z-index: 1;
+}
+
+.prof-container {
+  position: relative;
+  z-index: 10;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* Header */
+.prof-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background-color: #071a2b;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  margin-bottom: 24px;
+}
+
+.prof-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ffd43b;
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  font-weight: 900;
+  font-size: 12px;
+  padding: 6px 14px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.prof-back-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.prof-badge-tag {
+  background-color: #38aef0;
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  font-weight: 900;
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.prof-badge-tag-amber {
+  background-color: #ffd43b;
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  font-weight: 900;
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.prof-nav-link {
+  background-color: #32e875;
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  font-weight: 900;
+  font-size: 12px;
+  padding: 6px 14px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.prof-nav-link:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000000;
+}
+
+/* Alerts */
+.prof-alert-success {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #32e875;
+  color: #000000;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  padding: 12px 18px;
+  margin-bottom: 24px;
+}
+
+.prof-alert-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ff5b5b;
+  color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  padding: 12px 18px;
+  margin-bottom: 24px;
+}
+
+/* Grid Layout */
+.prof-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+
+@media (min-width: 1024px) {
+  .prof-grid {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+/* Form Card */
+.prof-form-card {
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 6px 6px 0 #000000;
+  padding: 28px;
+}
+
+.prof-card-header {
+  border-bottom: 3px solid #000000;
+  padding-bottom: 16px;
+}
+
+.prof-badge-primary {
+  display: inline-block;
+  background-color: #ffd43b;
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  font-weight: 900;
+  font-size: 11px;
+  padding: 3px 10px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.prof-title {
+  font-weight: 900;
+  font-size: 28px;
+  color: #071a2b;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.prof-subtitle {
+  font-weight: 700;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 6px;
+}
+
+/* Form Sections */
+.prof-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.prof-label {
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #071a2b;
+  margin-bottom: 6px;
+}
+
+.prof-input {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: #f8fafc;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  font-weight: 700;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.prof-input:focus {
+  background-color: #ffffff;
+  box-shadow: 4px 4px 0 #38aef0;
+}
+
+.prof-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: #f8fafc;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  font-weight: 700;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  transition: all 0.15s ease;
+}
+
+.prof-textarea:focus {
+  background-color: #ffffff;
+  box-shadow: 4px 4px 0 #38aef0;
+}
+
+/* Input with Prefix (@) */
+.prof-input-wrapper {
+  display: flex;
+  align-items: stretch;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  background-color: #f8fafc;
+}
+
+.prof-input-wrapper:focus-within {
+  box-shadow: 4px 4px 0 #38aef0;
+}
+
+.prof-input-prefix {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  background-color: #ffd43b;
+  border-right: 3px solid #000000;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.prof-input-with-prefix {
+  flex: 1;
+  padding: 12px 14px;
+  background-color: transparent;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  outline: none;
+}
+
+.prof-input-with-prefix.disabled {
+  background-color: #e2e8f0;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Status Badge */
+.prof-status-badge {
+  font-weight: 900;
+  font-size: 10px;
+  padding: 2px 8px;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  text-transform: uppercase;
+}
+
+.prof-status-badge.available {
+  background-color: #32e875;
+  color: #000000;
+}
+
+.prof-status-badge.taken {
+  background-color: #ff5b5b;
+  color: #ffffff;
+}
+
+.prof-status-badge.current {
+  background-color: #38aef0;
+  color: #000000;
+}
+
+/* Cooldown Box */
+.prof-cooldown-box {
+  background-color: #fff9db;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+
+/* Avatar Preview Box */
+.prof-avatar-preview-box {
+  width: 80px;
+  height: 80px;
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.prof-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: #ffd43b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 32px;
+  color: #071a2b;
+}
+
+/* Buttons */
+.prof-btn-secondary {
+  padding: 8px 16px;
+  background-color: #38aef0;
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prof-btn-secondary:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.prof-btn-danger {
+  padding: 8px 16px;
+  background-color: #f1f5f9;
+  color: #dc2626;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prof-btn-danger:hover {
+  background-color: #fee2e2;
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.prof-preset-btn {
+  padding: 4px;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prof-preset-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+.prof-preset-btn.active {
+  background-color: #ffd43b;
+  border-color: #000000;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+.prof-submit-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background-color: #ffd43b;
+  color: #000000;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prof-submit-btn:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000000;
+  background-color: #ffca1a;
+}
+
+.prof-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Preview Sticky Sidebar */
+.prof-preview-sticky {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.prof-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prof-card-preview {
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 6px 6px 0 #000000;
+  overflow: hidden;
+}
+
+.prof-card-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffd43b;
+  border-bottom: 3px solid #000000;
+  padding: 8px 14px;
+}
+
+.prof-preview-avatar {
+  width: 70px;
+  height: 70px;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  overflow: hidden;
+  background-color: #ffffff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prof-preview-bio-box {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f8fafc;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+.prof-preview-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.prof-stat-box {
+  background-color: #071a2b;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.prof-stat-val {
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.prof-stat-lbl {
+  font-weight: 900;
+  font-size: 8px;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.prof-card-footer {
+  background-color: #f1f5f9;
+  border-top: 3px solid #000000;
+  padding: 8px 14px;
+}
+
+.prof-quick-box {
+  background-color: #071a2b;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  padding: 18px;
+}
+
+.prof-quick-link {
+  display: block;
+  padding: 10px 14px;
+  background-color: #ffffff;
+  color: #000000;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  font-weight: 900;
+  font-size: 12px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.prof-quick-link:hover {
+  background-color: #ffd43b;
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #000000;
+}

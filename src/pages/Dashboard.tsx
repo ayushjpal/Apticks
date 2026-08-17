@@ -651,9 +651,24 @@ function Dashboard() {
                 justify-center
                 font-black
                 text-lg
+                overflow-hidden
+                cursor-pointer
+                hover:translate-x-[1px]
+                hover:translate-y-[1px]
+                hover:shadow-[2px_2px_0_#000]
+                transition-all
               "
+              title="Edit Profile"
             >
-              {firstLetter}
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                firstLetter
+              )}
             </button>
 
           </header>

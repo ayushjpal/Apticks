@@ -16,6 +16,7 @@ import ChooseUsername from '../pages/auth/ChooseUsername'
 // -----------------------------
 
 import Dashboard from '../pages/Dashboard'
+import Profile from '../pages/profile/Profile'
 import QuestionBank from '../pages/questions/QuestionBank'
 import QuestionSolver from '../pages/questions/QuestionSolver'
 
@@ -179,6 +180,16 @@ function AppRoutes() {
       <Route
         path="/questions/:id"
         element={<QuestionSolver />}
+      />
+
+      {/* -------------------------
+          User Profile & Settings
+          URL: /profile
+      ------------------------- */}
+
+      <Route
+        path="/profile"
+        element={<Profile />}
       />
 
       {/* -------------------------
