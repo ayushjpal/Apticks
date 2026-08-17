@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 // -----------------------------
 // Authentication Pages
@@ -17,7 +17,6 @@ import ChooseUsername from '../pages/auth/ChooseUsername'
 
 import Dashboard from '../pages/Dashboard'
 
-
 // -----------------------------
 // 404 Page
 // -----------------------------
@@ -25,7 +24,6 @@ import Dashboard from '../pages/Dashboard'
 function NotFoundPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#071a2b] text-white px-6">
-
       <div className="text-center">
 
         <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-[#ffd43b] text-[#071a2b] border-4 border-black shadow-[5px_5px_0_#000]">
@@ -68,11 +66,9 @@ function NotFoundPage() {
         </a>
 
       </div>
-
     </div>
   )
 }
-
 
 // -----------------------------
 // Main Routes
@@ -84,20 +80,14 @@ function AppRoutes() {
 
       {/* -------------------------
           Home
+          Redirects to Login
           URL: /
       ------------------------- */}
 
       <Route
         path="/"
-        element={
-          <div className="min-h-screen flex items-center justify-center bg-[#071a2b] text-white">
-            <h1 className="text-4xl font-black">
-              APTICKS
-            </h1>
-          </div>
-        }
+        element={<Navigate to="/login" replace />}
       />
-
 
       {/* -------------------------
           Login
@@ -109,7 +99,6 @@ function AppRoutes() {
         element={<Login />}
       />
 
-
       {/* -------------------------
           Signup
           URL: /signup
@@ -119,7 +108,6 @@ function AppRoutes() {
         path="/signup"
         element={<Signup />}
       />
-
 
       {/* -------------------------
           Forgot Password
@@ -131,7 +119,6 @@ function AppRoutes() {
         element={<ForgotPassword />}
       />
 
-
       {/* -------------------------
           Update Password
           URL: /update-password
@@ -141,7 +128,6 @@ function AppRoutes() {
         path="/update-password"
         element={<UpdatePassword />}
       />
-
 
       {/* -------------------------
           Google / GitHub OAuth
@@ -153,7 +139,6 @@ function AppRoutes() {
         element={<AuthCallback />}
       />
 
-
       {/* -------------------------
           Choose Username
           URL: /choose-username
@@ -164,7 +149,6 @@ function AppRoutes() {
         element={<ChooseUsername />}
       />
 
-
       {/* -------------------------
           Dashboard
           URL: /dashboard
@@ -174,7 +158,6 @@ function AppRoutes() {
         path="/dashboard"
         element={<Dashboard />}
       />
-
 
       {/* -------------------------
           404
@@ -188,6 +171,5 @@ function AppRoutes() {
     </Routes>
   )
 }
-
 
 export default AppRoutes
