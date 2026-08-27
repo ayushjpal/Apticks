@@ -1,73 +1,51 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Link } from 'react-router-dom'
 
 // -----------------------------
 // Authentication Pages
 // -----------------------------
-
 import Login from '../pages/auth/Login'
 import Signup from '../pages/auth/Signup'
 import ForgotPassword from '../pages/auth/ForgotPassword'
 import UpdatePassword from '../pages/auth/UpdatePassword'
 import AuthCallback from '../pages/auth/AuthCallback'
 import ChooseUsername from '../pages/auth/ChooseUsername'
+import LinkEmail from '../pages/auth/LinkEmail'
 
 // -----------------------------
-// Main Pages
+// Main Application Pages
 // -----------------------------
-
 import Dashboard from '../pages/Dashboard'
 import Profile from '../pages/profile/Profile'
 import QuestionBank from '../pages/questions/QuestionBank'
 import QuestionSolver from '../pages/questions/QuestionSolver'
+import Contests from '../pages/contests/Contests'
+import Leaderboard from '../pages/leaderboard/Leaderboard'
 
 // -----------------------------
-// 404 Page
+// 404 Not Found Page
 // -----------------------------
-
 function NotFoundPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#071a2b] text-white px-6">
-      <div className="text-center">
-
-        <div className="inline-flex items-center justify-center w-16 h-16 mb-6 bg-[#ffd43b] text-[#071a2b] border-4 border-black shadow-[5px_5px_0_#000]">
-          <span className="text-3xl font-black">
-            A
-          </span>
+    <div className="min-h-screen flex items-center justify-center bg-[#071a2b] text-white px-6 arena-bg-grid">
+      <div className="bg-white border-4 border-black p-8 sm:p-12 text-center max-w-md shadow-[10px_10px_0_#ffd43b]">
+        <div className="inline-flex items-center justify-center w-16 h-16 mb-4 bg-[#ffd43b] text-black border-3 border-black shadow-[4px_4px_0_#000000] font-display font-black text-2xl">
+          404
         </div>
 
-        <h1 className="text-6xl font-black">
-          404
+        <h1 className="font-display font-black text-3xl uppercase text-black tracking-tight">
+          SECTOR NOT FOUND
         </h1>
 
-        <p className="mt-4 text-white/60">
-          Page not found.
+        <p className="mt-2 text-xs font-body font-semibold text-black/70">
+          The requested coordinate does not exist inside the Apticks arena.
         </p>
 
-        <a
-          href="/"
-          className="
-            inline-block
-            mt-7
-            px-7
-            py-4
-            bg-[#ffd43b]
-            text-black
-            border-4
-            border-black
-            shadow-[5px_5px_0_#000]
-            font-black
-            hover:translate-x-[2px]
-            hover:translate-y-[2px]
-            hover:shadow-[3px_3px_0_#000]
-            active:translate-x-[5px]
-            active:translate-y-[5px]
-            active:shadow-none
-            transition-all
-          "
+        <Link
+          to="/dashboard"
+          className="inline-block mt-6 px-6 py-3.5 bg-[#ffd43b] hover:bg-[#facc15] text-black border-3 border-black shadow-[4px_4px_0_#000000] font-display font-black text-xs uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
         >
-          GO HOME →
-        </a>
-
+          RETURN TO ARENA →
+        </Link>
       </div>
     </div>
   )
@@ -76,143 +54,31 @@ function NotFoundPage() {
 // -----------------------------
 // Main Routes
 // -----------------------------
-
-function AppRoutes() {
+export default function AppRoutes() {
   return (
     <Routes>
+      {/* Root redirect */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      {/* -------------------------
-          Home
-          Redirects to Login
-          URL: /
-      ------------------------- */}
+      {/* Auth Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/update-password" element={<UpdatePassword />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/choose-username" element={<ChooseUsername />} />
+      <Route path="/link-email" element={<LinkEmail />} />
 
-      <Route
-        path="/"
-        element={<Navigate to="/login" replace />}
-      />
+      {/* Main Arena Routes */}
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/questions" element={<QuestionBank />} />
+      <Route path="/questions/:id" element={<QuestionSolver />} />
+      <Route path="/contests" element={<Contests />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/profile" element={<Profile />} />
 
-      {/* -------------------------
-          Login
-          URL: /login
-      ------------------------- */}
-
-      <Route
-        path="/login"
-        element={<Login />}
-      />
-
-      {/* -------------------------
-          Signup
-          URL: /signup
-      ------------------------- */}
-
-      <Route
-        path="/signup"
-        element={<Signup />}
-      />
-
-      {/* -------------------------
-          Forgot Password
-          URL: /forgot-password
-      ------------------------- */}
-
-      <Route
-        path="/forgot-password"
-        element={<ForgotPassword />}
-      />
-
-      {/* -------------------------
-          Update Password
-          URL: /update-password
-      ------------------------- */}
-
-      <Route
-        path="/update-password"
-        element={<UpdatePassword />}
-      />
-
-      {/* -------------------------
-          Google / GitHub OAuth
-          URL: /auth/callback
-      ------------------------- */}
-
-      <Route
-        path="/auth/callback"
-        element={<AuthCallback />}
-      />
-
-      {/* -------------------------
-          Choose Username
-          URL: /choose-username
-      ------------------------- */}
-
-      <Route
-        path="/choose-username"
-        element={<ChooseUsername />}
-      />
-
-      {/* -------------------------
-          Link Real Email (Redirects to Profile)
-          URL: /link-email
-      ------------------------- */}
-
-      <Route
-        path="/link-email"
-        element={<Navigate to="/profile" replace />}
-      />
-
-      {/* -------------------------
-          Dashboard
-          URL: /dashboard
-      ------------------------- */}
-
-      <Route
-        path="/dashboard"
-        element={<Dashboard />}
-      />
-
-      {/* -------------------------
-          Question Bank
-          URL: /questions
-      ------------------------- */}
-
-      <Route
-        path="/questions"
-        element={<QuestionBank />}
-      />
-
-      {/* -------------------------
-          Question Solver
-          URL: /questions/:id
-      ------------------------- */}
-
-      <Route
-        path="/questions/:id"
-        element={<QuestionSolver />}
-      />
-
-      {/* -------------------------
-          User Profile & Settings
-          URL: /profile
-      ------------------------- */}
-
-      <Route
-        path="/profile"
-        element={<Profile />}
-      />
-
-      {/* -------------------------
-          404
-      ------------------------- */}
-
-      <Route
-        path="*"
-        element={<NotFoundPage />}
-      />
-
+      {/* Catch-all 404 */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }
-
-export default AppRoutes

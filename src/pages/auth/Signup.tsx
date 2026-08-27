@@ -1,24 +1,18 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff, ArrowRight, User, Lock, CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UsernameValidationResult } from '../../services/profileService'
 import { validatePassword, normalizeUsername } from '../../utils/validation'
-import './Signup.css'
+import AuthShell from '../../components/auth/AuthShell'
 
-function Signup() {
+export default function Signup() {
   const navigate = useNavigate()
 
-  // -----------------------------
   // Form state
-  // -----------------------------
-
   const [username, setUsername] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-
-  // Password visibility
   const [showPassword, setShowPassword] = useState(false)
-
-  // Loading state
   const [loading, setLoading] = useState(false)
   const [oauthLoading, setOauthLoading] = useState<'google' | 'github' | null>(null)
 
@@ -33,7 +27,6 @@ function Signup() {
   // -----------------------------
   // Debounced Live Username Check
   // -----------------------------
-
   useEffect(() => {
     const clean = normalizeUsername(username)
 
@@ -56,16 +49,13 @@ function Signup() {
   // -----------------------------
   // Username & Password Signup
   // -----------------------------
-
   const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError('')
     setSuccess('')
 
     const cleanUsername = normalizeUsername(username)
 
-    // 1. Username validation
     if (!cleanUsername) {
       setError('Please choose a username.')
       return
@@ -82,7 +72,6 @@ function Signup() {
       return
     }
 
-    // 2. Password validation (single Confirm Password input)
     if (!confirmPassword) {
       setError('Please enter a password.')
       return
@@ -125,10 +114,10 @@ function Signup() {
           return
         }
       } catch (fnErr) {
-        console.warn('Edge Function not reachable, using fallback:', fnErr)
+        console.warn('Edge Function fallback trigger:', fnErr)
       }
 
-      // 2. Direct client fallback if Edge Function is not yet deployed to remote Supabase
+      // 2. Direct client fallback
       if (!sessionEstablished) {
         const systemIdentifier = `u_${cleanUsername}@apticks.app`
 
@@ -150,7 +139,6 @@ function Signup() {
         }
 
         if (signUpData.user) {
-          // Ensure profile is created
           await supabase.from('profiles').upsert({
             id: signUpData.user.id,
             username: cleanUsername,
@@ -161,7 +149,6 @@ function Signup() {
           if (signUpData.session) {
             sessionEstablished = true
           } else {
-            // Sign in directly
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
               email: systemIdentifier,
               password: confirmPassword,
@@ -180,7 +167,6 @@ function Signup() {
         return
       }
 
-      // 3. Immediately land on Dashboard as a fully authenticated user
       navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
@@ -192,9 +178,8 @@ function Signup() {
   }
 
   // -----------------------------
-  // Google Signup
+  // Google / GitHub Signup
   // -----------------------------
-
   const handleGoogleSignup = async () => {
     setError('')
     setOauthLoading('google')
@@ -218,10 +203,6 @@ function Signup() {
       setOauthLoading(null)
     }
   }
-
-  // -----------------------------
-  // GitHub Signup
-  // -----------------------------
 
   const handleGithubSignup = async () => {
     setError('')
@@ -247,241 +228,169 @@ function Signup() {
     }
   }
 
-  // -----------------------------
-  // UI
-  // -----------------------------
-
   return (
-    <div className="signup-page">
-      {/* =====================================
-          FLOATING BACKGROUND OBJECTS
-          ===================================== */}
+    <AuthShell
+      eyebrow="JOIN APTICKS"
+      title="CREATE ACCOUNT"
+      subtitle="Create your username and start competing in the arena."
+    >
+      {/* Error notification */}
+      {error && (
+        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
+          <span>{error}</span>
+        </div>
+      )}
 
-      <div className="signup-floating-object signup-plus">+</div>
-      <div className="signup-floating-object signup-equals">=</div>
-      <div className="signup-floating-object signup-five">5</div>
-      <div className="signup-floating-object signup-seven">7</div>
-      <div className="signup-floating-object signup-two">2</div>
-      <div className="signup-floating-object signup-cross">×</div>
-      <div className="signup-floating-equation">× × ×</div>
+      {/* Success notification */}
+      {success && (
+        <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <span>{success}</span>
+        </div>
+      )}
 
-      {/* Floating clock */}
-      <div className="signup-floating-clock">
-        <div className="signup-clock-hand signup-clock-hour" />
-        <div className="signup-clock-hand signup-clock-minute" />
-        <div className="signup-clock-center" />
+      <form onSubmit={handleSignup} className="space-y-4">
+        {/* Username */}
+        <div>
+          <label
+            htmlFor="signup-username"
+            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+          >
+            CHOOSE USERNAME
+          </label>
+          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black font-display font-black text-sm flex items-center">
+              <User className="w-4 h-4 text-black mr-1" />
+              @
+            </span>
+            <input
+              id="signup-username"
+              type="text"
+              placeholder="e.g. speed_solver"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value)
+                if (!e.target.value.trim()) {
+                  setUsernameStatus(null)
+                }
+              }}
+              maxLength={20}
+              autoComplete="username"
+              autoFocus
+              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+            />
+          </div>
+
+          {/* Real-time username feedback pill */}
+          {username.trim() && (
+            <div className="mt-2">
+              {checkingUsername ? (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#fef3c7] border-2 border-black rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#000000]">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Checking handle availability...</span>
+                </div>
+              ) : usernameStatus ? (
+                <div
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 border-2 border-black rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#000000] ${
+                    !usernameStatus.isValid
+                      ? 'bg-[#fee2e2] text-[#991b1b]'
+                      : usernameStatus.isAvailable
+                      ? 'bg-[#d1fae5] text-[#065f46]'
+                      : 'bg-[#fee2e2] text-[#991b1b]'
+                  }`}
+                >
+                  {!usernameStatus.isValid ? (
+                    <>
+                      <XCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{usernameStatus.message}</span>
+                    </>
+                  ) : usernameStatus.isAvailable ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span>Handle is available!</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>Username is taken</span>
+                    </>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          <p className="mt-1 font-mono text-[10px] text-black/60 font-semibold">
+            3–20 characters • letters, numbers, _, -, .
+          </p>
+        </div>
+
+        {/* Password */}
+        <div>
+          <label
+            htmlFor="signup-confirm-password"
+            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+          >
+            CONFIRM PASSWORD
+          </label>
+          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+              <Lock className="w-4 h-4 text-black" />
+            </span>
+            <input
+              id="signup-confirm-password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Create your secure password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="px-3 text-black/60 hover:text-black transition-colors cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="mt-1 font-mono text-[10px] text-black/60 font-semibold">
+            Min 8 chars with uppercase, lowercase, number & special char
+          </p>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading || oauthLoading !== null || checkingUsername}
+          className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+        >
+          <span>{loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </form>
+
+      {/* Divider */}
+      <div className="my-5 flex items-center gap-3">
+        <div className="flex-1 h-[2px] bg-black/15" />
+        <span className="font-mono text-[10px] font-black tracking-widest text-black/50 uppercase">
+          OR SIGN UP WITH
+        </span>
+        <div className="flex-1 h-[2px] bg-black/15" />
       </div>
 
-      {/* =====================================
-          MAIN CARD
-          ===================================== */}
-
-      <main className="signup-card">
-        {/* ===================================
-            LEFT BRAND PANEL
-            =================================== */}
-
-        <section className="signup-brand-panel">
-          <div className="signup-brand-header">
-            <div className="signup-brand-logo">A</div>
-            <span className="signup-brand-name">APTIVERSE</span>
-          </div>
-
-          <div className="signup-brand-label">APTITUDE • SPEED • COMPETITION</div>
-
-          <h1 className="signup-brand-heading">
-            THINK.
-            <br />
-            SOLVE.
-            <br />
-            <span>BEAT THE</span>
-            <br />
-            <span>CLOCK.</span>
-          </h1>
-
-          <p className="signup-brand-description">
-            Build your profile.
-            <br />
-            Sharpen your aptitude.
-            <br />
-            Compete with everyone.
-          </p>
-
-          <div className="signup-red-shape" />
-          <div className="signup-yellow-circle" />
-
-          <div className="signup-feature-strip">
-            <div className="signup-feature-card signup-feature-yellow">
-              <strong>01</strong>
-              <span>DAILY</span>
-              <span>CHALLENGES</span>
-              <b>□</b>
-            </div>
-
-            <div className="signup-feature-card signup-feature-red">
-              <strong>02</strong>
-              <span>1v1</span>
-              <span>BATTLES</span>
-              <b>×</b>
-            </div>
-
-            <div className="signup-feature-card signup-feature-white">
-              <strong>03</strong>
-              <span>LIVE</span>
-              <span>CONTESTS</span>
-              <b>♛</b>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================
-            RIGHT FORM PANEL
-            =================================== */}
-
-        <section className="signup-form-panel">
-          <div className="signup-form-eyebrow">JOIN APTIVERSE</div>
-
-          <h2>CREATE ACCOUNT</h2>
-
-          <p className="signup-form-subtitle">Create your username and start competing.</p>
-
-          {/* =================================
-              FORM
-              ================================= */}
-
-          <form onSubmit={handleSignup}>
-            {/* Username */}
-            <div className="signup-form-group">
-              <label htmlFor="signup-username">USERNAME</label>
-
-              <div className="signup-input-wrapper">
-                <span className="signup-input-icon">@</span>
-
-                <input
-                  id="signup-username"
-                  type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(event) => {
-                    setUsername(event.target.value)
-                    if (!event.target.value.trim()) {
-                      setUsernameStatus(null)
-                    }
-                  }}
-                  maxLength={20}
-                  autoComplete="username"
-                  autoFocus
-                />
-              </div>
-
-              {/* Username Availability Feedback */}
-              {username.trim() && (
-                <>
-                  {checkingUsername ? (
-                    <div className="signup-username-status checking">
-                      <span>Checking availability...</span>
-                    </div>
-                  ) : usernameStatus ? (
-                    <div
-                      className={`signup-username-status ${
-                        !usernameStatus.isValid
-                          ? 'invalid'
-                          : usernameStatus.isAvailable
-                          ? 'available'
-                          : 'taken'
-                      }`}
-                    >
-                      <span>
-                        {!usernameStatus.isValid
-                          ? `✕ ${usernameStatus.message}`
-                          : usernameStatus.isAvailable
-                          ? `✓ This username is available`
-                          : `✕ This username is already taken`}
-                      </span>
-                    </div>
-                  ) : null}
-                </>
-              )}
-
-              <p className="signup-input-hint">3–20 characters • letters, numbers, _, -, .</p>
-            </div>
-
-            {/* Confirm Password (Single Password Field) */}
-            <div className="signup-form-group">
-              <label htmlFor="signup-confirm-password">CONFIRM PASSWORD</label>
-
-              <div className="signup-input-wrapper signup-password-wrapper">
-                <span className="signup-input-icon">🔒</span>
-
-                <input
-                  id="signup-confirm-password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Create your password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  autoComplete="new-password"
-                />
-
-                {/* Eye button */}
-                <button
-                  type="button"
-                  className="signup-password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M3 3l18 18" />
-                      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
-                      <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5 0 8.5 4 10 8-0.6 1.6-1.6 3-2.9 4.2" />
-                      <path d="M6.6 6.6C4.7 7.8 3.4 9.7 2 12c1.5 4 5 8 10 8 1 0 2-.2 2.9-.5" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-
-              <p className="signup-input-hint">Min 8 chars with uppercase, lowercase, number & special char</p>
-            </div>
-
-            {/* Error Message */}
-            {error && <p className="signup-form-error">{error}</p>}
-
-            {/* Success Message */}
-            {success && <p className="signup-form-success">{success}</p>}
-
-            {/* Create Account Button */}
-            <button
-              type="submit"
-              className="signup-submit-button"
-              disabled={loading || oauthLoading !== null || checkingUsername}
-            >
-              {loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT →'}
-            </button>
-          </form>
-
-          {/* =================================
-              DIVIDER
-              ================================= */}
-
-          <div className="signup-divider">
-            <span />
-            <strong>OR SIGN UP WITH</strong>
-            <span />
-          </div>
-
-          {/* Google */}
-          <button
-            type="button"
-            className="signup-oauth-button"
-            onClick={handleGoogleSignup}
-            disabled={loading || oauthLoading !== null}
-          >
-            <svg className="signup-oauth-icon" viewBox="0 0 24 24" aria-hidden="true">
+      {/* OAuth Buttons */}
+      <div className="space-y-2.5">
+        <button
+          type="button"
+          onClick={handleGoogleSignup}
+          disabled={loading || oauthLoading !== null}
+          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="#4285F4"
                 d="M21.35 12.27c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.21z"
@@ -500,44 +409,38 @@ function Signup() {
               />
             </svg>
             <span>{oauthLoading === 'google' ? 'CONNECTING...' : 'CONTINUE WITH GOOGLE'}</span>
-            <b>→</b>
-          </button>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
 
-          {/* GitHub */}
-          <button
-            type="button"
-            className="signup-oauth-button"
-            onClick={handleGithubSignup}
-            disabled={loading || oauthLoading !== null}
-          >
-            <svg className="signup-oauth-icon signup-github-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="currentColor"
-                d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.25c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.17.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z"
-              />
+        <button
+          type="button"
+          onClick={handleGithubSignup}
+          disabled={loading || oauthLoading !== null}
+          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <svg className="w-4 h-4 shrink-0 text-black fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.25c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.17.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z" />
             </svg>
             <span>{oauthLoading === 'github' ? 'CONNECTING...' : 'CONTINUE WITH GITHUB'}</span>
-            <b>→</b>
-          </button>
-
-          {/* =================================
-              LOGIN BOX
-              ================================= */}
-
-          <div className="signup-login-box">
-            <div className="signup-login-text">
-              <strong>ALREADY ON APTIVERSE?</strong>
-              <span>Sign in and continue your journey.</span>
-            </div>
-
-            <Link to="/login" className="signup-login-button">
-              SIGN IN →
-            </Link>
           </div>
-        </section>
-      </main>
-    </div>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* Switch to Login */}
+      <div className="mt-6 pt-4 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span className="text-xs font-display font-bold text-black/60">
+          Already on Apticks?
+        </span>
+        <Link
+          to="/login"
+          className="text-xs font-display font-black text-[#071a2b] hover:text-[#2563eb] border-2 border-black rounded-lg bg-[#ffd43b] px-3.5 py-1.5 shadow-[2px_2px_0_#000000] uppercase tracking-wider transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+        >
+          SIGN IN →
+        </Link>
+      </div>
+    </AuthShell>
   )
 }
-
-export default Signup

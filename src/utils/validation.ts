@@ -1,5 +1,5 @@
 /**
- * Aptiverse Validation Utilities
+ * Apticks Validation Utilities
  * Enforces canonical username rules, password strength, and identity normalization.
  */
 
@@ -23,7 +23,7 @@ export function normalizeUsername(raw: string): string {
 }
 
 /**
- * Validates a username according to Aptiverse Master Specification:
+ * Validates a username according to Apticks Master Specification:
  * - 3–20 characters
  * - lowercase letters (a-z), numbers (0-9), '.', '_', '-'
  * - no spaces or uppercase in canonical form

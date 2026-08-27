@@ -1,27 +1,19 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Eye, EyeOff, ArrowRight, User, Lock, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { normalizeUsername } from '../../utils/validation'
-import './Login.css'
+import AuthShell from '../../components/auth/AuthShell'
 
-function Login() {
+export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // -----------------------------
   // Form state
-  // -----------------------------
-
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-
-  // Show / hide password
   const [showPassword, setShowPassword] = useState(false)
-
-  // Loading state
   const [loading, setLoading] = useState(false)
-
-  // OAuth loading state
   const [oauthLoading, setOauthLoading] = useState<'google' | 'github' | null>(null)
 
   // Messages
@@ -33,17 +25,14 @@ function Login() {
   )
 
   // -----------------------------
-  // Username + Password Login
+  // Username & Password Login
   // -----------------------------
-
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError('')
 
     const cleanUsername = normalizeUsername(username)
 
-    // Validation
     if (!cleanUsername) {
       setError('Please enter your username.')
       return
@@ -59,9 +48,9 @@ function Login() {
     try {
       let sessionEstablished = false
 
-      // 1. Authenticate via secure server-side Edge Function (Zero client-side email exposure)
+      // 1. Invoke server-side login Edge Function
       try {
-        const { data: authResult, error: fnError } = await supabase.functions.invoke(
+        const { data: fnData, error: fnError } = await supabase.functions.invoke(
           'login-with-username',
           {
             body: {
@@ -71,85 +60,86 @@ function Login() {
           }
         )
 
-        if (!fnError && authResult?.session) {
+        if (!fnError && fnData?.session) {
           const { error: sessionError } = await supabase.auth.setSession({
-            access_token: authResult.session.access_token,
-            refresh_token: authResult.session.refresh_token,
+            access_token: fnData.session.access_token,
+            refresh_token: fnData.session.refresh_token,
           })
 
           if (!sessionError) {
             sessionEstablished = true
           }
-        } else if (authResult?.error && !fnError) {
-          setError(authResult.error)
+        } else if (fnData?.error && !fnError) {
+          setError(fnData.error)
           return
         }
       } catch (fnErr) {
-        console.warn('Login Edge Function not reachable, trying direct fallback:', fnErr)
+        console.warn('Edge Function fallback trigger:', fnErr)
       }
 
-      // 2. Direct client fallback if Edge Function is not deployed
+      // 2. Direct client fallback if Edge Function is not active
       if (!sessionEstablished) {
         const systemIdentifier = `u_${cleanUsername}@apticks.app`
 
-        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
-          email: systemIdentifier,
-          password,
-        })
+        const { data: signInData, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email: systemIdentifier,
+            password,
+          })
 
-        if (!signInErr && signInData.session) {
+        if (signInError) {
+          console.error('Sign-in error:', signInError)
+          setError(signInError.message || 'Invalid username or password.')
+          return
+        }
+
+        if (signInData.session) {
           sessionEstablished = true
-        } else {
-          // If system identifier failed, check if user entered an email-based account
-          if (cleanUsername.includes('@')) {
-            const { data: emailSignIn, error: emailErr } = await supabase.auth.signInWithPassword({
-              email: cleanUsername,
-              password,
-            })
-            if (!emailErr && emailSignIn.session) {
-              sessionEstablished = true
-            }
-          }
         }
       }
 
       if (!sessionEstablished) {
-        setError('Invalid username or password. Please try again.')
+        setError('Unable to authenticate. Please check your credentials.')
         return
       }
 
-      // 3. Verify user profile exists and has username
+      // 3. Verify user profile exists
       const {
         data: { user },
       } = await supabase.auth.getUser()
 
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', user.id)
-          .maybeSingle()
-
-        if (!profile || !profile.username) {
-          navigate('/choose-username', { replace: true })
-          return
-        }
+      if (!user) {
+        setError('Authentication session lost. Please try again.')
+        return
       }
 
-      // 4. Successful login -> Dashboard
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (!profile || !profile.username) {
+        navigate('/choose-username', { replace: true })
+        return
+      }
+
       navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'An unexpected error occurred. Please try again.'
       console.error('Login error:', err)
-      setError('Invalid username or password. Please try again.')
+      setError(msg)
     } finally {
       setLoading(false)
     }
   }
 
   // -----------------------------
-  // Google Login
+  // Google OAuth Login
   // -----------------------------
-
   const handleGoogleLogin = async () => {
     setError('')
     setOauthLoading('google')
@@ -163,20 +153,20 @@ function Login() {
       })
 
       if (oauthError) {
+        console.error('Google OAuth error:', oauthError)
         setError(oauthError.message)
         setOauthLoading(null)
       }
     } catch (err) {
-      console.error('Google login error:', err)
-      setError('Unable to continue with Google. Please try again.')
+      console.error('Google login exception:', err)
+      setError('Unable to connect to Google. Please try again.')
       setOauthLoading(null)
     }
   }
 
   // -----------------------------
-  // GitHub Login
+  // GitHub OAuth Login
   // -----------------------------
-
   const handleGithubLogin = async () => {
     setError('')
     setOauthLoading('github')
@@ -190,240 +180,135 @@ function Login() {
       })
 
       if (oauthError) {
+        console.error('GitHub OAuth error:', oauthError)
         setError(oauthError.message)
         setOauthLoading(null)
       }
     } catch (err) {
-      console.error('GitHub login error:', err)
-      setError('Unable to continue with GitHub. Please try again.')
+      console.error('GitHub login exception:', err)
+      setError('Unable to connect to GitHub. Please try again.')
       setOauthLoading(null)
     }
   }
 
-  // -----------------------------
-  // UI
-  // -----------------------------
-
   return (
-    <div className="login-page">
-      {/* =========================================
-          FLOATING BACKGROUND OBJECTS
-          ========================================= */}
+    <AuthShell
+      eyebrow="APTICKS ACCOUNT"
+      title="SIGN IN"
+      subtitle="Enter your username and password to continue."
+    >
+      {/* Info notification */}
+      {infoMessage && (
+        <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000]">
+          {infoMessage}
+        </div>
+      )}
 
-      <div className="floating-object object-plus">+</div>
-      <div className="floating-object object-equals">=</div>
-      <div className="floating-object object-five">5</div>
-      <div className="floating-object object-seven">7</div>
-      <div className="floating-object object-two">2</div>
-      <div className="floating-object object-cross">×</div>
-      <div className="floating-equation">× × ×</div>
+      {/* Error notification */}
+      {error && (
+        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
+          <span>{error}</span>
+        </div>
+      )}
 
-      {/* Floating clock */}
-      <div className="floating-clock">
-        <div className="clock-hand clock-hour" />
-        <div className="clock-hand clock-minute" />
-        <div className="clock-center" />
+      <form onSubmit={handleLogin} className="space-y-4">
+        {/* Username input */}
+        <div>
+          <label
+            htmlFor="username"
+            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+          >
+            USERNAME
+          </label>
+          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black font-display font-black text-sm flex items-center">
+              <User className="w-4 h-4 text-black mr-1" />
+              @
+            </span>
+            <input
+              id="username"
+              type="text"
+              placeholder="e.g. speed_solver"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              autoFocus
+              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+            />
+          </div>
+        </div>
+
+        {/* Password input */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label
+              htmlFor="password"
+              className="text-xs font-display font-black tracking-wider text-black uppercase"
+            >
+              PASSWORD
+            </label>
+            <Link
+              to="/forgot-password"
+              className="text-xs font-display font-bold text-[#2563eb] hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+              <Lock className="w-4 h-4 text-black" />
+            </span>
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="px-3 text-black/60 hover:text-black transition-colors cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Submit button */}
+        <button
+          type="submit"
+          disabled={loading || oauthLoading !== null}
+          className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+        >
+          <span>{loading ? 'SIGNING IN...' : 'SIGN IN TO ARENA'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </form>
+
+      {/* Divider */}
+      <div className="my-5 flex items-center gap-3">
+        <div className="flex-1 h-[2px] bg-black/15" />
+        <span className="font-mono text-[10px] font-black tracking-widest text-black/50 uppercase">
+          OR CONTINUE WITH
+        </span>
+        <div className="flex-1 h-[2px] bg-black/15" />
       </div>
 
-      {/* =========================================
-          MAIN LOGIN CARD
-          ========================================= */}
-
-      <main className="login-card">
-        {/* =====================================
-            LEFT BRAND PANEL
-            ===================================== */}
-
-        <section className="brand-panel">
-          {/* Logo / Brand */}
-          <div className="brand-header">
-            <div className="brand-logo">A</div>
-            <span className="brand-name">APTIVERSE</span>
-          </div>
-
-          {/* Small label */}
-          <div className="brand-label">APTITUDE • SPEED • COMPETITION</div>
-
-          {/* Main heading */}
-          <h1 className="brand-heading">
-            THINK.
-            <br />
-            SOLVE.
-            <br />
-            <span>BEAT THE</span>
-            <br />
-            <span>CLOCK.</span>
-          </h1>
-
-          {/* Description */}
-          <p className="brand-description">
-            Sharpen your aptitude.
-            <br />
-            Compete with everyone.
-            <br />
-            Keep your streak alive.
-          </p>
-
-          {/* Decorative shapes */}
-          <div className="red-shape" />
-          <div className="yellow-circle" />
-
-          {/* Bottom feature cards */}
-          <div className="feature-strip">
-            <div className="feature-card feature-yellow">
-              <strong>01</strong>
-              <span>DAILY</span>
-              <span>CHALLENGES</span>
-              <b>□</b>
-            </div>
-
-            <div className="feature-card feature-red">
-              <strong>02</strong>
-              <span>1v1</span>
-              <span>BATTLES</span>
-              <b>×</b>
-            </div>
-
-            <div className="feature-card feature-white">
-              <strong>03</strong>
-              <span>LIVE</span>
-              <span>CONTESTS</span>
-              <b>♛</b>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================
-            RIGHT LOGIN PANEL
-            ===================================== */}
-
-        <section className="form-panel">
-          {/* Small heading */}
-          <div className="form-eyebrow">APTIVERSE ACCOUNT</div>
-
-          {/* Main heading */}
-          <h2>SIGN IN</h2>
-
-          <p className="form-subtitle">Enter your username and password to continue.</p>
-
-          {/* Info notification if passed from signup/update */}
-          {infoMessage && (
-            <p className="form-error" style={{ background: '#d1fae5', color: '#065f46', borderColor: '#050505' }}>
-              {infoMessage}
-            </p>
-          )}
-
-          {/* =================================
-              LOGIN FORM (USERNAME + PASSWORD)
-              ================================= */}
-
-          <form onSubmit={handleLogin}>
-            {/* Username */}
-            <div className="form-group">
-              <label htmlFor="login-username">USERNAME</label>
-
-              <div className="input-wrapper">
-                <span className="input-icon">@</span>
-
-                <input
-                  id="login-username"
-                  type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
-                  maxLength={20}
-                  autoComplete="username"
-                  autoFocus
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="form-group">
-              <label htmlFor="login-password">PASSWORD</label>
-
-              <div className="input-wrapper password-wrapper">
-                <span className="input-icon">♙</span>
-
-                <input
-                  id="login-password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  autoComplete="current-password"
-                />
-
-                {/* Eye button */}
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M3 3l18 18" />
-                      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
-                      <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5 0 8.5 4 10 8-0.6 1.6-1.6 3-2.9 4.2" />
-                      <path d="M6.6 6.6C4.7 7.8 3.4 9.7 2 12c1.5 4 5 8 10 8 1 0 2-.2 2.9-.5" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember + Forgot */}
-            <div className="form-options">
-              <label className="remember-label">
-                <input type="checkbox" />
-                <span>Remember me</span>
-              </label>
-
-              <Link to="/forgot-password" className="forgot-password">
-                Forgot password?
-              </Link>
-            </div>
-
-            {/* Error Message */}
-            {error && <p className="form-error">{error}</p>}
-
-            {/* Sign in button */}
-            <button
-              type="submit"
-              className="login-button"
-              disabled={loading || oauthLoading !== null}
-            >
-              {loading ? 'SIGNING IN...' : 'SIGN IN →'}
-            </button>
-          </form>
-
-          {/* =================================
-              DIVIDER
-              ================================= */}
-
-          <div className="divider">
-            <span />
-            <strong>OR CONTINUE WITH</strong>
-            <span />
-          </div>
-
-          {/* =================================
-              GOOGLE
-              ================================= */}
-
-          <button
-            type="button"
-            className="oauth-button"
-            onClick={handleGoogleLogin}
-            disabled={loading || oauthLoading !== null}
-          >
-            <svg className="oauth-icon google-icon" viewBox="0 0 24 24" aria-hidden="true">
+      {/* OAuth Buttons */}
+      <div className="space-y-2.5">
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={loading || oauthLoading !== null}
+          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="#4285F4"
                 d="M21.35 12.27c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.21z"
@@ -441,54 +326,39 @@ function Login() {
                 d="M12 6.05c1.43 0 2.72.49 3.74 1.46l2.8-2.8C16.84 3.15 14.63 2.18 12 2.18a9.74 9.74 0 0 0-8.75 5.39L6.5 10.09C7.28 7.77 9.45 6.05 12 6.05z"
               />
             </svg>
-
-            <span>
-              {oauthLoading === 'google' ? 'CONNECTING...' : 'CONTINUE WITH GOOGLE'}
-            </span>
-            <b>→</b>
-          </button>
-
-          {/* =================================
-              GITHUB
-              ================================= */}
-
-          <button
-            type="button"
-            className="oauth-button"
-            onClick={handleGithubLogin}
-            disabled={loading || oauthLoading !== null}
-          >
-            <svg className="oauth-icon github-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="currentColor"
-                d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.25c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.17.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z"
-              />
-            </svg>
-
-            <span>
-              {oauthLoading === 'github' ? 'CONNECTING...' : 'CONTINUE WITH GITHUB'}
-            </span>
-            <b>→</b>
-          </button>
-
-          {/* =================================
-              CREATE ACCOUNT
-              ================================= */}
-
-          <div className="create-account-box">
-            <div className="create-account-text">
-              <strong>NEW TO APTIVERSE?</strong>
-              <span>Create your account and start competing.</span>
-            </div>
-
-            <Link to="/signup" className="create-account-button">
-              CREATE ACCOUNT →
-            </Link>
+            <span>{oauthLoading === 'google' ? 'CONNECTING...' : 'CONTINUE WITH GOOGLE'}</span>
           </div>
-        </section>
-      </main>
-    </div>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+
+        <button
+          type="button"
+          onClick={handleGithubLogin}
+          disabled={loading || oauthLoading !== null}
+          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <svg className="w-4 h-4 shrink-0 text-black fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.25c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.17.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z" />
+            </svg>
+            <span>{oauthLoading === 'github' ? 'CONNECTING...' : 'CONTINUE WITH GITHUB'}</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* Switch to Signup */}
+      <div className="mt-6 pt-4 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span className="text-xs font-display font-bold text-black/60">
+          New to Apticks?
+        </span>
+        <Link
+          to="/signup"
+          className="text-xs font-display font-black text-[#071a2b] hover:text-[#2563eb] border-2 border-black rounded-lg bg-[#ffd43b] px-3.5 py-1.5 shadow-[2px_2px_0_#000000] uppercase tracking-wider transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+        >
+          CREATE ACCOUNT →
+        </Link>
+      </div>
+    </AuthShell>
   )
 }
-
-export default Login

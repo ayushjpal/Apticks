@@ -1,5 +1,26 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import {
+  User,
+  Shield,
+  Mail,
+  KeyRound,
+  LogOut,
+  Upload,
+  Trophy,
+  Zap,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  RotateCw,
+  Sparkles,
+  Lock,
+  ArrowRight,
+  Flame,
+  Settings,
+  Sliders,
+  Award,
+} from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
   ProfileService,
@@ -9,9 +30,9 @@ import {
 import { normalizeUsername } from '../../utils/validation'
 import { QuestionService } from '../../services/questionService'
 import type { QuestionBankStats } from '../../types/questions'
-import './Profile.css'
+import AppLayout from '../../components/layout/AppLayout'
 
-// Curated neo-brutalist avatar presets (SVG Data URIs)
+// Curated avatar presets
 const AVATAR_PRESETS = [
   {
     id: 'p1',
@@ -44,12 +65,16 @@ export default function Profile() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
+  // Active View Tab: 'overview' | 'edit' | 'settings'
+  const [activeTab, setActiveTab] = useState<'overview' | 'edit' | 'settings'>('overview')
+
   // User & DB State
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [isEmailVerified, setIsEmailVerified] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -96,13 +121,26 @@ export default function Profile() {
     const loadData = async () => {
       setLoading(true)
       try {
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser()
+        let user: { id: string; email?: string; email_confirmed_at?: string; user_metadata?: Record<string, unknown> } | null = null
 
-        if (authError || !user) {
-          navigate('/login', { replace: true })
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (sessionData?.session?.user) {
+          user = sessionData.session.user
+        } else {
+          const {
+            data: { user: fetchedUser },
+            error: authError,
+          } = await supabase.auth.getUser()
+
+          if (!authError && fetchedUser) {
+            user = fetchedUser
+          }
+        }
+
+        if (!user) {
+          if (isMounted) {
+            navigate('/login', { replace: true })
+          }
           return
         }
 
@@ -110,7 +148,6 @@ export default function Profile() {
 
         setUserId(user.id)
 
-        // Determine email status (exclude internal system placeholders)
         const rawEmail = user.email || ''
         const isInternal =
           !rawEmail ||
@@ -122,23 +159,19 @@ export default function Profile() {
         setIsEmailVerified(verified)
         setUserEmail(verified ? rawEmail : null)
 
-        // Load profile from Service
         let profile = await ProfileService.fetchProfile(user.id)
-        if (!profile?.username && user.user_metadata?.username) {
+        const metaUsername = typeof user.user_metadata?.username === 'string' ? user.user_metadata.username : null
+        const metaDisplayName = typeof user.user_metadata?.display_name === 'string' ? user.user_metadata.display_name : metaUsername
+        if (!profile?.username && metaUsername) {
           profile = {
             id: user.id,
-            username: user.user_metadata.username,
-            display_name: user.user_metadata.display_name || user.user_metadata.username,
+            username: metaUsername,
+            display_name: metaDisplayName,
             avatar_url: profile?.avatar_url || null,
             bio: profile?.bio || null,
             username_changed_at: profile?.username_changed_at || null,
           }
         }
-
-        console.log('[Profile Init] authUser.id:', user.id)
-        console.log('[Profile Init] profile row returned from Supabase:', profile)
-        console.log('[Profile Init] profile.username:', profile?.username)
-        console.log('[Profile Init] currentUsername:', profile?.username)
 
         if (isMounted) {
           setOriginalProfile(profile)
@@ -147,9 +180,6 @@ export default function Profile() {
           setAvatarUrl(profile?.avatar_url || null)
           setUsernameInput(profile?.username || '')
 
-          console.log('[Profile Init] username state after initialization:', profile?.username || '')
-
-          // Calculate 14-day username cooldown
           const coolInfo = ProfileService.getUsernameCooldownInfo(
             profile?.username_changed_at
           )
@@ -159,12 +189,11 @@ export default function Profile() {
             setUsernameStatus({
               available: false,
               isCurrent: true,
-              message: 'This is your current username.',
+              message: 'Current handle.',
             })
           }
         }
 
-        // Load question stats
         try {
           const { questions, progressMap } =
             await QuestionService.getQuestionsWithProgress(user.id)
@@ -212,7 +241,6 @@ export default function Profile() {
         return
       }
 
-      // If unchanged from original authenticated profile
       if (
         originalProfile?.username &&
         trimmed === normalizeUsername(originalProfile.username)
@@ -220,12 +248,11 @@ export default function Profile() {
         setUsernameStatus({
           available: false,
           isCurrent: true,
-          message: 'This is your current username.',
+          message: 'Current handle.',
         })
         return
       }
 
-      // If cooldown is active, don't query
       if (!cooldown.canChange) {
         return
       }
@@ -302,7 +329,6 @@ export default function Profile() {
       normalizeUsername(usernameInput) !==
       normalizeUsername(originalProfile?.username || '')
 
-    // Client-side rate-limit guard
     if (isChangingUsername && !cooldown.canChange) {
       setErrorMessage(
         `Username can only be changed once every 14 days. Next change available on ${cooldown.formattedNextChangeDate}.`
@@ -311,7 +337,6 @@ export default function Profile() {
       return
     }
 
-    // Availability guard
     if (isChangingUsername && (!usernameStatus?.available || checkingUsername)) {
       setErrorMessage(usernameStatus?.message || 'Please choose a valid available username.')
       setSaving(false)
@@ -334,7 +359,6 @@ export default function Profile() {
         setOriginalProfile(res.profile)
         setSaveSuccess(true)
 
-        // Update cooldown info if username was changed
         if (isChangingUsername) {
           const newCooldown = ProfileService.getUsernameCooldownInfo(
             res.profile.username_changed_at
@@ -342,7 +366,6 @@ export default function Profile() {
           setCooldown(newCooldown)
         }
 
-        // Auto-dismiss success alert after 4 seconds
         setTimeout(() => {
           setSaveSuccess(false)
         }, 4000)
@@ -375,7 +398,11 @@ export default function Profile() {
       return
     }
 
-    if (clean.endsWith('@apticks.app') || clean.endsWith('@auth.apticks.internal') || clean.endsWith('@aptiverse.local')) {
+    if (
+      clean.endsWith('@apticks.app') ||
+      clean.endsWith('@auth.apticks.internal') ||
+      clean.endsWith('@aptiverse.local')
+    ) {
       setEmailModalError('Please enter a real email address (e.g. Gmail).')
       return
     }
@@ -472,14 +499,25 @@ export default function Profile() {
   }
 
   // ---------------------------------------------------------------------------
-  // Render
+  // 6. Logout Handler
   // ---------------------------------------------------------------------------
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    try {
+      await supabase.auth.signOut()
+      navigate('/login', { replace: true })
+    } catch (err) {
+      console.error('Logout error:', err)
+      setLoggingOut(false)
+    }
+  }
+
   if (loading) {
     return (
-      <div className="prof-page flex items-center justify-center min-h-screen text-white">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto mb-4 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin" />
-          <p className="font-black tracking-wider text-sm">LOADING PROFILE...</p>
+      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
+        <div className="text-center font-display font-black">
+          <div className="w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
+          <p className="tracking-wider">LOADING ATHLETE IDENTITY...</p>
         </div>
       </div>
     )
@@ -489,78 +527,44 @@ export default function Profile() {
     displayName.trim() ||
     originalProfile?.display_name ||
     originalProfile?.username ||
-    'Aptitude Ace'
+    'Aptitude Athlete'
 
   const effectiveUsername =
     usernameInput.trim() ||
     originalProfile?.username ||
-    'athlete'
+    'player'
+
   const firstLetter = effectiveDisplayName.charAt(0).toUpperCase()
 
   return (
-    <div className="prof-page">
-      <div className="prof-bg-grid" />
-
-      {/* Main Container */}
-      <div className="prof-container">
-        {/* ================================================= */}
-        {/* TOP HEADER                                        */}
-        {/* ================================================= */}
-        <header className="prof-header">
-          <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="prof-back-btn">
-              ← DASHBOARD
-            </Link>
-            <div className="hidden sm:flex items-center gap-2">
-              <span className="prof-badge-tag">SETTINGS</span>
-              <span className="text-xs font-black text-white/50 tracking-widest uppercase">
-                / USER PROFILE
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link to="/questions" className="prof-nav-link">
-              QUESTION BANK →
-            </Link>
-          </div>
-        </header>
-
-        {/* ================================================= */}
-        {/* ALERTS / NOTIFICATIONS                            */}
-        {/* ================================================= */}
+    <AppLayout>
+      <div className="space-y-6 animate-entry">
+        {/* Success Alert */}
         {saveSuccess && (
-          <div className="prof-alert-success">
-            <div>
-              <div className="font-black text-sm uppercase tracking-wide">
-                [✓] PROFILE UPDATED SUCCESSFULLY
-              </div>
-              <div className="text-xs font-bold text-black/80 mt-0.5">
-                Your profile picture, bio, and settings have been saved.
-              </div>
+          <div className="p-4 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] shadow-[3px_3px_0_#000000] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 font-display font-black text-sm uppercase">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-[#065f46]" />
+              <span>PROFILE CHANGES SAVED SUCCESSFULLY</span>
             </div>
             <button
               onClick={() => setSaveSuccess(false)}
-              className="text-xs font-black underline"
+              className="text-xs font-mono font-black underline cursor-pointer"
             >
               DISMISS
             </button>
           </div>
         )}
 
+        {/* Error Alert */}
         {errorMessage && (
-          <div className="prof-alert-error">
-            <div>
-              <div className="font-black text-sm uppercase tracking-wide">
-                [✕] UPDATE FAILED
-              </div>
-              <div className="text-xs font-bold text-white/90 mt-0.5">
-                {errorMessage}
-              </div>
+          <div className="p-4 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] shadow-[3px_3px_0_#000000] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 font-display font-black text-sm uppercase">
+              <AlertCircle className="w-5 h-5 shrink-0 text-[#991b1b]" />
+              <span>{errorMessage}</span>
             </div>
             <button
               onClick={() => setErrorMessage(null)}
-              className="text-xs font-black underline text-white"
+              className="text-xs font-mono font-black underline cursor-pointer"
             >
               DISMISS
             </button>
@@ -568,52 +572,268 @@ export default function Profile() {
         )}
 
         {/* ================================================= */}
-        {/* 2-COLUMN MAIN CONTENT                             */}
+        {/* TOP TABBED NAVIGATION CONTROLS                    */}
         {/* ================================================= */}
-        <div className="prof-grid">
-          {/* ----------------------------------------------- */}
-          {/* LEFT COLUMN: EDIT FORM                          */}
-          {/* ----------------------------------------------- */}
-          <section className="prof-form-card">
-            <div className="prof-card-header">
-              <div className="prof-badge-primary">PROFILE INFORMATION</div>
-              <h1 className="prof-title">EDIT PROFILE</h1>
-              <p className="prof-subtitle">
-                Customize how your identity appears across the leaderboard,
-                contests, and discussions.
-              </p>
-            </div>
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('overview')}
+            className={`
+              px-4 py-2.5 rounded-xl border-2 sm:border-3 border-black font-display font-black text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-2
+              ${
+                activeTab === 'overview'
+                  ? 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#000000] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+              }
+            `}
+          >
+            <User className="w-4 h-4" />
+            <span>ATHLETE IDENTITY</span>
+          </button>
 
-            <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-              {/* ----------------------------------------- */}
-              {/* 1. PROFILE PICTURE / AVATAR               */}
-              {/* ----------------------------------------- */}
-              <div className="prof-section">
-                <label className="prof-label">PROFILE PICTURE (PFP)</label>
+          <button
+            type="button"
+            onClick={() => setActiveTab('edit')}
+            className={`
+              px-4 py-2.5 rounded-xl border-2 sm:border-3 border-black font-display font-black text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-2
+              ${
+                activeTab === 'edit'
+                  ? 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#000000] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+              }
+            `}
+          >
+            <Award className="w-4 h-4" />
+            <span>EDIT PROFILE</span>
+          </button>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 mt-2">
-                  {/* Current Avatar Display */}
-                  <div className="prof-avatar-preview-box">
+          <button
+            type="button"
+            onClick={() => setActiveTab('settings')}
+            className={`
+              px-4 py-2.5 rounded-xl border-2 sm:border-3 border-black font-display font-black text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-2
+              ${
+                activeTab === 'settings'
+                  ? 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#000000] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+              }
+            `}
+          >
+            <Settings className="w-4 h-4" />
+            <span>SETTINGS & SECURITY</span>
+          </button>
+        </div>
+
+        {/* ================================================= */}
+        {/* TAB 1: ATHLETE IDENTITY & PERFORMANCE OVERVIEW    */}
+        {/* ================================================= */}
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6">
+            {/* Athlete Public Card */}
+            <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#38aef0] overflow-hidden">
+              <div className="bg-[#071a2b] text-white p-5 border-b-3 border-black flex items-center justify-between">
+                <span className="font-mono text-[10px] font-black tracking-widest text-[#38aef0] uppercase">
+                  APTICKS ID: #{userId?.slice(0, 6).toUpperCase()}
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-[#32e875] text-black border-2 border-black rounded-full px-2.5 py-0.5 font-display font-black text-[9px] uppercase">
+                  <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+                  ACTIVE ATHLETE
+                </span>
+              </div>
+
+              <div className="p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#ffd43b] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] flex items-center justify-center font-display font-black text-3xl sm:text-4xl text-black overflow-hidden shrink-0">
                     {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt="Profile Avatar"
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="prof-avatar-fallback">{firstLetter}</div>
+                      firstLetter
                     )}
                   </div>
 
-                  {/* Actions & File Input */}
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="inline-block bg-[#e9f6ff] text-black border-2 border-black rounded-full px-2.5 py-0.5 text-[9px] font-mono font-black uppercase mb-1.5">
+                      DIVISION 1 ATHLETE
+                    </div>
+                    <h2 className="font-display font-black text-2xl sm:text-3xl text-black uppercase tracking-tight truncate leading-none">
+                      {effectiveDisplayName}
+                    </h2>
+                    <div className="font-mono text-sm sm:text-base font-black text-[#2563eb] mt-1">
+                      @{effectiveUsername}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Statement Quote */}
+                <div className="mt-6 p-4 bg-[#fffde7] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000]">
+                  <div className="font-mono text-[9px] font-black text-black/50 uppercase mb-1">
+                    STATEMENT / GOAL:
+                  </div>
+                  <p className="font-body font-semibold text-xs sm:text-sm text-black/85 italic leading-relaxed">
+                    {bio.trim()
+                      ? `"${bio.trim()}"`
+                      : '"Apticks athlete sharpening quantitative speed and logical reasoning daily."'}
+                  </p>
+                </div>
+
+                {/* Athlete Statistics Deck */}
+                <div className="mt-6 grid grid-cols-3 gap-2.5 text-center">
+                  <div className="p-3 bg-[#e9f6ff] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-xl sm:text-2xl text-[#071a2b]">
+                      {questionStats?.solvedCount ?? 0}
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-black/60 mt-0.5">
+                      PROBLEMS SOLVED
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#ffd43b] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-xl sm:text-2xl text-black">
+                      {questionStats?.totalPoints ?? 0}
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-black/70 mt-0.5">
+                      TOTAL XP
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#32e875] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-xl sm:text-2xl text-black">
+                      {questionStats?.accuracyRate ?? 0}%
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-black/70 mt-0.5">
+                      ACCURACY
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('edit')}
+                    className="flex-1 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2.5px_2.5px_0_#000000] cursor-pointer text-center"
+                  >
+                    EDIT ATHLETE PROFILE →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('settings')}
+                    className="py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2.5px_2.5px_0_#000000] cursor-pointer text-center"
+                  >
+                    SETTINGS
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Achievements & Division Status */}
+            <div className="space-y-6">
+              <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+                <div className="flex items-center justify-between pb-3 border-b-2 border-black mb-5">
+                  <div>
+                    <h3 className="font-display font-black text-xl uppercase text-black">
+                      EARNED BADGES
+                    </h3>
+                    <p className="text-xs font-semibold text-black/60 mt-0.5">
+                      Milestones unlocked through competitive practice.
+                    </p>
+                  </div>
+                  <Sparkles className="w-5 h-5 text-[#ffd43b]" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3.5 bg-[#c084fc] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
+                    <Trophy className="w-5 h-5 text-black shrink-0" />
+                    <div>
+                      <div className="font-display font-black text-xs leading-tight uppercase">
+                        SPEED DEMON
+                      </div>
+                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
+                        Solved problem &lt; 30s
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-[#ffd43b] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
+                    <Flame className="w-5 h-5 text-black shrink-0" />
+                    <div>
+                      <div className="font-display font-black text-xs leading-tight uppercase">
+                        STREAK RUNNER
+                      </div>
+                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
+                        Active 3-Day streak
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-[#32e875] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
+                    <CheckCircle2 className="w-5 h-5 text-black shrink-0" />
+                    <div>
+                      <div className="font-display font-black text-xs leading-tight uppercase">
+                        ACCURACY ACE
+                      </div>
+                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
+                        &gt; 80% accuracy score
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-[#38aef0] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
+                    <Zap className="w-5 h-5 text-black shrink-0" />
+                    <div>
+                      <div className="font-display font-black text-xs leading-tight uppercase">
+                        CENTURION
+                      </div>
+                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
+                        Earned 100+ XP in Season 1
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================= */}
+        {/* TAB 2: EDIT PROFILE FORM                          */}
+        {/* ================================================= */}
+        {activeTab === 'edit' && (
+          <div className="max-w-2xl bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+            <div className="border-b-3 border-black pb-4 mb-6">
+              <div className="inline-block bg-[#38aef0] text-black border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-mono font-black tracking-widest uppercase mb-2 shadow-[2px_2px_0_#000000]">
+                CUSTOMIZE IDENTITY
+              </div>
+              <h2 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black leading-none">
+                EDIT PROFILE
+              </h2>
+              <p className="mt-1.5 text-xs font-body font-semibold text-black/70">
+                Update your public handle, display name, avatar, and personal statement across Apticks.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* 1. Avatar Uploader & Presets */}
+              <div>
+                <label className="block mb-2 text-xs font-display font-black tracking-wider text-black uppercase">
+                  PROFILE AVATAR
+                </label>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="w-16 h-16 bg-[#ffd43b] border-3 border-black rounded-2xl shadow-[3px_3px_0_#000000] flex items-center justify-center font-display font-black text-2xl text-black overflow-hidden shrink-0">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      firstLetter
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
                     <input
                       type="file"
                       ref={fileInputRef}
                       onChange={handleAvatarFileChange}
-                      accept="image/png, image/jpeg, image/webp, image/gif"
+                      accept="image/png, image/jpeg, image/webp"
                       className="hidden"
-                      id="avatar-file-input"
                     />
 
                     <div className="flex flex-wrap gap-2">
@@ -621,95 +841,92 @@ export default function Profile() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingAvatar}
-                        className="prof-btn-secondary"
+                        className="px-3.5 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 cursor-pointer"
                       >
-                        {uploadingAvatar ? 'UPLOADING...' : 'UPLOAD PHOTO'}
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{uploadingAvatar ? 'UPLOADING...' : 'UPLOAD PHOTO'}</span>
                       </button>
 
                       {avatarUrl && (
                         <button
                           type="button"
                           onClick={handleRemoveAvatar}
-                          className="prof-btn-danger"
+                          className="px-3.5 py-2 bg-[#ff5b5b] text-white hover:bg-[#ef4444] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] cursor-pointer"
                         >
                           REMOVE
                         </button>
                       )}
                     </div>
-
-                    <p className="text-[11px] font-bold text-black/60">
-                      Recommended: Square JPG, PNG, or WebP under 5MB.
+                    <p className="font-mono text-[10px] text-black/60 font-semibold">
+                      Square PNG, JPG, or WebP under 5MB.
                     </p>
                   </div>
                 </div>
 
-                {/* Avatar Presets Bar */}
-                <div className="mt-4 pt-4 border-t-2 border-black/10">
-                  <div className="text-[11px] font-black uppercase text-black/60 mb-2">
-                    OR CHOOSE A PRESET AVATAR:
-                  </div>
+                {/* Avatar Presets */}
+                <div className="mt-3 pt-3 border-t-2 border-black/10">
+                  <span className="block font-mono text-[10px] font-black text-black/60 uppercase mb-2">
+                    OR SELECT PRESET:
+                  </span>
                   <div className="flex flex-wrap gap-2">
                     {AVATAR_PRESETS.map((preset) => (
                       <button
                         key={preset.id}
                         type="button"
                         onClick={() => handleSelectPresetAvatar(preset.url)}
-                        className={`prof-preset-btn ${
-                          avatarUrl === preset.url ? 'active' : ''
+                        className={`w-9 h-9 border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] transition-transform hover:-translate-y-0.5 cursor-pointer ${
+                          avatarUrl === preset.url ? 'ring-3 ring-black' : ''
                         }`}
-                        title={preset.label}
                       >
-                        <img
-                          src={preset.url}
-                          alt={preset.label}
-                          className="w-8 h-8 rounded-none"
-                        />
+                        <img src={preset.url} alt={preset.label} className="w-full h-full rounded-xl" />
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* ----------------------------------------- */}
-              {/* 2. DISPLAY NAME                           */}
-              {/* ----------------------------------------- */}
-              <div className="prof-section">
-                <label htmlFor="displayName" className="prof-label">
+              {/* 2. Display Name */}
+              <div>
+                <label
+                  htmlFor="displayName"
+                  className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+                >
                   DISPLAY NAME
                 </label>
-                <input
-                  id="displayName"
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="e.g. Alex Sharma"
-                  maxLength={50}
-                  className="prof-input"
-                />
-                <span className="text-[10px] font-bold text-black/50 mt-1 block">
-                  Your public name displayed in leaderboard rankings and contest
-                  lobbies.
-                </span>
+                <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden">
+                  <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+                    <User className="w-4 h-4 text-black" />
+                  </span>
+                  <input
+                    id="displayName"
+                    type="text"
+                    placeholder="e.g. Alex Sharma"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    maxLength={50}
+                    className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+                  />
+                </div>
               </div>
 
-              {/* ----------------------------------------- */}
-              {/* 3. INSTAGRAM-STYLE USERNAME (14-DAY RULE) */}
-              {/* ----------------------------------------- */}
-              <div className="prof-section">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="username" className="prof-label">
+              {/* 3. Handle (14-day rule) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label
+                    htmlFor="username"
+                    className="text-xs font-display font-black tracking-wider text-black uppercase"
+                  >
                     USERNAME (HANDLE)
                   </label>
 
-                  {/* Availability Badge */}
                   {usernameStatus && (
                     <span
-                      className={`prof-status-badge ${
+                      className={`text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-full border border-black ${
                         usernameStatus.isCurrent
-                          ? 'current'
+                          ? 'bg-[#e9f6ff] text-[#071a2b]'
                           : usernameStatus.available
-                          ? 'available'
-                          : 'taken'
+                          ? 'bg-[#d1fae5] text-[#065f46]'
+                          : 'bg-[#fee2e2] text-[#991b1b]'
                       }`}
                     >
                       {checkingUsername
@@ -723,24 +940,21 @@ export default function Profile() {
                   )}
                 </div>
 
-                {/* Cooldown Lock Warning Banner */}
                 {!cooldown.canChange && (
-                  <div className="prof-cooldown-box">
-                    <div className="font-black text-xs uppercase text-[#926002]">
-                      [LOCKED - USERNAME COOLDOWN]
-                    </div>
-                    <p className="text-xs font-bold text-black/80 mt-0.5">
-                      You changed your username recently. To prevent impersonation,
-                      usernames can only be changed once every 14 days. You can change
-                      it again in{' '}
+                  <div className="mb-2 p-3 bg-[#fffde7] border-2 border-black rounded-xl text-xs font-body font-bold text-[#926002] flex items-start gap-2">
+                    <Lock className="w-4 h-4 shrink-0 mt-0.5 text-black" />
+                    <div>
+                      <strong>Handle locked:</strong> Usernames can only be changed once every 14 days. Available in{' '}
                       <strong>{cooldown.daysLeft} day(s)</strong> on{' '}
                       <strong>{cooldown.formattedNextChangeDate}</strong>.
-                    </p>
+                    </div>
                   </div>
                 )}
 
-                <div className="prof-input-wrapper">
-                  <span className="prof-input-prefix">@</span>
+                <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden">
+                  <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black font-display font-black text-sm">
+                    @
+                  </span>
                   <input
                     id="username"
                     type="text"
@@ -749,333 +963,273 @@ export default function Profile() {
                     disabled={!cooldown.canChange}
                     placeholder="your_handle"
                     maxLength={20}
-                    className={`prof-input-with-prefix ${
-                      !cooldown.canChange ? 'disabled' : ''
-                    }`}
+                    className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35 disabled:bg-slate-100 disabled:cursor-not-allowed"
                   />
-                </div>
-
-                <div className="flex flex-col gap-1 mt-1.5">
-                  <p className="text-[11px] font-bold text-black/60">
-                    {usernameStatus?.message}
-                  </p>
-                  {cooldown.canChange && (
-                    <p className="text-[10px] font-bold text-[#b45309]">
-                      * Note: Changing your username will lock it for 14 days. Max 20 characters.
-                    </p>
-                  )}
                 </div>
               </div>
 
-              {/* ----------------------------------------- */}
-              {/* 4. BIO EDITOR                             */}
-              {/* ----------------------------------------- */}
-              <div className="prof-section">
+              {/* 4. Bio */}
+              <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label htmlFor="bio" className="prof-label">
-                    BIO
-                  </label>
-                  <span
-                    className={`text-xs font-black ${
-                      bio.length > 150 ? 'text-red-600' : 'text-black/60'
-                    }`}
+                  <label
+                    htmlFor="bio"
+                    className="text-xs font-display font-black tracking-wider text-black uppercase"
                   >
+                    BIO / STATEMENT
+                  </label>
+                  <span className="font-mono text-[10px] font-bold text-black/60">
                     {bio.length} / 160
                   </span>
                 </div>
-
                 <textarea
                   id="bio"
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  placeholder="Share your goals, favorite aptitude topics, or college..."
+                  placeholder="Share your target exams, college, or aptitude goals..."
                   maxLength={160}
                   rows={3}
-                  className="prof-textarea"
+                  className="w-full p-3 bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] outline-none font-body font-semibold text-sm placeholder:text-black/35 focus:shadow-[3px_3px_0_#38aef0]"
                 />
               </div>
 
-              {/* ----------------------------------------- */}
-              {/* 5. ACCOUNT EMAIL & SECURITY (OTP FLOW)    */}
-              {/* ----------------------------------------- */}
-              <div className="prof-section">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="prof-label">ACCOUNT EMAIL & RECOVERY</label>
-                  {isEmailVerified ? (
-                    <span className="prof-email-status-verified">✓ EMAIL VERIFIED</span>
-                  ) : (
-                    <span className="prof-email-status-unlinked">⚠ NOT LINKED</span>
-                  )}
-                </div>
+              {/* Submit button */}
+              <button
+                type="submit"
+                disabled={
+                  saving ||
+                  (normalizeUsername(usernameInput) !==
+                    normalizeUsername(originalProfile?.username || '') &&
+                    (!usernameStatus?.available || !cooldown.canChange))
+                }
+                className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <span>{saving ? 'SAVING CHANGES...' : 'SAVE PROFILE CHANGES'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        )}
 
-                <div className="prof-email-box">
-                  {isEmailVerified ? (
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="font-black text-sm text-[#071a2b] flex items-center gap-2">
-                          <span>✉</span> {userEmail}
-                        </div>
-                        <p className="text-[11px] font-bold text-black/60 mt-0.5">
-                          Verified recovery email. Used for secure password resets.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEmailModalOpen(true)
-                          setEmailInput('')
-                          setOtpStep(false)
-                          setOtpCode('')
-                          setEmailModalError(null)
-                          setEmailModalSuccess(null)
-                        }}
-                        className="prof-btn-secondary text-xs"
-                      >
-                        CHANGE EMAIL
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="font-black text-sm text-[#991b1b]">
-                          No recovery email linked
-                        </div>
-                        <p className="text-[11px] font-bold text-black/60 mt-0.5">
-                          Add your Gmail / email to enable password recovery and account security.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEmailModalOpen(true)
-                          setEmailInput('')
-                          setOtpStep(false)
-                          setOtpCode('')
-                          setEmailModalError(null)
-                          setEmailModalSuccess(null)
-                        }}
-                        className="prof-btn-secondary text-xs"
-                        style={{ backgroundColor: '#ffd43b' }}
-                      >
-                        + ADD EMAIL
-                      </button>
-                    </div>
-                  )}
+        {/* ================================================= */}
+        {/* TAB 3: SETTINGS & ACCOUNT SECURITY                */}
+        {/* ================================================= */}
+        {activeTab === 'settings' && (
+          <div className="max-w-3xl space-y-6">
+            {/* 1. Account / Recovery Email */}
+            <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+              <div className="border-b-3 border-black pb-3 mb-5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Mail className="w-5 h-5 text-black" />
+                  <h3 className="font-display font-black text-xl uppercase text-black">
+                    ACCOUNT EMAIL
+                  </h3>
                 </div>
+                {isEmailVerified ? (
+                  <span className="bg-[#32e875] border-2 border-black rounded-full px-3 py-0.5 font-mono text-[10px] font-black uppercase shadow-[1.5px_1.5px_0_#000000]">
+                    VERIFIED
+                  </span>
+                ) : (
+                  <span className="bg-[#ffd43b] border-2 border-black rounded-full px-3 py-0.5 font-mono text-[10px] font-black uppercase shadow-[1.5px_1.5px_0_#000000]">
+                    UNLINKED
+                  </span>
+                )}
               </div>
 
-              {/* ----------------------------------------- */}
-              {/* SUBMIT BUTTON                             */}
-              {/* ----------------------------------------- */}
-              <div className="pt-3">
+              <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <div className="font-display font-black text-xs uppercase text-black mb-0.5">
+                    RECOVERY & NOTIFICATION EMAIL
+                  </div>
+                  <div className="font-body font-bold text-sm text-black/80 flex items-center gap-1.5">
+                    <Mail className="w-4 h-4 text-black" />
+                    <span>{isEmailVerified ? userEmail : 'No verified email linked yet'}</span>
+                  </div>
+                </div>
+
                 <button
-                  type="submit"
-                  disabled={
-                    saving ||
-                    (normalizeUsername(usernameInput) !==
-                      normalizeUsername(originalProfile?.username || '') &&
-                      (!usernameStatus?.available || !cooldown.canChange))
-                  }
-                  className="prof-submit-btn"
+                  type="button"
+                  onClick={() => {
+                    setEmailModalOpen(true)
+                    setEmailInput('')
+                    setOtpStep(false)
+                    setOtpCode('')
+                    setEmailModalError(null)
+                    setEmailModalSuccess(null)
+                  }}
+                  className="px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] cursor-pointer"
                 >
-                  {saving ? 'SAVING CHANGES...' : 'SAVE PROFILE CHANGES →'}
+                  {isEmailVerified ? 'CHANGE EMAIL' : '+ LINK EMAIL'}
                 </button>
               </div>
-            </form>
-          </section>
 
-          {/* ----------------------------------------------- */}
-          {/* RIGHT COLUMN: LIVE PROFILE CARD PREVIEW         */}
-          {/* ----------------------------------------------- */}
-          <aside className="prof-preview-col">
-            <div className="prof-preview-sticky">
-              <div className="prof-preview-header">
-                <span className="font-black text-xs uppercase tracking-widest text-white/60">
-                  LIVE PUBLIC PREVIEW
+              <p className="text-xs font-body font-semibold text-black/70">
+                A verified email enables password recovery and official contest notifications.
+              </p>
+            </section>
+
+            {/* 2. Security & Password */}
+            <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+              <div className="border-b-3 border-black pb-3 mb-5 flex items-center gap-2.5">
+                <Shield className="w-5 h-5 text-black" />
+                <h3 className="font-display font-black text-xl uppercase text-black">
+                  SECURITY CREDENTIALS
+                </h3>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8fafc] border-2 border-black rounded-xl">
+                <div>
+                  <div className="font-display font-black text-xs uppercase text-black">
+                    ACCOUNT PASSWORD
+                  </div>
+                  <div className="text-xs font-semibold text-black/70 mt-0.5">
+                    Keep your account secure with regular updates.
+                  </div>
+                </div>
+
+                <Link
+                  to="/update-password"
+                  className="inline-flex items-center gap-2 text-xs font-display font-black text-black hover:text-[#2563eb] border-2 border-black rounded-lg bg-white px-4 py-2 shadow-[2px_2px_0_#000000] uppercase tracking-wider transition-transform hover:-translate-x-0.5"
+                >
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>CHANGE PASSWORD →</span>
+                </Link>
+              </div>
+            </section>
+
+            {/* 3. Preferences */}
+            <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+              <div className="border-b-3 border-black pb-3 mb-5 flex items-center gap-2.5">
+                <Sliders className="w-5 h-5 text-black" />
+                <h3 className="font-display font-black text-xl uppercase text-black">
+                  ARENA PREFERENCES
+                </h3>
+              </div>
+
+              <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl flex items-center justify-between">
+                <div>
+                  <div className="font-display font-black text-xs uppercase text-black">
+                    REDUCED MOTION COMPLIANCE
+                  </div>
+                  <div className="text-xs font-semibold text-black/70 mt-0.5">
+                    Automatically adapts to system prefers-reduced-motion settings.
+                  </div>
+                </div>
+                <span className="bg-[#32e875] border-2 border-black rounded-full px-2.5 py-0.5 font-mono text-[10px] font-black uppercase">
+                  AUTO ENABLED
                 </span>
-                <span className="prof-badge-tag-amber">ATHLETE CARD</span>
               </div>
+            </section>
 
-              {/* Neo-brutalist Athlete Card */}
-              <div className="prof-card-preview">
-                {/* Card Top Banner */}
-                <div className="prof-card-topbar">
-                  <span className="font-black text-[10px] tracking-widest text-black/60 uppercase">
-                    APTIVERSE ATHLETE ID: #{userId?.slice(0, 6).toUpperCase()}
-                  </span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#32e875] border-2 border-black animate-pulse" />
-                </div>
-
-                {/* Card Body */}
-                <div className="p-5">
-                  <div className="flex items-start gap-4">
-                    {/* Live Avatar */}
-                    <div className="prof-preview-avatar">
-                      {avatarUrl ? (
-                        <img
-                          src={avatarUrl}
-                          alt="Preview Avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="prof-avatar-fallback text-2xl">
-                          {firstLetter}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h2 className="font-black text-xl text-[#071a2b] truncate tracking-tight">
-                        {effectiveDisplayName}
-                      </h2>
-                      <div className="font-black text-sm text-[#38aef0] tracking-tight">
-                        @{effectiveUsername}
-                      </div>
-                      <div className="text-[10px] font-black text-black/50 uppercase mt-0.5">
-                        ATHLETE MEMBER
-                      </div>
-                    </div>
+            {/* 4. Session & Destructive Logout */}
+            <section className="bg-[#fee2e2] border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="font-display font-black text-lg uppercase text-[#991b1b]">
+                    LOG OUT OF ARENA SESSION
                   </div>
-
-                  {/* Bio Preview */}
-                  <div className="prof-preview-bio-box">
-                    <div className="text-[10px] font-black uppercase text-black/40 mb-1">
-                      BIO / STATEMENT:
-                    </div>
-                    <p className="text-xs font-bold text-black/80 leading-relaxed italic">
-                      {bio.trim()
-                        ? `"${bio.trim()}"`
-                        : '"AptiVerse problem solver sharpening aptitude & quantitative reasoning skills daily."'}
-                    </p>
-                  </div>
-
-                  {/* Stats Row */}
-                  <div className="prof-preview-stats">
-                    <div className="prof-stat-box">
-                      <div className="prof-stat-val text-[#38aef0]">
-                        {questionStats?.solvedCount ?? 0}
-                      </div>
-                      <div className="prof-stat-lbl">PROBLEMS SOLVED</div>
-                    </div>
-
-                    <div className="prof-stat-box">
-                      <div className="prof-stat-val text-[#32e875]">
-                        {questionStats?.totalPoints ?? 0}
-                      </div>
-                      <div className="prof-stat-lbl">XP POINTS</div>
-                    </div>
-
-                    <div className="prof-stat-box">
-                      <div className="prof-stat-val text-[#ffd43b]">
-                        {questionStats?.accuracyRate ?? 0}%
-                      </div>
-                      <div className="prof-stat-lbl">ACCURACY</div>
-                    </div>
+                  <div className="text-xs font-semibold text-black/75 mt-0.5">
+                    End your current session on this browser device.
                   </div>
                 </div>
 
-                {/* Card Footer */}
-                <div className="prof-card-footer">
-                  <div className="text-[10px] font-black tracking-widest text-black/60">
-                    STATUS: ACTIVE ARENA PARTICIPANT
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="px-5 py-2.5 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs uppercase tracking-wider transition-all hover:-translate-x-0.5 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>{loggingOut ? 'LOGGING OUT...' : 'LOG OUT NOW'}</span>
+                </button>
               </div>
-
-              {/* Quick Links Box */}
-              <div className="prof-quick-box">
-                <div className="font-black text-xs uppercase tracking-wide mb-2 text-white">
-                  ACCOUNT SECURITY & SHORTCUTS
-                </div>
-                <div className="space-y-2">
-                  <Link
-                    to="/update-password"
-                    className="prof-quick-link"
-                  >
-                    CHANGE PASSWORD →
-                  </Link>
-                  <Link
-                    to="/questions"
-                    className="prof-quick-link"
-                  >
-                    SOLVE PRACTICE QUESTIONS →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
+            </section>
+          </div>
+        )}
       </div>
 
       {/* ================================================= */}
       {/* IN-APP OTP EMAIL LINKING MODAL                     */}
       {/* ================================================= */}
       {emailModalOpen && (
-        <div className="prof-modal-overlay" onClick={() => setEmailModalOpen(false)}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setEmailModalOpen(false)}
+        >
           <div
-            className="prof-modal-card"
+            className="w-full max-w-md bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#ffd43b] p-6 sm:p-8 relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="prof-modal-header">
-              <div className="font-black text-base text-[#071a2b] uppercase tracking-wide">
-                {otpStep ? 'ENTER VERIFICATION CODE' : 'LINK ACCOUNT EMAIL'}
+            <div className="flex items-center justify-between pb-3 border-b-2 border-black mb-5">
+              <div className="font-display font-black text-lg uppercase text-black">
+                {otpStep ? 'VERIFY EMAIL CODE' : 'LINK RECOVERY EMAIL'}
               </div>
               <button
                 type="button"
-                className="prof-modal-close-btn"
                 onClick={() => setEmailModalOpen(false)}
+                className="w-7 h-7 border-2 border-black rounded-lg bg-[#ff5b5b] text-white flex items-center justify-center font-black cursor-pointer hover:bg-black"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {emailModalError && (
-              <div className="p-3 mb-4 bg-[#ff5b5b] text-white border-2 border-black font-bold text-xs">
-                {emailModalError}
+              <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{emailModalError}</span>
               </div>
             )}
 
             {emailModalSuccess && (
-              <div className="p-3 mb-4 bg-[#32e875] text-black border-2 border-black font-bold text-xs">
-                {emailModalSuccess}
+              <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] font-display font-black text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{emailModalSuccess}</span>
               </div>
             )}
 
             {!otpStep ? (
               <form onSubmit={handleInitiateEmailLink} className="space-y-4">
-                <p className="text-xs font-bold text-black/75">
+                <p className="text-xs font-body font-semibold text-black/80">
                   Enter your real email address. We will send a 6-digit OTP code to verify ownership.
                 </p>
 
                 <div>
-                  <label htmlFor="modal-email-input" className="prof-label">
+                  <label
+                    htmlFor="modal-email-input"
+                    className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+                  >
                     REAL EMAIL / GMAIL
                   </label>
-                  <input
-                    id="modal-email-input"
-                    type="email"
-                    placeholder="yourname@gmail.com"
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                    required
-                    autoFocus
-                    className="prof-input"
-                  />
+                  <div className="flex items-center bg-white border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] overflow-hidden">
+                    <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+                      <Mail className="w-4 h-4 text-black" />
+                    </span>
+                    <input
+                      id="modal-email-input"
+                      type="email"
+                      placeholder="yourname@gmail.com"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      required
+                      autoFocus
+                      className="w-full py-2.5 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+                    />
+                  </div>
                 </div>
 
-                <div className="prof-otp-actions">
-                  <button
-                    type="submit"
-                    disabled={emailLoading}
-                    className="prof-submit-btn"
-                  >
-                    {emailLoading ? 'SENDING CODE...' : 'SEND VERIFICATION CODE →'}
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={emailLoading}
+                  className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs sm:text-sm tracking-wider uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                >
+                  <span>{emailLoading ? 'SENDING CODE...' : 'SEND VERIFICATION CODE'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </form>
             ) : (
               <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <p className="text-xs font-bold text-black/75">
+                <p className="text-xs font-body font-semibold text-black/80">
                   Enter the 6-digit verification code sent to <strong>{emailInput}</strong>.
                 </p>
 
@@ -1088,48 +1242,48 @@ export default function Profile() {
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                     required
                     autoFocus
-                    className="prof-otp-input"
+                    className="w-full py-3 px-4 text-center font-mono font-black text-2xl tracking-[0.4em] bg-[#f8fafc] border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] outline-none focus:shadow-[3px_3px_0_#38aef0]"
                   />
                 </div>
 
-                <div className="prof-otp-actions">
+                <button
+                  type="submit"
+                  disabled={emailLoading || otpCode.length < 6}
+                  className="w-full py-3.5 bg-[#32e875] hover:bg-[#22c55e] border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs sm:text-sm tracking-wider uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                >
+                  <span>{emailLoading ? 'VERIFYING...' : 'VERIFY & LINK EMAIL'}</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-center justify-between pt-2 border-t-2 border-black/10">
                   <button
-                    type="submit"
-                    disabled={emailLoading || otpCode.length < 6}
-                    className="prof-submit-btn"
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={emailLoading}
+                    className="text-xs font-display font-bold text-black/70 hover:text-black underline cursor-pointer flex items-center gap-1"
                   >
-                    {emailLoading ? 'VERIFYING...' : 'VERIFY & LINK EMAIL →'}
+                    <RotateCw className="w-3 h-3" />
+                    <span>Resend Code</span>
                   </button>
 
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t-2 border-black/10">
-                    <button
-                      type="button"
-                      onClick={handleResendOtp}
-                      disabled={emailLoading}
-                      className="text-xs font-black underline text-black/70 hover:text-black cursor-pointer bg-transparent border-none p-0"
-                    >
-                      ↻ Resend Code
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOtpStep(false)
-                        setOtpCode('')
-                        setEmailModalError(null)
-                        setEmailModalSuccess(null)
-                      }}
-                      className="text-xs font-black underline text-black/70 hover:text-black cursor-pointer bg-transparent border-none p-0"
-                    >
-                      Use Different Email
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpStep(false)
+                      setOtpCode('')
+                      setEmailModalError(null)
+                      setEmailModalSuccess(null)
+                    }}
+                    className="text-xs font-display font-bold text-black/70 hover:text-black underline cursor-pointer"
+                  >
+                    Use Different Email
+                  </button>
                 </div>
               </form>
             )}
           </div>
         </div>
       )}
-    </div>
+    </AppLayout>
   )
 }

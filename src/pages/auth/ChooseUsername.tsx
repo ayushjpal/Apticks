@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { User, CheckCircle2, XCircle, Loader2, ArrowRight, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UsernameValidationResult } from '../../services/profileService'
 import { normalizeUsername } from '../../utils/validation'
+import AuthShell from '../../components/auth/AuthShell'
 
-function ChooseUsername() {
+export default function ChooseUsername() {
   const navigate = useNavigate()
 
   const [username, setUsername] = useState('')
@@ -15,30 +17,39 @@ function ChooseUsername() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  // -----------------------------------------
-  // Check authenticated session
-  // -----------------------------------------
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser()
+    let isMounted = true
 
-      if (userError || !user) {
+    const checkUser = async () => {
+      let activeUser: { id: string } | null = null
+
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (sessionData?.session?.user) {
+        activeUser = sessionData.session.user
+      } else {
+        const { data: userData, error: userError } = await supabase.auth.getUser()
+        if (!userError && userData?.user) {
+          activeUser = userData.user
+        }
+      }
+
+      if (!activeUser && isMounted) {
         navigate('/login', { replace: true })
         return
       }
 
-      setUserId(user.id)
+      if (isMounted && activeUser) {
+        setUserId(activeUser.id)
+      }
     }
 
     checkUser()
+
+    return () => {
+      isMounted = false
+    }
   }, [navigate])
 
-  // -----------------------------------------
-  // Debounced Live Username Availability Check
-  // -----------------------------------------
   useEffect(() => {
     const clean = normalizeUsername(username)
 
@@ -58,12 +69,8 @@ function ChooseUsername() {
     }
   }, [username, userId])
 
-  // -----------------------------------------
-  // Submit Form
-  // -----------------------------------------
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError('')
     setSuccess('')
 
@@ -88,7 +95,6 @@ function ChooseUsername() {
     setLoading(true)
 
     try {
-      // Get authenticated user
       const {
         data: { user },
         error: userError,
@@ -100,8 +106,7 @@ function ChooseUsername() {
         return
       }
 
-      // Upsert profile in Supabase
-      const { data: upsertedProfile, error: upsertError } = await supabase
+      const { error: upsertError } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
@@ -122,11 +127,6 @@ function ChooseUsername() {
         return
       }
 
-      console.log('[ChooseUsername] authUser.id:', user.id)
-      console.log('[ChooseUsername] profile row returned from Supabase:', upsertedProfile)
-      console.log('[ChooseUsername] profile.username:', upsertedProfile?.username)
-
-      // Sync user_metadata on auth.users for safety
       try {
         await supabase.auth.updateUser({
           data: {
@@ -138,11 +138,11 @@ function ChooseUsername() {
         console.warn('Syncing user_metadata note:', metaErr)
       }
 
-      setSuccess('Username saved!')
+      setSuccess('Handle saved successfully! Entering arena...')
 
       setTimeout(() => {
         navigate('/dashboard', { replace: true })
-      }, 500)
+      }, 600)
     } catch (err) {
       console.error('Choose username error:', err)
       setError('Something went wrong. Please try again.')
@@ -152,114 +152,70 @@ function ChooseUsername() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#071a2b] overflow-hidden flex items-center justify-center px-6 py-12">
-      {/* =========================================
-          DECORATIVE FLOATING SHAPES
-      ========================================= */}
-
-      {/* Yellow plus */}
-      <div className="absolute top-[28%] left-[7%] w-12 h-12 bg-[#ffd43b] border-4 border-black shadow-[5px_5px_0_#ffffff] rotate-[-8deg] flex items-center justify-center text-black font-black text-2xl">
-        +
-      </div>
-
-      {/* Blue number */}
-      <div className="absolute top-[22%] right-[7%] w-11 h-11 bg-[#38aef0] border-4 border-black shadow-[5px_5px_0_#ffffff] rotate-[8deg] flex items-center justify-center text-black font-black text-xl">
-        7
-      </div>
-
-      {/* Green equals */}
-      <div className="absolute bottom-[20%] left-[9%] w-12 h-12 bg-[#35d98b] border-4 border-black shadow-[5px_5px_0_#ffffff] rotate-[-5deg] flex items-center justify-center text-black font-black text-xl">
-        =
-      </div>
-
-      {/* Red X */}
-      <div className="absolute bottom-[25%] right-[8%] w-12 h-12 bg-[#ff5c5c] border-4 border-black shadow-[5px_5px_0_#ffffff] rotate-[8deg] flex items-center justify-center text-black font-black text-xl">
-        ×
-      </div>
-
-      {/* =========================================
-          MAIN CARD
-      ========================================= */}
-
-      <div className="relative z-10 w-full max-w-[590px] bg-white text-black border-[4px] border-black shadow-[12px_12px_0_#38aef0] p-8 md:p-12">
-        {/* =========================================
-            BRAND
-        ========================================= */}
-
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-[#ffd43b] border-[4px] border-black shadow-[4px_4px_0_#000] flex items-center justify-center font-black text-2xl">
-            A
-          </div>
-          <span className="text-2xl font-black tracking-tight">APTIVERSE</span>
+    <AuthShell
+      eyebrow="ONBOARDING // HANDLE"
+      title="CHOOSE YOUR HANDLE"
+      subtitle="This username will identify you across all leaderboards, contests, and 1v1 arenas."
+      showBrandFeatures={false}
+    >
+      {/* Error notification */}
+      {error && (
+        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
+          <span>{error}</span>
         </div>
+      )}
 
-        {/* =========================================
-            SMALL LABEL
-        ========================================= */}
-
-        <div className="inline-block bg-[#38aef0] border-[3px] border-black shadow-[4px_4px_0_#000] px-4 py-2 text-xs font-black tracking-[0.12em] mb-7">
-          PROFILE SETUP
+      {/* Success notification */}
+      {success && (
+        <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <span>{success}</span>
         </div>
+      )}
 
-        {/* =========================================
-            HEADING
-        ========================================= */}
-
-        <h1 className="text-5xl md:text-6xl font-black leading-[0.88] tracking-[-0.04em] uppercase">
-          CHOOSE
-          <br />
-          YOUR
-          <br />
-          USERNAME
-        </h1>
-
-        <p className="mt-7 text-base md:text-lg font-semibold leading-relaxed text-black/75 max-w-[480px]">
-          Pick a unique username to complete your AptiVerse profile.
-        </p>
-
-        {/* =========================================
-            FORM
-        ========================================= */}
-
-        <form onSubmit={handleSubmit} className="mt-9">
-          <label htmlFor="username" className="block mb-3 text-sm font-black tracking-wider">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label
+            htmlFor="username"
+            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+          >
             USERNAME
           </label>
-
-          {/* Username Input */}
-          <div className="flex items-center bg-white border-[4px] border-black shadow-[5px_5px_0_#000] focus-within:shadow-[7px_7px_0_#38aef0] transition-shadow">
-            <span className="px-4 text-xl font-black text-black border-r-[4px] border-black h-full flex items-center">
+          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black font-display font-black text-sm flex items-center">
+              <User className="w-4 h-4 text-black mr-1" />
               @
             </span>
-
             <input
               id="username"
               type="text"
-              placeholder="your_username"
+              placeholder="e.g. quantum_coder"
               value={username}
-              onChange={(event) => {
-                setUsername(event.target.value)
-                if (!event.target.value.trim()) {
+              onChange={(e) => {
+                setUsername(e.target.value)
+                if (!e.target.value.trim()) {
                   setUsernameStatus(null)
                 }
               }}
               maxLength={20}
               autoComplete="username"
               autoFocus
-              className="w-full bg-transparent py-4 px-4 outline-none text-black font-bold placeholder:text-black/30"
+              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
             />
           </div>
 
-          {/* Real-time Status Badge */}
+          {/* Real-time username feedback pill */}
           {username.trim() && (
-            <div className="mt-3">
+            <div className="mt-2">
               {checkingUsername ? (
-                <div className="p-2.5 bg-[#fef3c7] border-[3px] border-black text-black font-bold text-xs shadow-[3px_3px_0_#000]">
-                  Checking availability...
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#fef3c7] border-2 border-black rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#000000]">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Checking availability...</span>
                 </div>
               ) : usernameStatus ? (
                 <div
-                  className={`p-2.5 border-[3px] border-black font-bold text-xs shadow-[3px_3px_0_#000] ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 border-2 border-black rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#000000] ${
                     !usernameStatus.isValid
                       ? 'bg-[#fee2e2] text-[#991b1b]'
                       : usernameStatus.isAvailable
@@ -267,69 +223,50 @@ function ChooseUsername() {
                       : 'bg-[#fee2e2] text-[#991b1b]'
                   }`}
                 >
-                  {!usernameStatus.isValid
-                    ? `✕ ${usernameStatus.message}`
-                    : usernameStatus.isAvailable
-                    ? '✓ This username is available'
-                    : '✕ This username is already taken'}
+                  {!usernameStatus.isValid ? (
+                    <>
+                      <XCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{usernameStatus.message}</span>
+                    </>
+                  ) : usernameStatus.isAvailable ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span>Username is available!</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>Username is taken</span>
+                    </>
+                  )}
                 </div>
               ) : null}
             </div>
           )}
 
-          {/* Hint */}
-          <p className="mt-3 text-sm font-semibold text-black/55">
-            3–20 characters • letters, numbers, _, -, and .
-          </p>
-
-          {/* =========================================
-              ERROR
-          ========================================= */}
-
-          {error && (
-            <div className="mt-6 p-4 bg-[#ff5c5c] border-[3px] border-black shadow-[4px_4px_0_#000] text-black font-bold text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* =========================================
-              SUCCESS
-          ========================================= */}
-
-          {success && (
-            <div className="mt-6 p-4 bg-[#35d98b] border-[3px] border-black shadow-[4px_4px_0_#000] text-black font-bold text-sm">
-              {success}
-            </div>
-          )}
-
-          {/* =========================================
-              CONTINUE BUTTON
-          ========================================= */}
-
-          <button
-            type="submit"
-            disabled={loading || checkingUsername || (Boolean(username.trim()) && usernameStatus !== null && !usernameStatus.isAvailable)}
-            className="mt-7 w-full py-4 bg-[#ffd43b] border-[4px] border-black shadow-[6px_6px_0_#000] text-black font-black tracking-wide hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#000] active:translate-x-[5px] active:translate-y-[5px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            {loading ? 'SAVING...' : 'CONTINUE →'}
-          </button>
-        </form>
-
-        {/* =========================================
-            FOOTER INFO
-        ========================================= */}
-
-        <div className="mt-8 p-4 bg-[#e8f5fc] border-[3px] border-black flex items-center gap-3">
-          <div className="w-8 h-8 shrink-0 bg-[#38aef0] border-[3px] border-black flex items-center justify-center font-black">
-            @
-          </div>
-          <p className="text-xs md:text-sm font-bold">
-            Your username will be visible to other AptiVerse users.
+          <p className="mt-1 font-mono text-[10px] text-black/60 font-semibold">
+            3–20 characters • letters, numbers, _, -, .
           </p>
         </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading || checkingUsername || (Boolean(username.trim()) && usernameStatus !== null && !usernameStatus.isAvailable)}
+          className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+        >
+          <span>{loading ? 'SAVING...' : 'CONTINUE TO ARENA'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </form>
+
+      {/* Info notice */}
+      <div className="mt-6 p-3.5 bg-[#e9f6ff] border-2 border-black rounded-xl flex items-start gap-2.5">
+        <span className="font-mono font-black text-xs text-[#38aef0]">ℹ</span>
+        <p className="text-xs font-body font-semibold text-black/80 leading-relaxed">
+          You can customize your bio and avatar picture anytime later from your Profile settings.
+        </p>
       </div>
-    </div>
+    </AuthShell>
   )
 }
-
-export default ChooseUsername

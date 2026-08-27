@@ -1,34 +1,24 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { Eye, EyeOff, Lock, CheckCircle2, ArrowRight, ArrowLeft, AlertCircle, ShieldCheck } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import AuthShell from '../../components/auth/AuthShell'
 
-
-function UpdatePassword() {
+export default function UpdatePassword() {
   const navigate = useNavigate()
 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError('')
     setSuccess('')
-
-
-    // -----------------------------
-    // Validation
-    // -----------------------------
 
     if (!password) {
       setError('Please enter a new password.')
@@ -45,704 +35,165 @@ function UpdatePassword() {
       return
     }
 
-
     setLoading(true)
 
-
     try {
-
-      // -----------------------------
-      // Update Supabase password
-      // -----------------------------
-
-      const { error: updateError } =
-        await supabase.auth.updateUser({
-          password,
-        })
-
+      const { error: updateError } = await supabase.auth.updateUser({
+        password,
+      })
 
       if (updateError) {
-
-        console.error(
-          'Password update error:',
-          updateError
-        )
-
-        setError(
-          updateError.message ||
-          'Unable to update password. Please try again.'
-        )
-
+        console.error('Password update error:', updateError)
+        setError(updateError.message || 'Unable to update password. Please try again.')
         return
       }
 
-
-      // -----------------------------
-      // Success
-      // -----------------------------
-
-      setSuccess(
-        'Password updated successfully!'
-      )
-
+      setSuccess('Password updated successfully!')
 
       setTimeout(() => {
-
         navigate('/login', {
           replace: true,
           state: {
-            message:
-              'Password updated successfully. Please sign in.',
+            message: 'Password updated successfully. Please sign in.',
           },
         })
-
       }, 1200)
-
-
     } catch (error) {
-
-      console.error(
-        'Unexpected password update error:',
-        error
-      )
-
-      setError(
-        'Something went wrong. Please try again.'
-      )
-
+      console.error('Unexpected password update error:', error)
+      setError('Something went wrong. Please try again.')
     } finally {
-
       setLoading(false)
-
     }
   }
 
+  const strengthScore =
+    password.length >= 12 ? 4 : password.length >= 10 ? 3 : password.length >= 8 ? 2 : password.length > 0 ? 1 : 0
 
   return (
-
-    <div
-      className="
-        min-h-screen
-        bg-[#061a2d]
-        flex
-        items-center
-        justify-center
-        px-4
-        py-10
-        relative
-        overflow-hidden
-      "
+    <AuthShell
+      eyebrow="ACCOUNT SECURITY"
+      title="UPDATE PASSWORD"
+      subtitle="Create a new secure password for your Apticks account."
+      showBrandFeatures={false}
     >
-
-      {/* -------------------------------- */}
-      {/* Background Grid                  */}
-      {/* -------------------------------- */}
-
-      <div
-        className="
-          absolute
-          inset-0
-          opacity-30
-          pointer-events-none
-        "
-        style={{
-          backgroundImage: `
-            linear-gradient(#16344d 1px, transparent 1px),
-            linear-gradient(90deg, #16344d 1px, transparent 1px)
-          `,
-          backgroundSize: '24px 24px',
-        }}
-      />
-
-
-      {/* -------------------------------- */}
-      {/* Decorative Shapes                */}
-      {/* -------------------------------- */}
-
-      <div
-        className="
-          absolute
-          left-[8%]
-          top-[30%]
-          w-10
-          h-10
-          bg-[#ffd43b]
-          border-4
-          border-black
-          shadow-[4px_4px_0_#38aef0]
-          rotate-[-8deg]
-          flex
-          items-center
-          justify-center
-          font-black
-          text-xl
-        "
-      >
-        +
-      </div>
-
-
-      <div
-        className="
-          absolute
-          right-[8%]
-          top-[22%]
-          w-9
-          h-9
-          bg-[#38aef0]
-          border-4
-          border-black
-          shadow-[4px_4px_0_#fff]
-          rotate-[8deg]
-          flex
-          items-center
-          justify-center
-          font-black
-        "
-      >
-        7
-      </div>
-
-
-      <div
-        className="
-          absolute
-          left-[9%]
-          bottom-[18%]
-          w-10
-          h-10
-          bg-[#32e875]
-          border-4
-          border-black
-          shadow-[4px_4px_0_#fff]
-          rotate-[-5deg]
-          flex
-          items-center
-          justify-center
-          font-black
-        "
-      >
-        =
-      </div>
-
-
-      <div
-        className="
-          absolute
-          right-[7%]
-          bottom-[22%]
-          w-10
-          h-10
-          bg-[#ff5b5b]
-          border-4
-          border-black
-          shadow-[4px_4px_0_#fff]
-          rotate-[8deg]
-          flex
-          items-center
-          justify-center
-          font-black
-          text-xl
-        "
-      >
-        ×
-      </div>
-
-
-      {/* -------------------------------- */}
-      {/* Main Card                         */}
-      {/* -------------------------------- */}
-
-      <div
-        className="
-          relative
-          z-10
-          w-full
-          max-w-[520px]
-          bg-white
-          text-black
-          border-4
-          border-black
-          shadow-[10px_10px_0_#38aef0]
-          px-8
-          py-9
-          sm:px-10
-          sm:py-10
-        "
-      >
-
-        {/* -------------------------------- */}
-        {/* Logo                             */}
-        {/* -------------------------------- */}
-
-        <div className="flex items-center gap-3 mb-7">
-
-          <div
-            className="
-              w-11
-              h-11
-              bg-[#ffd43b]
-              border-4
-              border-black
-              shadow-[4px_4px_0_#000]
-              flex
-              items-center
-              justify-center
-              font-black
-              text-2xl
-            "
-          >
-            A
-          </div>
-
-          <span className="font-black text-xl tracking-tight">
-            APTIVERSE
-          </span>
-
+      {/* Error notification */}
+      {error && (
+        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
+          <span>{error}</span>
         </div>
+      )}
 
-
-        {/* -------------------------------- */}
-        {/* Badge                            */}
-        {/* -------------------------------- */}
-
-        <div
-          className="
-            inline-block
-            bg-[#38aef0]
-            border-4
-            border-black
-            shadow-[4px_4px_0_#000]
-            px-3
-            py-2
-            text-[11px]
-            font-black
-            tracking-[0.12em]
-            mb-6
-          "
-        >
-          ACCOUNT SECURITY
+      {/* Success notification */}
+      {success && (
+        <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <span>{success}</span>
         </div>
+      )}
 
-
-        {/* -------------------------------- */}
-        {/* Heading                          */}
-        {/* -------------------------------- */}
-
-        <h1
-          className="
-            text-[46px]
-            sm:text-[52px]
-            leading-[0.88]
-            font-black
-            tracking-[-0.04em]
-            uppercase
-          "
-        >
-          UPDATE
-          <br />
-          PASSWORD
-        </h1>
-
-
-        <p className="mt-5 text-sm font-semibold text-black/70">
-          Create a new password for your AptiVerse account.
-        </p>
-
-
-        {/* -------------------------------- */}
-        {/* Form                             */}
-        {/* -------------------------------- */}
-
-        <form
-          onSubmit={handleSubmit}
-          className="mt-7"
-        >
-
-          {/* New Password */}
-
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* New Password */}
+        <div>
           <label
             htmlFor="password"
-            className="
-              block
-              mb-2
-              text-xs
-              font-black
-              tracking-wider
-            "
+            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
           >
             NEW PASSWORD
           </label>
-
-
-          <div
-            className="
-              flex
-              items-center
-              border-4
-              border-black
-              bg-white
-              shadow-[4px_4px_0_#000]
-              focus-within:shadow-[4px_4px_0_#38aef0]
-              transition-shadow
-            "
-          >
-
-            <span className="px-3 text-lg font-black">
-              ♙
+          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+              <Lock className="w-4 h-4 text-black" />
             </span>
-
             <input
               id="password"
-              type={
-                showPassword
-                  ? 'text'
-                  : 'password'
-              }
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
+              type={showPassword ? 'text' : 'password'}
               placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
-              className="
-                w-full
-                py-3.5
-                bg-transparent
-                outline-none
-                text-sm
-                font-semibold
-                placeholder:text-black/40
-              "
+              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
             />
-
             <button
               type="button"
-              onClick={() =>
-                setShowPassword(
-                  !showPassword
-                )
-              }
-              className="
-                px-3
-                text-lg
-                hover:scale-110
-                transition-transform
-                flex items-center justify-center
-              "
-              aria-label={
-                showPassword
-                  ? 'Hide password'
-                  : 'Show password'
-              }
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="px-3 text-black/60 hover:text-black transition-colors cursor-pointer"
             >
-              {showPassword ? (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 3l18 18" />
-                  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
-                  <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5 0 8.5 4 10 8-0.6 1.6-1.6 3-2.9 4.2" />
-                  <path d="M6.6 6.6C4.7 7.8 3.4 9.7 2 12c1.5 4 5 8 10 8 1 0 2-.2 2.9-.5" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              )}
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
-
           </div>
 
-
-          {/* Password strength */}
-
-          <div className="mt-3 flex gap-1.5">
-
-            {[1, 2, 3, 4].map((level) => {
-
-              const strength =
-                password.length >= 12
-                  ? 4
-                  : password.length >= 10
-                    ? 3
-                    : password.length >= 8
-                      ? 2
-                      : 0
-
-              return (
-                <div
-                  key={level}
-                  className={`
-                    h-2
-                    flex-1
-                    border-2
-                    border-black
-                    ${
-                      level <= strength
-                        ? 'bg-[#32e875]'
-                        : 'bg-gray-200'
-                    }
-                  `}
-                />
-              )
-            })}
-
+          {/* Password strength meter */}
+          <div className="mt-2 flex gap-1.5">
+            {[1, 2, 3, 4].map((lvl) => (
+              <div
+                key={lvl}
+                className={`h-2 flex-1 rounded-full border-2 border-black ${
+                  lvl <= strengthScore
+                    ? strengthScore >= 3
+                      ? 'bg-[#32e875]'
+                      : 'bg-[#ffd43b]'
+                    : 'bg-slate-200'
+                }`}
+              />
+            ))}
           </div>
-
-
-          {/* Confirm Password */}
-
-          <label
-            htmlFor="confirmPassword"
-            className="
-              block
-              mt-6
-              mb-2
-              text-xs
-              font-black
-              tracking-wider
-            "
-          >
-            CONFIRM PASSWORD
-          </label>
-
-
-          <div
-            className="
-              flex
-              items-center
-              border-4
-              border-black
-              bg-white
-              shadow-[4px_4px_0_#000]
-              focus-within:shadow-[4px_4px_0_#38aef0]
-              transition-shadow
-            "
-          >
-
-            <span className="px-3 text-lg font-black">
-              ✓
-            </span>
-
-            <input
-              id="confirmPassword"
-              type={
-                showConfirmPassword
-                  ? 'text'
-                  : 'password'
-              }
-              value={confirmPassword}
-              onChange={(event) =>
-                setConfirmPassword(
-                  event.target.value
-                )
-              }
-              placeholder="Confirm new password"
-              autoComplete="new-password"
-              className="
-                w-full
-                py-3.5
-                bg-transparent
-                outline-none
-                text-sm
-                font-semibold
-                placeholder:text-black/40
-              "
-            />
-
-            <button
-              type="button"
-              onClick={() =>
-                setShowConfirmPassword(
-                  !showConfirmPassword
-                )
-              }
-              className="
-                px-3
-                text-lg
-                hover:scale-110
-                transition-transform
-                flex items-center justify-center
-              "
-              aria-label={
-                showConfirmPassword
-                  ? 'Hide password'
-                  : 'Show password'
-              }
-            >
-              {showConfirmPassword ? (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 3l18 18" />
-                  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
-                  <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5 0 8.5 4 10 8-0.6 1.6-1.6 3-2.9 4.2" />
-                  <path d="M6.6 6.6C4.7 7.8 3.4 9.7 2 12c1.5 4 5 8 10 8 1 0 2-.2 2.9-.5" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              )}
-            </button>
-
-          </div>
-
-
-          {/* Error */}
-
-          {error && (
-
-            <div
-              className="
-                mt-5
-                border-4
-                border-black
-                bg-[#ff5b5b]
-                px-4
-                py-3
-                text-sm
-                font-bold
-                shadow-[4px_4px_0_#000]
-              "
-            >
-              {error}
-            </div>
-
-          )}
-
-
-          {/* Success */}
-
-          {success && (
-
-            <div
-              className="
-                mt-5
-                border-4
-                border-black
-                bg-[#32e875]
-                px-4
-                py-3
-                text-sm
-                font-bold
-                shadow-[4px_4px_0_#000]
-              "
-            >
-              {success}
-            </div>
-
-          )}
-
-
-          {/* -------------------------------- */}
-          {/* Submit                           */}
-          {/* -------------------------------- */}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="
-              mt-6
-              w-full
-              border-4
-              border-black
-              bg-[#ffd43b]
-              py-3.5
-              font-black
-              text-sm
-              tracking-wide
-              shadow-[5px_5px_0_#000]
-              hover:translate-x-[2px]
-              hover:translate-y-[2px]
-              hover:shadow-[3px_3px_0_#000]
-              active:translate-x-[5px]
-              active:translate-y-[5px]
-              active:shadow-none
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-              transition-all
-            "
-          >
-            {loading
-              ? 'UPDATING...'
-              : 'UPDATE PASSWORD →'}
-          </button>
-
-        </form>
-
-
-        {/* -------------------------------- */}
-        {/* Back to login                    */}
-        {/* -------------------------------- */}
-
-        <button
-          type="button"
-          onClick={() =>
-            navigate('/login')
-          }
-          className="
-            block
-            mx-auto
-            mt-6
-            text-xs
-            font-black
-            border-b-2
-            border-black
-            hover:text-[#168bd1]
-            hover:border-[#168bd1]
-            transition-colors
-          "
-        >
-          ← BACK TO SIGN IN
-        </button>
-
-
-        {/* -------------------------------- */}
-        {/* Security tip                     */}
-        {/* -------------------------------- */}
-
-        <div
-          className="
-            mt-7
-            border-4
-            border-black
-            bg-[#e9f6ff]
-            p-4
-            flex
-            items-center
-            gap-3
-          "
-        >
-
-          <div
-            className="
-              shrink-0
-              w-8
-              h-8
-              bg-[#38aef0]
-              border-3
-              border-black
-              flex
-              items-center
-              justify-center
-              font-black
-            "
-          >
-            ?
-          </div>
-
-          <p className="text-xs font-bold leading-relaxed">
-            Use a strong password that you
-            don't use on other websites.
-          </p>
-
         </div>
 
-      </div>
+        {/* Confirm Password */}
+        <div>
+          <label
+            htmlFor="confirmPassword"
+            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+          >
+            CONFIRM NEW PASSWORD
+          </label>
+          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+              <ShieldCheck className="w-4 h-4 text-black" />
+            </span>
+            <input
+              id="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              className="px-3 text-black/60 hover:text-black transition-colors cursor-pointer"
+            >
+              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
 
-    </div>
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+        >
+          <span>{loading ? 'UPDATING...' : 'UPDATE PASSWORD'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </form>
+
+      {/* Back to Sign In */}
+      <div className="mt-6 flex justify-center">
+        <Link
+          to="/login"
+          className="inline-flex items-center gap-2 text-xs font-display font-black text-black hover:text-[#2563eb] uppercase tracking-wider underline"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>BACK TO SIGN IN</span>
+        </Link>
+      </div>
+    </AuthShell>
   )
 }
-
-
-export default UpdatePassword

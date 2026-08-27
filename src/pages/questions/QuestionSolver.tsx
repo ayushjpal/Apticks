@@ -1,10 +1,23 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import {
+  ArrowLeft,
+  Clock,
+  Bookmark,
+  CheckCircle2,
+  XCircle,
+  HelpCircle,
+  Edit3,
+  RotateCcw,
+  Sparkles,
+  ChevronRight,
+  ShieldAlert,
+} from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { INITIAL_QUESTIONS } from '../../data/questionsData'
 import { QuestionService } from '../../services/questionService'
-import type { Question, UserQuestionProgress } from '../../types/questions'
-import './QuestionSolver.css'
+import { INITIAL_QUESTIONS } from '../../data/questionsData'
+import type { Question } from '../../types/questions'
+import AppLayout from '../../components/layout/AppLayout'
 
 export default function QuestionSolver() {
   const { id } = useParams<{ id: string }>()
@@ -12,47 +25,38 @@ export default function QuestionSolver() {
 
   const [userId, setUserId] = useState<string | undefined>()
   const [question, setQuestion] = useState<Question | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Solver State
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
-  const [isBookmarked, setIsBookmarked] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
+  const [timeSpent, setTimeSpent] = useState(0)
+  const [timerActive, setTimerActive] = useState(true)
 
-  // Timer state
-  const [seconds, setSeconds] = useState(0)
-  const [timerRunning, setTimerRunning] = useState(true)
-
-  // Interactive Tools state
+  // Interactive Tools
   const [showHint, setShowHint] = useState(false)
   const [showScratchpad, setShowScratchpad] = useState(false)
-  const [scratchpadText, setScratchpadText] = useState('')
+  const [scratchpadNotes, setScratchpadNotes] = useState('')
+  const [isBookmarked, setIsBookmarked] = useState(false)
 
-  // -----------------------------------------
-  // 1. Load User, Question & Prior Progress
-  // -----------------------------------------
+  const timerRef = useRef<number | null>(null)
+
+  // ---------------------------------------------------------------------------
+  // 1. Load Question & User Data
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     let isMounted = true
 
     const loadQuestionData = async () => {
+      if (!id) return
       setLoading(true)
       setIsSubmitted(false)
       setIsCorrect(null)
       setSelectedOption(null)
       setShowHint(false)
-      setSeconds(0)
-      setTimerRunning(true)
-
-      const targetQ = INITIAL_QUESTIONS.find((q) => q.id === id)
-      if (!targetQ) {
-        if (isMounted) {
-          setLoading(false)
-          setQuestion(null)
-        }
-        return
-      }
-
-      if (isMounted) setQuestion(targetQ)
+      setTimeSpent(0)
+      setTimerActive(true)
 
       try {
         const {
@@ -61,22 +65,33 @@ export default function QuestionSolver() {
 
         if (user && isMounted) {
           setUserId(user.id)
-          const { progressMap } =
-            await QuestionService.getQuestionsWithProgress(user.id)
+        }
 
-          const prog: UserQuestionProgress | undefined = progressMap[targetQ.id]
-          if (prog && isMounted) {
-            setIsBookmarked(prog.isBookmarked)
-            if (prog.isSolved || prog.attemptsCount > 0) {
-              setSelectedOption(prog.selectedOption || null)
+        const foundQuestion = INITIAL_QUESTIONS.find((q) => q.id === id)
+        if (!foundQuestion) {
+          navigate('/questions', { replace: true })
+          return
+        }
+
+        if (isMounted) {
+          setQuestion(foundQuestion)
+        }
+
+        if (user?.id) {
+          const { progressMap } = await QuestionService.getQuestionsWithProgress(user.id)
+          const p = progressMap[id]
+          if (isMounted && p) {
+            setIsBookmarked(p.isBookmarked)
+            if (p.isSolved) {
+              setSelectedOption(p.selectedOption || null)
               setIsSubmitted(true)
-              setIsCorrect(prog.isCorrect)
-              setTimerRunning(false)
+              setIsCorrect(p.isCorrect)
+              setTimerActive(false)
             }
           }
         }
       } catch (err) {
-        console.error('Error fetching question solver progress:', err)
+        console.error('Error loading question solver:', err)
       } finally {
         if (isMounted) setLoading(false)
       }
@@ -86,80 +101,54 @@ export default function QuestionSolver() {
 
     return () => {
       isMounted = false
+      if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [id])
+  }, [id, navigate])
 
-  // -----------------------------------------
-  // 2. Active Stopwatch Timer
-  // -----------------------------------------
+  // ---------------------------------------------------------------------------
+  // 2. Stopwatch Timer
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null
-    if (timerRunning) {
-      interval = setInterval(() => {
-        setSeconds((s) => s + 1)
+    if (timerActive && !isSubmitted) {
+      timerRef.current = window.setInterval(() => {
+        setTimeSpent((prev) => prev + 1)
       }, 1000)
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current)
     }
+
     return () => {
-      if (interval) clearInterval(interval)
+      if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [timerRunning])
+  }, [timerActive, isSubmitted])
 
-  const formatTimer = (totalSeconds: number) => {
-    const mins = Math.floor(totalSeconds / 60)
-    const secs = totalSeconds % 60
-    return `${mins.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`
-  }
+  // ---------------------------------------------------------------------------
+  // 3. Submit Answer
+  // ---------------------------------------------------------------------------
+  const handleSubmitAnswer = async () => {
+    if (!selectedOption || !question || isSubmitted) return
 
-  // -----------------------------------------
-  // 3. Navigation Index (Next / Prev)
-  // -----------------------------------------
-  const currentIndex = INITIAL_QUESTIONS.findIndex((q) => q.id === id)
-  const prevQuestion =
-    currentIndex > 0 ? INITIAL_QUESTIONS[currentIndex - 1] : null
-  const nextQuestion =
-    currentIndex < INITIAL_QUESTIONS.length - 1
-      ? INITIAL_QUESTIONS[currentIndex + 1]
-      : null
+    setTimerActive(false)
+    setIsSubmitted(true)
 
-  // -----------------------------------------
-  // 4. Action Handlers
-  // -----------------------------------------
-  const handleSelectOption = (optionId: string) => {
-    if (isSubmitted && isCorrect) return // Prevent changing if already solved
-    setSelectedOption(optionId)
-  }
-
-  const handleSubmit = async () => {
-    if (!selectedOption || !question) return
-
-    setSubmitting(true)
-    setTimerRunning(false)
+    const correct = selectedOption === question.correctOption
+    setIsCorrect(correct)
 
     try {
-      const result = await QuestionService.submitAnswer(
+      await QuestionService.submitAnswer(
         question.id,
         selectedOption,
-        seconds,
+        timeSpent,
         userId
       )
-
-      setIsSubmitted(true)
-      setIsCorrect(result.isCorrect)
     } catch (err) {
-      console.error('Error submitting answer:', err)
-    } finally {
-      setSubmitting(false)
+      console.warn('Progress save notice:', err)
     }
   }
 
-  const handleReattempt = () => {
-    setIsSubmitted(false)
-    setIsCorrect(null)
-    setTimerRunning(true)
-  }
-
+  // ---------------------------------------------------------------------------
+  // 4. Toggle Bookmark
+  // ---------------------------------------------------------------------------
   const handleToggleBookmark = async () => {
     if (!question) return
     const newStatus = !isBookmarked
@@ -167,334 +156,329 @@ export default function QuestionSolver() {
     await QuestionService.toggleBookmark(question.id, userId)
   }
 
-  if (loading) {
+  // ---------------------------------------------------------------------------
+  // 5. Navigate Next Question
+  // ---------------------------------------------------------------------------
+  const handleNextQuestion = () => {
+    if (!question) return
+    const currentIndex = INITIAL_QUESTIONS.findIndex((q) => q.id === question.id)
+    if (currentIndex >= 0 && currentIndex < INITIAL_QUESTIONS.length - 1) {
+      const nextQ = INITIAL_QUESTIONS[currentIndex + 1]
+      navigate(`/questions/${nextQ.id}`)
+    } else {
+      navigate('/questions')
+    }
+  }
+
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  if (loading || !question) {
     return (
-      <div className="qs-page flex items-center justify-center text-white">
-        <div className="text-center">
-          <div className="mx-auto mb-4 w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin" />
-          <p className="font-black text-lg">LOADING PROBLEM ARENA...</p>
+      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
+        <div className="text-center font-display font-black">
+          <div className="w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
+          <p className="tracking-wider">LOADING ARENA QUESTION...</p>
         </div>
       </div>
     )
   }
 
-  if (!question) {
-    return (
-      <div className="qs-page flex items-center justify-center">
-        <div className="bg-white border-4 border-black p-8 text-center max-w-md shadow-[6px_6px_0_#000]">
-          <h2 className="font-black text-2xl mb-2">QUESTION NOT FOUND</h2>
-          <p className="font-bold text-black/60 mb-6">
-            The requested aptitude problem does not exist in the question bank.
-          </p>
-          <button
-            onClick={() => navigate('/questions')}
-            className="px-6 py-3 bg-[#ffd43b] border-3 border-black font-black"
-          >
-            ← BACK TO QUESTION BANK
-          </button>
-        </div>
-      </div>
-    )
-  }
+  const targetTime = 120
+  const isTimeUrgent = timeSpent > targetTime - 20
 
   return (
-    <div className="qs-page">
-      {/* Background Grid */}
-      <div className="qs-bg-grid" />
-
-      <div className="qs-container">
+    <AppLayout hideBottomNav={true}>
+      <div className="max-w-4xl mx-auto space-y-5 animate-entry">
         {/* ================================================= */}
-        {/* TOP BAR / NAVIGATION                              */}
+        {/* TOP SOLVER HUD BAR                                */}
         {/* ================================================= */}
-        <header className="qs-header">
-          <button
-            onClick={() => navigate('/questions')}
-            className="qs-back-btn"
+        <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-4 sm:p-5 flex items-center justify-between gap-3">
+          <Link
+            to="/questions"
+            className="px-3.5 py-2 bg-[#f1f5f9] hover:bg-[#e2e8f0] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-x-0.5"
           >
-            <span>←</span> ALL PROBLEMS
-          </button>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">BACK TO BANK</span>
+          </Link>
 
-          <div className="flex items-center gap-3">
-            {/* Difficulty Badge */}
-            {question.difficulty === 'easy' && (
-              <span className="px-3 py-1 bg-[#32e875] border-2 border-black font-black text-xs shadow-[2px_2px_0_#000]">
-                EASY
-              </span>
-            )}
-            {question.difficulty === 'medium' && (
-              <span className="px-3 py-1 bg-[#ffd43b] border-2 border-black font-black text-xs shadow-[2px_2px_0_#000]">
-                MEDIUM
-              </span>
-            )}
-            {question.difficulty === 'hard' && (
-              <span className="px-3 py-1 bg-[#ff5b5b] text-white border-2 border-black font-black text-xs shadow-[2px_2px_0_#000]">
-                HARD
-              </span>
-            )}
-
-            {/* Timer */}
-            <div className="qs-timer-pill">
-              <span className="text-xs font-black text-white/60">TIME:</span>
-              <span>{formatTimer(seconds)}</span>
-            </div>
-
-            {/* Bookmark Button */}
-            <button
-              onClick={handleToggleBookmark}
-              className={`px-3 py-1.5 border-3 border-black font-black text-xs shadow-[2px_2px_0_#000] cursor-pointer transition-all ${
-                isBookmarked
+          {/* Stopwatch with Urgency state */}
+          <div
+            className={`
+              flex items-center gap-2 px-4 py-1.5 border-2 border-black rounded-full shadow-[2px_2px_0_#000000] font-mono font-black text-sm sm:text-base
+              ${
+                isTimeUrgent && !isSubmitted
+                  ? 'bg-[#ff5b5b] text-white animate-pulse'
+                  : timeSpent > targetTime / 2
                   ? 'bg-[#ffd43b] text-black'
-                  : 'bg-white text-black/60 hover:text-black'
-              }`}
-              title={
-                isBookmarked ? 'Bookmarked for Revision' : 'Bookmark Question'
+                  : 'bg-[#e9f6ff] text-[#071a2b]'
               }
+            `}
+          >
+            <Clock className="w-4 h-4 shrink-0" />
+            <span>{formatTimer(timeSpent)}</span>
+            <span className="text-[10px] font-bold opacity-75 hidden sm:inline">
+              / {formatTimer(targetTime)} TARGET
+            </span>
+          </div>
+
+          {/* Problem meta badges */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleToggleBookmark}
+              className={`p-2 border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] transition-transform hover:scale-105 cursor-pointer ${
+                isBookmarked ? 'bg-[#ffd43b] text-black' : 'bg-white text-black/60'
+              }`}
+              title={isBookmarked ? 'Saved' : 'Save for review'}
             >
-              {isBookmarked ? '[SAVED]' : '[+] SAVE'}
+              <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-black' : ''}`} />
             </button>
-          </div>
-        </header>
 
-        {/* ================================================= */}
-        {/* MAIN PROBLEM BOX                                  */}
-        {/* ================================================= */}
-        <article className="qs-problem-card">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="qs-topic-badge">
-              {question.category} // {question.topic}
-            </span>
-            <span className="text-xs font-black text-black/60">
-              +{question.points} POINTS
+            <span className="hidden sm:inline-block bg-black text-white border-2 border-black rounded-xl px-3 py-2 font-mono font-black text-xs shadow-[2px_2px_0_#ffd43b]">
+              +{question.points} XP
             </span>
           </div>
+        </div>
 
-          <h1 className="text-2xl lg:text-3xl font-black uppercase text-[#071a2b] tracking-tight">
+        {/* ================================================= */}
+        {/* QUESTION PROMPT CARD                              */}
+        {/* ================================================= */}
+        <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#ffd43b] p-6 sm:p-8">
+          {/* Metadata chips */}
+          <div className="flex flex-wrap items-center gap-2 pb-4 mb-5 border-b-2 border-black">
+            <span className="bg-[#38aef0] text-black border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-mono font-black uppercase">
+              {question.category}
+            </span>
+            <span className="bg-[#f1f5f9] text-black border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-mono font-black uppercase">
+              {question.topic}
+            </span>
+            <span
+              className={`border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-display font-black uppercase ${
+                question.difficulty === 'easy'
+                  ? 'bg-[#32e875] text-black'
+                  : question.difficulty === 'medium'
+                  ? 'bg-[#ffd43b] text-black'
+                  : 'bg-[#ff5b5b] text-white'
+              }`}
+            >
+              {question.difficulty}
+            </span>
+          </div>
+
+          <h1 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black leading-snug">
             {question.title}
           </h1>
 
-          {/* Problem Prompt */}
-          <div className="qs-prompt-text">{question.prompt}</div>
+          <div className="mt-4 p-5 bg-[#f8fafc] border-2 border-black rounded-xl font-body font-semibold text-sm sm:text-base text-black/90 leading-relaxed whitespace-pre-line">
+            {question.prompt}
+          </div>
 
-          {/* 4 Interactive Option Tiles */}
-          <div className="qs-options-grid">
+          {/* =============================================== */}
+          {/* OPTIONS LIST (A / B / C / D)                     */}
+          {/* =============================================== */}
+          <div className="mt-6 space-y-3">
             {question.options.map((opt) => {
               const isSelected = selectedOption === opt.id
-              const isCorrectOption = opt.id === question.correctOption
+              const isCorrectOption = question.correctOption === opt.id
 
-              let tileClass = 'qs-option-tile'
+              let stateStyle = 'bg-white hover:bg-[#f8fafc] border-black text-black'
               if (isSubmitted) {
                 if (isCorrectOption) {
-                  tileClass += ' correct'
-                } else if (isSelected && !isCorrect) {
-                  tileClass += ' incorrect'
+                  stateStyle = 'bg-[#d1fae5] border-black text-[#065f46] font-bold ring-2 ring-[#059669]'
+                } else if (isSelected && !isCorrectOption) {
+                  stateStyle = 'bg-[#fee2e2] border-black text-[#991b1b]'
+                } else {
+                  stateStyle = 'bg-slate-100 opacity-60 border-black/40 text-black'
                 }
               } else if (isSelected) {
-                tileClass += ' selected'
+                stateStyle = 'bg-[#ffd43b] border-black text-black font-bold shadow-[4px_4px_0_#000000] -translate-y-0.5'
               }
 
               return (
                 <button
                   key={opt.id}
                   type="button"
-                  onClick={() => handleSelectOption(opt.id)}
-                  disabled={isSubmitted && (isCorrect ?? false)}
-                  className={tileClass}
+                  disabled={isSubmitted}
+                  onClick={() => setSelectedOption(opt.id)}
+                  className={`
+                    w-full p-4 border-2 sm:border-3 rounded-xl sm:rounded-2xl text-left flex items-center justify-between gap-3 transition-all cursor-pointer select-none shadow-[3px_3px_0_#000000]
+                    ${stateStyle}
+                  `}
                 >
-                  <div className="qs-option-letter">{opt.id}</div>
-                  <div className="qs-option-text">{opt.text}</div>
+                  <div className="flex items-center gap-3.5">
+                    <span className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-mono font-black text-sm shrink-0">
+                      {opt.id}
+                    </span>
+                    <span className="font-body font-bold text-sm sm:text-base">
+                      {opt.text}
+                    </span>
+                  </div>
+
+                  {isSubmitted && isCorrectOption && (
+                    <CheckCircle2 className="w-5 h-5 text-[#059669] shrink-0" />
+                  )}
+                  {isSubmitted && isSelected && !isCorrectOption && (
+                    <XCircle className="w-5 h-5 text-[#dc2626] shrink-0" />
+                  )}
                 </button>
               )
             })}
           </div>
 
-          {/* Action Row */}
-          <div className="qs-actions-bar">
-            <div className="flex items-center gap-3">
-              {/* Hint Button */}
-              {question.hints && question.hints.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowHint(!showHint)}
-                  className="qs-secondary-btn"
-                >
-                  {showHint ? 'HIDE HINT' : 'SHOW HINT'}
-                </button>
-              )}
+          {/* =============================================== */}
+          {/* ACTIONS: SUBMIT / HINT / SCRATCHPAD              */}
+          {/* =============================================== */}
+          <div className="mt-6 pt-5 border-t-2 border-black flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowHint(!showHint)}
+                className={`px-3.5 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
+                  showHint ? 'bg-[#ffd43b]' : 'bg-white'
+                }`}
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span>{showHint ? 'HIDE HINT' : 'NEED HINT?'}</span>
+              </button>
 
-              {/* Scratchpad Toggle */}
               <button
                 type="button"
                 onClick={() => setShowScratchpad(!showScratchpad)}
-                className="qs-secondary-btn"
+                className={`px-3.5 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
+                  showScratchpad ? 'bg-[#38aef0]' : 'bg-white'
+                }`}
               >
-                {showScratchpad ? 'CLOSE SCRATCHPAD' : 'SCRATCHPAD'}
+                <Edit3 className="w-4 h-4" />
+                <span>SCRATCHPAD</span>
               </button>
             </div>
 
-            <div className="flex items-center gap-3">
-              {isSubmitted && !isCorrect && (
-                <button
-                  type="button"
-                  onClick={handleReattempt}
-                  className="qs-secondary-btn bg-[#fff3cd]"
-                >
-                  TRY AGAIN
-                </button>
-              )}
-
+            {!isSubmitted ? (
               <button
                 type="button"
-                onClick={handleSubmit}
-                disabled={!selectedOption || submitting || (isSubmitted && (isCorrect ?? false))}
-                className="qs-submit-btn"
+                onClick={handleSubmitAnswer}
+                disabled={!selectedOption}
+                className="px-7 py-3 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                {submitting
-                  ? 'CHECKING...'
-                  : isSubmitted && isCorrect
-                  ? 'COMPLETED'
-                  : 'SUBMIT ANSWER →'}
+                <span>LOCK & SUBMIT ANSWER</span>
+                <CheckCircle2 className="w-4 h-4" />
               </button>
+            ) : (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSubmitted(false)
+                    setIsCorrect(null)
+                    setSelectedOption(null)
+                    setTimerActive(true)
+                  }}
+                  className="px-4 py-2.5 bg-white hover:bg-slate-100 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>RE-ATTEMPT</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNextQuestion}
+                  className="px-6 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                >
+                  <span>NEXT PROBLEM</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ================================================= */}
+        {/* HINT DRAWER                                       */}
+        {/* ================================================= */}
+        {showHint && question.hints && question.hints.length > 0 && (
+          <div className="p-5 bg-[#fffde7] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
+            <div className="flex items-center gap-2 font-display font-black text-xs uppercase text-[#926002] mb-2">
+              <Sparkles className="w-4 h-4" />
+              <span>ARENA COACH HINTS:</span>
+            </div>
+            <ul className="space-y-1.5 list-disc list-inside font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
+              {question.hints.map((hintText, idx) => (
+                <li key={idx}>{hintText}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* ================================================= */}
+        {/* SCRATCHPAD DRAWER                                 */}
+        {/* ================================================= */}
+        {showScratchpad && (
+          <div className="p-5 bg-[#e9f6ff] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
+            <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-black">
+              <span className="font-display font-black text-xs uppercase text-[#071a2b]">
+                DIGITAL CALCULATION SCRATCHPAD
+              </span>
+              <span className="font-mono text-[10px] font-bold text-black/60">
+                Notes stay in this session
+              </span>
+            </div>
+            <textarea
+              value={scratchpadNotes}
+              onChange={(e) => setScratchpadNotes(e.target.value)}
+              placeholder="Jot down rough calculations, formulas, or step-by-step logic here..."
+              rows={4}
+              className="w-full p-3 bg-white border-2 border-black rounded-xl font-mono text-xs font-bold outline-none focus:shadow-[2px_2px_0_#38aef0]"
+            />
+          </div>
+        )}
+
+        {/* ================================================= */}
+        {/* EXPLANATION & ACCURACY SUMMARY (AFTER SUBMIT)     */}
+        {/* ================================================= */}
+        {isSubmitted && (
+          <div
+            className={`
+              p-6 border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] animate-entry
+              ${isCorrect ? 'bg-[#d1fae5]' : 'bg-[#fee2e2]'}
+            `}
+          >
+            <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-black">
+              <div className="flex items-center gap-2.5">
+                {isCorrect ? (
+                  <>
+                    <CheckCircle2 className="w-6 h-6 text-[#065f46]" />
+                    <span className="font-display font-black text-lg uppercase text-[#065f46]">
+                      CORRECT! +{question.points} XP EARNED
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldAlert className="w-6 h-6 text-[#991b1b]" />
+                    <span className="font-display font-black text-lg uppercase text-[#991b1b]">
+                      INCORRECT ATTEMPT • CORRECT ANSWER IS OPTION {question.correctOption}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <div className="font-mono text-xs font-black text-black">
+                SOLVE TIME: {formatTimer(timeSpent)}
+              </div>
+            </div>
+
+            <div className="p-4 bg-white border-2 border-black rounded-xl font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
+              <div className="font-display font-black text-xs uppercase text-black mb-1.5">
+                STEP-BY-STEP SOLUTION:
+              </div>
+              {question.explanation}
             </div>
           </div>
-
-          {/* =============================================== */}
-          {/* HINT DRAWER                                     */}
-          {/* =============================================== */}
-          {showHint && question.hints && (
-            <div className="mt-5 p-4 bg-[#fff9db] border-3 border-black shadow-[3px_3px_0_#000]">
-              <div className="font-black text-xs uppercase text-[#926002] mb-1">
-                Progressive Hints:
-              </div>
-              <ul className="list-disc list-inside space-y-1 font-bold text-sm">
-                {question.hints.map((h, idx) => (
-                  <li key={idx}>{h}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* =============================================== */}
-          {/* SCRATCHPAD DOODLE/CALCULATION NOTEPAD           */}
-          {/* =============================================== */}
-          {showScratchpad && (
-            <div className="qs-scratchpad-card">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-black text-xs uppercase">
-                  Rough Calculation Pad (Scratchpad):
-                </span>
-                <button
-                  onClick={() => setScratchpadText('')}
-                  className="text-xs font-bold text-red-600 underline"
-                >
-                  Clear Notes
-                </button>
-              </div>
-              <textarea
-                value={scratchpadText}
-                onChange={(e) => setScratchpadText(e.target.value)}
-                placeholder="Type your intermediate calculations, equations, or rough notes here..."
-                className="qs-scratchpad-textarea"
-              />
-            </div>
-          )}
-
-          {/* =============================================== */}
-          {/* FEEDBACK BANNER                                 */}
-          {/* =============================================== */}
-          {isSubmitted && isCorrect && (
-            <div className="qs-banner-correct">
-              <div>
-                <div className="font-black text-lg">
-                  CORRECT ANSWER
-                </div>
-                <div className="text-sm font-bold text-black/80">
-                  You earned +{question.points} Points in{' '}
-                  {formatTimer(seconds)}.
-                </div>
-              </div>
-              {nextQuestion && (
-                <button
-                  onClick={() => navigate(`/questions/${nextQuestion.id}`)}
-                  className="px-5 py-2.5 bg-[#071a2b] text-white border-2 border-black font-black text-xs shadow-[3px_3px_0_#000] hover:bg-black"
-                >
-                  NEXT PROBLEM →
-                </button>
-              )}
-            </div>
-          )}
-
-          {isSubmitted && !isCorrect && (
-            <div className="qs-banner-incorrect">
-              <div>
-                <div className="font-black text-lg">
-                  INCORRECT OPTION SELECTED
-                </div>
-                <div className="text-sm font-bold text-white/90">
-                  Correct answer is Option ({question.correctOption}). Review
-                  the detailed solution below.
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* =============================================== */}
-          {/* STEP-BY-STEP EXPLANATION DRAWER                 */}
-          {/* =============================================== */}
-          {isSubmitted && (
-            <section className="qs-explanation-card">
-              <div className="font-black text-xs uppercase tracking-widest text-[#38aef0] mb-1">
-                DETAILED SOLUTION & METHOD
-              </div>
-              <h3 className="font-black text-xl mb-3">
-                Step-by-Step Mathematical Explanation
-              </h3>
-
-              {question.formulaOrRule && (
-                <div className="qs-formula-box">
-                  <strong>Key Formula / Shortcut:</strong>
-                  <div className="mt-1">{question.formulaOrRule}</div>
-                </div>
-              )}
-
-              <div className="text-base font-bold leading-relaxed whitespace-pre-line text-slate-800">
-                {question.explanation}
-              </div>
-            </section>
-          )}
-        </article>
-
-        {/* ================================================= */}
-        {/* FOOTER NAVIGATION (PREV / NEXT)                   */}
-        {/* ================================================= */}
-        <footer className="qs-footer-nav">
-          {prevQuestion ? (
-            <button
-              onClick={() => navigate(`/questions/${prevQuestion.id}`)}
-              className="px-5 py-3 bg-white border-3 border-black shadow-[4px_4px_0_#000] font-black text-sm hover:bg-[#e9f6ff] transition-all"
-            >
-              ← PREVIOUS PROBLEM
-            </button>
-          ) : (
-            <div />
-          )}
-
-          {nextQuestion ? (
-            <button
-              onClick={() => navigate(`/questions/${nextQuestion.id}`)}
-              className="px-5 py-3 bg-[#ffd43b] border-3 border-black shadow-[4px_4px_0_#000] font-black text-sm hover:bg-[#ffde6a] transition-all"
-            >
-              NEXT PROBLEM →
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate('/questions')}
-              className="px-5 py-3 bg-[#32e875] border-3 border-black shadow-[4px_4px_0_#000] font-black text-sm"
-            >
-              BACK TO QUESTION BANK →
-            </button>
-          )}
-        </footer>
+        )}
       </div>
-    </div>
+    </AppLayout>
   )
 }

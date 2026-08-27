@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, RotateCw, AlertCircle, Shield } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { validatePassword } from '../../utils/validation'
-import './LinkEmail.css'
+import AuthShell from '../../components/auth/AuthShell'
 
 export default function LinkEmail() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // In-memory volatile password passed from Signup (never written to persistent storage)
   const pendingPasswordFromState = (location.state as { pendingPassword?: string; username?: string })?.pendingPassword
   const usernameFromState = (location.state as { pendingPassword?: string; username?: string })?.username
 
@@ -25,7 +25,10 @@ export default function LinkEmail() {
   useEffect(() => {
     async function checkCurrentSession() {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
         if (!session?.user) {
           navigate('/login', { replace: true })
           return
@@ -37,11 +40,9 @@ export default function LinkEmail() {
           setCurrentUsername(metaUsername)
         }
 
-        // Check if there is already a pending new_email
         if (user.new_email) {
           setSubmittedEmail(user.new_email)
         } else if (user.email && !user.is_anonymous) {
-          // If the user already has a real email confirmed and is not anonymous, proceed to dashboard
           navigate('/dashboard', { replace: true })
           return
         }
@@ -65,7 +66,6 @@ export default function LinkEmail() {
       return
     }
 
-    // Basic email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(cleanEmail)) {
       setError('Please enter a valid email address.')
@@ -86,8 +86,6 @@ export default function LinkEmail() {
 
     setLoading(true)
     try {
-      // Execute in-place identity upgrade on existing Supabase Auth identity
-      // Converts anonymous user -> permanent email/password user (retaining the exact same UUID)
       const { data, error: updateError } = await supabase.auth.updateUser({
         email: cleanEmail,
         password: finalPassword,
@@ -130,12 +128,11 @@ export default function LinkEmail() {
 
   if (checkingAuth) {
     return (
-      <div className="link-email-page">
-        <main className="link-email-main">
-          <div className="link-email-card" style={{ textAlign: 'center' }}>
-            <p style={{ fontWeight: 900 }}>LOADING ACCOUNT...</p>
-          </div>
-        </main>
+      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
+        <div className="text-center font-display font-black">
+          <div className="w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
+          <p>LOADING ACCOUNT...</p>
+        </div>
       </div>
     )
   }
@@ -143,152 +140,137 @@ export default function LinkEmail() {
   const needsPasswordPrompt = !pendingPasswordFromState
 
   return (
-    <div className="link-email-page">
-      <header className="link-email-header">
-        <Link to="/" className="link-email-brand">
-          APTIVERSE
-        </Link>
-        <span className="link-email-badge">ACCOUNT SETUP</span>
-      </header>
+    <AuthShell
+      eyebrow="ACCOUNT SETUP"
+      title={submittedEmail ? 'CHECK YOUR INBOX' : 'LINK REAL EMAIL'}
+      subtitle={
+        submittedEmail
+          ? `Verification link sent to ${submittedEmail}. Confirm your email to enable password recovery.`
+          : `Connect a real Gmail or personal email to ${
+              currentUsername ? `@${currentUsername}` : 'your Apticks account'
+            } for account recovery and official leaderboard verification.`
+      }
+      showBrandFeatures={false}
+    >
+      {/* Error notification */}
+      {error && (
+        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
+          <span>{error}</span>
+        </div>
+      )}
 
-      <main className="link-email-main">
-        <section className="link-email-card">
-          <div className="link-email-title-group">
-            <h1 className="link-email-title">
-              {submittedEmail ? 'CHECK YOUR INBOX' : 'LINK REAL EMAIL'}
-            </h1>
-            <p className="link-email-subtitle">
-              {submittedEmail
-                ? `Verification link sent to ${submittedEmail}. Confirm your email to enable password recovery.`
-                : `Connect a real Gmail or personal email to ${
-                    currentUsername ? `@${currentUsername}` : 'your account'
-                  } for account recovery and official leaderboard verification.`}
+      {submittedEmail ? (
+        <div className="space-y-4">
+          <div className="p-4 bg-[#d1fae5] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000]">
+            <div className="flex items-center gap-2 font-display font-black text-xs text-[#065f46] uppercase mb-1">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>VERIFICATION PENDING</span>
+            </div>
+            <p className="text-xs font-body font-semibold text-black/80 leading-relaxed">
+              Click the confirmation link sent to <strong>{submittedEmail}</strong> to link your email permanently.
             </p>
           </div>
 
-          {error && <div className="link-email-error">{error}</div>}
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>CONTINUE TO DASHBOARD</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
 
-          {submittedEmail ? (
-            <div className="link-email-pending-box">
-              <span className="link-email-pending-badge">VERIFICATION PENDING</span>
-              <h3 className="link-email-pending-title">Action Required</h3>
-              <p className="link-email-pending-text">
-                Click the confirmation link sent to <strong>{submittedEmail}</strong> to link your
-                email permanently. You can continue practicing while verification is in progress.
-              </p>
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={resending}
+            className="w-full py-2.5 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl font-display font-black text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
+            <span>{resending ? 'RESENDING...' : 'RESEND VERIFICATION EMAIL'}</span>
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleLinkEmail} className="space-y-4">
+          {/* Email input */}
+          <div>
+            <label
+              htmlFor="real-email"
+              className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+            >
+              REAL EMAIL / GMAIL
+            </label>
+            <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+              <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+                <Mail className="w-4 h-4 text-black" />
+              </span>
+              <input
+                id="real-email"
+                type="email"
+                placeholder="yourname@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoFocus
+                className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+              />
+            </div>
+          </div>
 
-              <div className="link-email-actions">
+          {/* Password Prompt if not cached */}
+          {needsPasswordPrompt && (
+            <div>
+              <label
+                htmlFor="confirm-pass"
+                className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+              >
+                CONFIRM PASSWORD
+              </label>
+              <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+                <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+                  <Lock className="w-4 h-4 text-black" />
+                </span>
+                <input
+                  id="confirm-pass"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+                />
                 <button
                   type="button"
-                  onClick={() => navigate('/dashboard')}
-                  className="link-email-dashboard-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="px-3 text-black/60 hover:text-black transition-colors cursor-pointer"
                 >
-                  CONTINUE TO DASHBOARD →
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleResendVerification}
-                  disabled={resending}
-                  className="link-email-resend-btn"
-                >
-                  {resending ? 'RESENDING...' : '↻ Resend Verification Email'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSubmittedEmail(null)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    fontSize: '11px',
-                    fontWeight: 750,
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    marginTop: '4px',
-                  }}
-                >
-                  Use a different email address
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
-          ) : (
-            <form onSubmit={handleLinkEmail}>
-              <div className="link-email-field">
-                <label htmlFor="real-email" className="link-email-label">
-                  REAL EMAIL / GMAIL
-                </label>
-                <div className="link-email-input-wrapper">
-                  <span className="link-email-input-icon">✉</span>
-                  <input
-                    id="real-email"
-                    type="email"
-                    placeholder="yourname@gmail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoFocus
-                    className="link-email-input"
-                  />
-                </div>
-              </div>
-
-              {/* If password was not in memory (e.g. page reloaded), prompt user to confirm password */}
-              {needsPasswordPrompt && (
-                <div className="link-email-field">
-                  <label htmlFor="confirm-pass" className="link-email-label">
-                    CONFIRM PASSWORD
-                  </label>
-                  <div className="link-email-input-wrapper">
-                    <span className="link-email-input-icon">🔒</span>
-                    <input
-                      id="confirm-pass"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="link-email-input"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        padding: '0 10px',
-                        cursor: 'pointer',
-                        fontWeight: 900,
-                        fontSize: '11px',
-                      }}
-                    >
-                      {showPassword ? 'HIDE' : 'SHOW'}
-                    </button>
-                  </div>
-                  <p style={{ fontSize: '9px', fontWeight: 700, color: '#6b7280', marginTop: '4px' }}>
-                    Min 8 chars with uppercase, lowercase, number & special char
-                  </p>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="link-email-submit-btn"
-              >
-                {loading ? 'SENDING LINK...' : 'SEND VERIFICATION LINK →'}
-              </button>
-            </form>
           )}
 
-          <div className="link-email-footer-info">
-            <span style={{ fontSize: '14px' }}>🔒</span>
-            <span>
-              Your real email is kept private and will never be shown on public profiles or during login.
-            </span>
-          </div>
-        </section>
-      </main>
-    </div>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+          >
+            <span>{loading ? 'SENDING LINK...' : 'SEND VERIFICATION LINK'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </form>
+      )}
+
+      {/* Security privacy note */}
+      <div className="mt-6 p-3.5 bg-[#e9f6ff] border-2 border-black rounded-xl flex items-start gap-2.5">
+        <Shield className="w-4 h-4 text-[#38aef0] shrink-0 mt-0.5" />
+        <p className="text-xs font-body font-semibold text-black/80 leading-relaxed">
+          Your real email is kept private and will never be shown publicly or shared with other players.
+        </p>
+      </div>
+    </AuthShell>
   )
 }

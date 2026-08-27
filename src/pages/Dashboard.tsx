@@ -1,1580 +1,524 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import {
+  Trophy,
+  BookOpen,
+  ArrowRight,
+  Zap,
+  Target,
+  Flame,
+  Clock,
+  CheckCircle2,
+  ChevronRight,
+  Sparkles,
+  BarChart2,
+  Shield,
+} from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { ProfileService, type UserProfile } from '../services/profileService'
 import { QuestionService } from '../services/questionService'
 import type { QuestionBankStats } from '../types/questions'
+import AppLayout from '../components/layout/AppLayout'
 
-function Dashboard() {
+export default function Dashboard() {
   const navigate = useNavigate()
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [questionStats, setQuestionStats] = useState<QuestionBankStats | null>(null)
   const [loading, setLoading] = useState(true)
-  const [loggingOut, setLoggingOut] = useState(false)
-
-  // -----------------------------------------
-  // Load current user + profile
-  // -----------------------------------------
 
   useEffect(() => {
+    let isMounted = true
+
     const loadProfile = async () => {
       try {
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser()
+        let user: { id: string; user_metadata?: Record<string, unknown> } | null = null
 
-        if (userError || !user) {
-          navigate('/login', {
-            replace: true,
-          })
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (sessionData?.session?.user) {
+          user = sessionData.session.user
+        } else {
+          const {
+            data: { user: fetchedUser },
+            error: userError,
+          } = await supabase.auth.getUser()
 
+          if (!userError && fetchedUser) {
+            user = fetchedUser
+          }
+        }
+
+        if (!user) {
+          if (isMounted) {
+            navigate('/login', { replace: true })
+          }
           return
         }
 
-        // Fetch complete profile using centralized service
         let userProfile = await ProfileService.fetchProfile(user.id)
-        if (!userProfile?.username && user.user_metadata?.username) {
+        const metaUsername = typeof user.user_metadata?.username === 'string' ? user.user_metadata.username : null
+        const metaDisplayName = typeof user.user_metadata?.display_name === 'string' ? user.user_metadata.display_name : metaUsername
+        if (!userProfile?.username && metaUsername) {
           userProfile = {
             id: user.id,
-            username: user.user_metadata.username,
-            display_name: user.user_metadata.display_name || user.user_metadata.username,
+            username: metaUsername,
+            display_name: metaDisplayName,
             avatar_url: userProfile?.avatar_url || null,
             bio: userProfile?.bio || null,
             username_changed_at: userProfile?.username_changed_at || null,
           }
         }
 
-        console.log('[Dashboard Init] authUser.id:', user.id)
-        console.log('[Dashboard Init] profile row returned from Supabase:', userProfile)
-        console.log('[Dashboard Init] profile.username:', userProfile?.username)
+        if (isMounted) {
+          setProfile(userProfile)
+        }
 
-        setProfile(userProfile)
-
-        // Load Question Bank stats
         try {
           const { questions, progressMap } =
             await QuestionService.getQuestionsWithProgress(user.id)
           const stats = QuestionService.calculateStats(questions, progressMap)
-          setQuestionStats(stats)
+          if (isMounted) {
+            setQuestionStats(stats)
+          }
         } catch (qErr) {
           console.warn('Could not load dashboard question stats:', qErr)
         }
       } catch (error) {
-        console.error(
-          'Dashboard loading error:',
-          error
-        )
+        console.error('Dashboard loading error:', error)
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
 
     loadProfile()
-  }, [navigate])
 
-  // -----------------------------------------
-  // Logout
-  // -----------------------------------------
-
-  const handleLogout = async () => {
-    setLoggingOut(true)
-
-    try {
-      const { error } =
-        await supabase.auth.signOut()
-
-      if (error) {
-        console.error(
-          'Logout error:',
-          error
-        )
-
-        setLoggingOut(false)
-
-        return
-      }
-
-      navigate('/login', {
-        replace: true,
-      })
-    } catch (error) {
-      console.error(
-        'Unexpected logout error:',
-        error
-      )
-
-      setLoggingOut(false)
+    return () => {
+      isMounted = false
     }
-  }
-
-
-
-  // -----------------------------------------
-  // Loading
-  // -----------------------------------------
+  }, [navigate])
 
   if (loading) {
     return (
-      <div className="
-        min-h-screen
-        bg-[#061a2d]
-        flex
-        items-center
-        justify-center
-        text-white
-      ">
-        <div className="text-center">
-          <div className="
-            mx-auto
-            mb-5
-            w-12
-            h-12
-            border-4
-            border-white/20
-            border-t-[#ffd43b]
-            rounded-full
-            animate-spin
-          " />
-
-          <p className="
-            font-black
-            tracking-wider
-          ">
-            LOADING APTIVERSE...
-          </p>
+      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
+        <div className="text-center font-display font-black">
+          <div className="w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
+          <p className="tracking-wider">LOADING ARENA...</p>
         </div>
       </div>
     )
   }
 
-  const username =
-    profile?.username ||
-    profile?.display_name ||
-    'player'
-
-
-  const firstLetter =
-    username.charAt(0).toUpperCase()
+  const username = profile?.username || profile?.display_name || 'player'
+  const solvedCount = questionStats?.solvedCount ?? 0
+  const totalQuestions = questionStats?.totalQuestions ?? 30
+  const accuracyRate = questionStats?.accuracyRate ?? 0
+  const totalPoints = questionStats?.totalPoints ?? 0
 
   return (
-    <div className="
-      min-h-screen
-      bg-[#061a2d]
-      text-black
-      relative
-      overflow-hidden
-    ">
-
-      {/* ===================================== */}
-      {/* BACKGROUND GRID                       */}
-      {/* ===================================== */}
-
-      <div
-        className="
-          fixed
-          inset-0
-          pointer-events-none
-          opacity-30
-        "
-        style={{
-          backgroundImage: `
-            linear-gradient(#16344d 1px, transparent 1px),
-            linear-gradient(90deg, #16344d 1px, transparent 1px)
-          `,
-          backgroundSize: '24px 24px',
-        }}
-      />
-
-      {/* ===================================== */}
-      {/* DECORATIVE SHAPES                     */}
-      {/* ===================================== */}
-
-      <div className="
-        fixed
-        left-5
-        top-32
-        w-10
-        h-10
-        bg-[#ffd43b]
-        border-4
-        border-black
-        shadow-[4px_4px_0_#38aef0]
-        rotate-[-8deg]
-        flex
-        items-center
-        justify-center
-        font-black
-        text-xl
-        pointer-events-none
-      ">
-        +
-      </div>
-
-      <div className="
-        fixed
-        right-8
-        top-36
-        w-9
-        h-9
-        bg-[#38aef0]
-        border-4
-        border-black
-        shadow-[4px_4px_0_#fff]
-        rotate-[8deg]
-        flex
-        items-center
-        justify-center
-        font-black
-        pointer-events-none
-      ">
-        7
-      </div>
-
-      <div className="
-        fixed
-        left-8
-        bottom-24
-        w-10
-        h-10
-        bg-[#32e875]
-        border-4
-        border-black
-        shadow-[4px_4px_0_#fff]
-        rotate-[-5deg]
-        flex
-        items-center
-        justify-center
-        font-black
-        pointer-events-none
-      ">
-        =
-      </div>
-
-      <div className="
-        fixed
-        right-8
-        bottom-28
-        w-10
-        h-10
-        bg-[#ff5b5b]
-        border-4
-        border-black
-        shadow-[4px_4px_0_#fff]
-        rotate-[8deg]
-        flex
-        items-center
-        justify-center
-        font-black
-        text-xl
-        pointer-events-none
-      ">
-        ×
-      </div>
-
-      {/* ===================================== */}
-      {/* MAIN LAYOUT                            */}
-      {/* ===================================== */}
-
-      <div className="
-        relative
-        z-10
-        min-h-screen
-        flex
-      ">
-
-        {/* ================================= */}
-        {/* SIDEBAR                           */}
-        {/* ================================= */}
-
-        <aside className="
-          hidden
-          lg:flex
-          w-[250px]
-          shrink-0
-          min-h-screen
-          bg-white
-          border-r-4
-          border-black
-          flex-col
-        ">
-
-          {/* Logo */}
-
-          <div className="p-6">
-            <div className="flex items-center gap-3">
-
-              <div className="
-                w-11
-                h-11
-                bg-[#ffd43b]
-                border-4
-                border-black
-                shadow-[4px_4px_0_#000]
-                flex
-                items-center
-                justify-center
-                font-black
-                text-2xl
-              ">
-                A
+    <AppLayout>
+      <div className="space-y-6 sm:space-y-8 animate-entry">
+        {/* ================================================= */}
+        {/* HERO ARENA SECTION — DOMINANT ACTION FLOW         */}
+        {/* ================================================= */}
+        <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#38aef0] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-[#38aef0] text-black border-2 border-black rounded-full px-3 py-1 text-[10px] font-mono font-black tracking-widest uppercase shadow-[2px_2px_0_#000000] mb-3">
+                <span className="w-2 h-2 rounded-full bg-[#32e875] border border-black animate-pulse" />
+                <span>ARENA ONLINE • SEASON 01 PREVIEW</span>
               </div>
 
-              <div>
-                <div className="font-black text-xl">
-                  APTIVERSE
-                </div>
-
-                <div className="
-                  text-[9px]
-                  font-black
-                  tracking-[0.18em]
-                  text-black/50
-                ">
-                  APTITUDE ARENA
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Navigation */}
-
-          <nav className="px-4 space-y-2">
-
-            {/* Dashboard */}
-
-            <button
-              className="
-                w-full
-                flex
-                items-center
-                gap-3
-                px-4
-                py-3
-                bg-[#ffd43b]
-                border-4
-                border-black
-                shadow-[4px_4px_0_#000]
-                font-black
-                text-sm
-                text-left
-              "
-            >
-              <span className="text-lg">
-                ▣
-              </span>
-
-              DASHBOARD
-            </button>
-
-            {/* Contests */}
-
-            <button
-              onClick={() =>
-                navigate('/contests')
-              }
-              className="
-                w-full
-                flex
-                items-center
-                gap-3
-                px-4
-                py-3
-                border-4
-                border-transparent
-                hover:border-black
-                hover:bg-[#e9f6ff]
-                font-black
-                text-sm
-                text-left
-                transition-all
-              "
-            >
-              <span className="text-lg">
-                ◷
-              </span>
-
-              CONTESTS
-            </button>
-
-            {/* Question Bank */}
-
-            <button
-              onClick={() =>
-                navigate('/questions')
-              }
-              className="
-                w-full
-                flex
-                items-center
-                gap-3
-                px-4
-                py-3
-                border-4
-                border-transparent
-                hover:border-black
-                hover:bg-[#e9f6ff]
-                font-black
-                text-sm
-                text-left
-                transition-all
-              "
-            >
-              <span className="text-lg">
-                ▤
-              </span>
-
-              <span className="flex-1">
-                QUESTION BANK
-              </span>
-
-              <span className="
-                text-[8px]
-                bg-[#32e875]
-                border-2
-                border-black
-                px-1.5
-                py-1
-                shadow-[2px_2px_0_#000]
-              ">
-                ACTIVE
-              </span>
-            </button>
-
-            {/* Leaderboard */}
-
-            <button
-              onClick={() =>
-                navigate('/leaderboard')
-              }
-              className="
-                w-full
-                flex
-                items-center
-                gap-3
-                px-4
-                py-3
-                border-4
-                border-transparent
-                hover:border-black
-                hover:bg-[#e9f6ff]
-                font-black
-                text-sm
-                text-left
-                transition-all
-              "
-            >
-              <span className="text-lg">
-                ♛
-              </span>
-
-              LEADERBOARD
-            </button>
-
-            {/* Friends */}
-
-            <button
-              onClick={() =>
-                navigate('/friends')
-              }
-              className="
-                w-full
-                flex
-                items-center
-                gap-3
-                px-4
-                py-3
-                border-4
-                border-transparent
-                hover:border-black
-                hover:bg-[#e9f6ff]
-                font-black
-                text-sm
-                text-left
-                transition-all
-              "
-            >
-              <span className="text-lg">
-                ◎
-              </span>
-
-              FRIENDS
-            </button>
-
-          </nav>
-
-          {/* Bottom */}
-
-          <div className="
-            mt-auto
-            p-4
-            space-y-3
-          ">
-
-            <button
-              onClick={() =>
-                navigate('/profile')
-              }
-              className="
-                w-full
-                flex
-                items-center
-                gap-3
-                px-4
-                py-3
-                border-4
-                border-black
-                bg-[#e9f6ff]
-                shadow-[4px_4px_0_#000]
-                font-black
-                text-sm
-                text-left
-                hover:translate-x-[2px]
-                hover:translate-y-[2px]
-                hover:shadow-[2px_2px_0_#000]
-                transition-all
-              "
-            >
-              <span>●</span>
-
-              PROFILE
-            </button>
-
-            <button
-              onClick={handleLogout}
-              disabled={loggingOut}
-              className="
-                w-full
-                flex
-                items-center
-                gap-3
-                px-4
-                py-3
-                border-4
-                border-black
-                bg-[#ff5b5b]
-                shadow-[4px_4px_0_#000]
-                font-black
-                text-sm
-                disabled:opacity-50
-                hover:translate-x-[2px]
-                hover:translate-y-[2px]
-                hover:shadow-[2px_2px_0_#000]
-                transition-all
-              "
-            >
-              <span>
-                ↪
-              </span>
-
-              {loggingOut
-                ? 'LOGGING OUT...'
-                : 'LOG OUT'}
-            </button>
-
-          </div>
-
-        </aside>
-
-        {/* ================================= */}
-        {/* CONTENT                            */}
-        {/* ================================= */}
-
-        <main className="
-          w-full
-          min-w-0
-          px-4
-          py-5
-          sm:px-6
-          lg:px-8
-          xl:px-10
-        ">
-          {/* ================================= */}
-          {/* TOP BAR                           */}
-          {/* ================================= */}
-
-          <header className="
-            bg-white
-            border-4
-            border-black
-            shadow-[6px_6px_0_#38aef0]
-            px-5
-            py-4
-            flex
-            items-center
-            justify-between
-            gap-4
-          ">
-
-            <div>
-              <p className="
-                text-[10px]
-                font-black
-                tracking-[0.18em]
-                text-black/50
-              ">
-                APTIVERSE / DASHBOARD
-              </p>
-
-              <h1 className="
-                font-black
-                text-lg
-                sm:text-xl
-              ">
-                YOUR ARENA
+              <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl uppercase tracking-tight text-black leading-[1.05]">
+                WELCOME BACK,{' '}
+                <span className="text-[#071a2b] bg-[#ffd43b] px-2.5 py-0.5 border-2 border-black rounded-lg inline-block mt-1">
+                  @{username}
+                </span>
               </h1>
+
+              <p className="mt-3 text-xs sm:text-sm md:text-base font-body font-semibold text-black/75 max-w-xl leading-relaxed">
+                Ready to solve, compete, and climb the leaderboard? Step into the arena, sharpen your quantitative speed, and beat the clock.
+              </p>
             </div>
 
-            <button
-              onClick={() =>
-                navigate('/profile')
-              }
-              className="
-                w-11
-                h-11
-                shrink-0
-                bg-[#ffd43b]
-                border-4
-                border-black
-                shadow-[3px_3px_0_#000]
-                flex
-                items-center
-                justify-center
-                font-black
-                text-lg
-                overflow-hidden
-                cursor-pointer
-                hover:translate-x-[1px]
-                hover:translate-y-[1px]
-                hover:shadow-[2px_2px_0_#000]
-                transition-all
-              "
-              title="Edit Profile"
-            >
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={username}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                firstLetter
-              )}
-            </button>
+            {/* Dominant Hero Action Buttons */}
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => navigate('/questions')}
+                className="px-7 py-3.5 sm:py-4 bg-[#ffd43b] hover:bg-[#facc15] text-[#050505] border-2 sm:border-3 border-black rounded-xl shadow-[4px_4px_0_#000000] font-display font-black text-sm sm:text-base tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
+              >
+                <BookOpen className="w-5 h-5 shrink-0" />
+                <span>CONTINUE PRACTICE</span>
+                <ArrowRight className="w-5 h-5 shrink-0" />
+              </button>
 
-          </header>
+              <button
+                type="button"
+                onClick={() => navigate('/contests')}
+                className="px-6 py-3 bg-[#38aef0] hover:bg-[#209be2] text-[#050505] border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs sm:text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Trophy className="w-4 h-4 shrink-0" />
+                <span>EXPLORE CONTESTS</span>
+              </button>
+            </div>
+          </div>
+        </section>
 
-          {/* ================================= */}
-          {/* MOBILE NAV                         */}
-          {/* ================================= */}
-
-          <div className="
-            lg:hidden
-            mt-5
-            grid
-            grid-cols-2
-            sm:grid-cols-3
-            gap-3
-          ">
-
-            <button
-              className="
-                bg-[#ffd43b]
-                border-4
-                border-black
-                shadow-[4px_4px_0_#000]
-                px-3
-                py-3
-                font-black
-                text-xs
-              "
-            >
-              ▣ DASHBOARD
-            </button>
-
-            <button
-              onClick={() =>
-                navigate('/contests')
-              }
-              className="
-                bg-white
-                border-4
-                border-black
-                shadow-[4px_4px_0_#000]
-                px-3
-                py-3
-                font-black
-                text-xs
-              "
-            >
-              ◷ CONTESTS
-            </button>
-
-            <button
-              onClick={() =>
-                navigate('/questions')
-              }
-              className="
-                bg-[#38aef0]
-                border-4
-                border-black
-                shadow-[4px_4px_0_#000]
-                px-3
-                py-3
-                font-black
-                text-xs
-              "
-            >
-              ▤ QUESTIONS
-            </button>
-
-            <button
-              onClick={() =>
-                navigate('/leaderboard')
-              }
-              className="
-                bg-white
-                border-4
-                border-black
-                shadow-[4px_4px_0_#000]
-                px-3
-                py-3
-                font-black
-                text-xs
-              "
-            >
-              ♛ RANKING
-            </button>
-
-            <button
-              onClick={() =>
-                navigate('/friends')
-              }
-              className="
-                bg-white
-                border-4
-                border-black
-                shadow-[4px_4px_0_#000]
-                px-3
-                py-3
-                font-black
-                text-xs
-              "
-            >
-              ◎ FRIENDS
-            </button>
-
+        {/* ================================================= */}
+        {/* FLOATING METRIC DECK (4 CONTRAST CARDS)           */}
+        {/* ================================================= */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {/* Card 1: Contests Played */}
+          <div className="bg-white border-2 sm:border-3 border-black rounded-xl p-4 sm:p-5 shadow-[3.5px_3.5px_0_#000000]">
+            <div className="flex items-center justify-between text-black/60 font-mono text-[10px] font-black uppercase mb-1">
+              <span>CONTESTS</span>
+              <Trophy className="w-4 h-4 text-black" />
+            </div>
+            <div className="font-display font-black text-3xl sm:text-4xl text-black leading-none mt-1">
+              0
+            </div>
+            <div className="text-[11px] font-bold text-black/60 mt-1.5 truncate">
+              0 podium finishes
+            </div>
           </div>
 
-          {/* ================================= */}
-          {/* COMPACT WELCOME                   */}
-          {/* ================================= */}
-
-          <section className="
-            mt-6
-            bg-white
-            border-4
-            border-black
-            shadow-[7px_7px_0_#38aef0]
-            p-5
-            sm:p-6
-            relative
-            overflow-hidden
-          ">
-
-            <div className="
-              flex
-              flex-col
-              lg:flex-row
-              lg:items-center
-              lg:justify-between
-              gap-5
-            ">
-
-              <div>
-
-                <div className="
-                  inline-flex
-                  items-center
-                  gap-2
-                  bg-[#38aef0]
-                  border-4
-                  border-black
-                  shadow-[3px_3px_0_#000]
-                  px-3
-                  py-1.5
-                  text-[9px]
-                  font-black
-                  tracking-[0.15em]
-                ">
-                  <span>
-                    ●
-                  </span>
-
-                  PLAYER ONLINE
-                </div>
-
-                <h2 className="
-                  mt-4
-                  text-3xl
-                  sm:text-4xl
-                  font-black
-                  leading-none
-                  tracking-[-0.04em]
-                ">
-                  WELCOME BACK,
-                  <span className="text-[#168bd1]">
-                    {' '}@{username}
-                  </span>
-                </h2>
-
-                <p className="
-                  mt-3
-                  text-sm
-                  font-semibold
-                  text-black/60
-                ">
-                  Ready to solve, compete and climb?
-                </p>
-
-              </div>
-
-              <div className="
-                flex
-                flex-wrap
-                gap-3
-              ">
-
-                <button
-                  onClick={() =>
-                    navigate('/contests')
-                  }
-                  className="
-                    bg-[#ffd43b]
-                    border-4
-                    border-black
-                    shadow-[4px_4px_0_#000]
-                    px-5
-                    py-3
-                    font-black
-                    text-sm
-                    hover:translate-x-[2px]
-                    hover:translate-y-[2px]
-                    hover:shadow-[2px_2px_0_#000]
-                    active:translate-x-[4px]
-                    active:translate-y-[4px]
-                    active:shadow-none
-                    transition-all
-                  "
-                >
-                  FIND A CONTEST →
-                </button>
-
-                <button
-                  onClick={() =>
-                    navigate('/questions')
-                  }
-                  className="
-                    bg-[#38aef0]
-                    border-4
-                    border-black
-                    shadow-[4px_4px_0_#000]
-                    px-5
-                    py-3
-                    font-black
-                    text-sm
-                    hover:translate-x-[2px]
-                    hover:translate-y-[2px]
-                    hover:shadow-[2px_2px_0_#000]
-                    active:translate-x-[4px]
-                    active:translate-y-[4px]
-                    active:shadow-none
-                    transition-all
-                  "
-                >
-                  PRACTICE QUESTIONS →
-                </button>
-
-              </div>
-
+          {/* Card 2: Total XP / Score */}
+          <div className="bg-[#ffd43b] border-2 sm:border-3 border-black rounded-xl p-4 sm:p-5 shadow-[3.5px_3.5px_0_#000000]">
+            <div className="flex items-center justify-between text-black/80 font-mono text-[10px] font-black uppercase mb-1">
+              <span>TOTAL SCORE</span>
+              <Zap className="w-4 h-4 fill-black text-black" />
             </div>
-
-          </section>
-
-          {/* ================================= */}
-          {/* STATS                              */}
-          {/* ================================= */}
-
-          <section className="
-            mt-6
-            grid
-            grid-cols-2
-            xl:grid-cols-4
-            gap-4
-          ">
-
-            <div className="
-              bg-white
-              border-4
-              border-black
-              shadow-[5px_5px_0_#000]
-              p-4
-            ">
-              <p className="
-                text-[9px]
-                font-black
-                text-black/50
-                tracking-wider
-              ">
-                CONTESTS PLAYED
-              </p>
-
-              <p className="
-                mt-1
-                text-3xl
-                font-black
-              ">
-                0
-              </p>
+            <div className="font-display font-black text-3xl sm:text-4xl text-black leading-none mt-1">
+              {totalPoints} <span className="text-base font-bold">XP</span>
             </div>
-
-            <div className="
-              bg-[#ffd43b]
-              border-4
-              border-black
-              shadow-[5px_5px_0_#000]
-              p-4
-            ">
-              <p className="
-                text-[9px]
-                font-black
-                tracking-wider
-              ">
-                TOTAL SCORE
-              </p>
-
-              <p className="
-                mt-1
-                text-3xl
-                font-black
-              ">
-                0
-              </p>
+            <div className="text-[11px] font-bold text-black/75 mt-1.5 truncate">
+              {solvedCount} questions solved
             </div>
+          </div>
 
-            <div className="
-              bg-[#38aef0]
-              border-4
-              border-black
-              shadow-[5px_5px_0_#000]
-              p-4
-            ">
-              <p className="
-                text-[9px]
-                font-black
-                tracking-wider
-              ">
-                CURRENT RANK
-              </p>
-
-              <p className="
-                mt-1
-                text-3xl
-                font-black
-              ">
-                —
-              </p>
+          {/* Card 3: Current Rank */}
+          <div className="bg-[#38aef0] border-2 sm:border-3 border-black rounded-xl p-4 sm:p-5 shadow-[3.5px_3.5px_0_#000000]">
+            <div className="flex items-center justify-between text-black/80 font-mono text-[10px] font-black uppercase mb-1">
+              <span>ARENA RANK</span>
+              <Target className="w-4 h-4 text-black" />
             </div>
-
-            <div className="
-              bg-[#32e875]
-              border-4
-              border-black
-              shadow-[5px_5px_0_#000]
-              p-4
-            ">
-              <p className="
-                text-[9px]
-                font-black
-                tracking-wider
-              ">
-                WIN RATE
-              </p>
-
-              <p className="
-                mt-1
-                text-3xl
-                font-black
-              ">
-                0%
-              </p>
+            <div className="font-display font-black text-3xl sm:text-4xl text-black leading-none mt-1">
+              #127
             </div>
+            <div className="text-[11px] font-bold text-black/75 mt-1.5 truncate">
+              Top 12% in Division 1
+            </div>
+          </div>
 
-          </section>
+          {/* Card 4: Accuracy */}
+          <div className="bg-[#32e875] border-2 sm:border-3 border-black rounded-xl p-4 sm:p-5 shadow-[3.5px_3.5px_0_#000000]">
+            <div className="flex items-center justify-between text-black/80 font-mono text-[10px] font-black uppercase mb-1">
+              <span>ACCURACY</span>
+              <CheckCircle2 className="w-4 h-4 text-black" />
+            </div>
+            <div className="font-display font-black text-3xl sm:text-4xl text-black leading-none mt-1">
+              {accuracyRate}%
+            </div>
+            <div className="text-[11px] font-bold text-black/75 mt-1.5 truncate">
+              Based on recent attempts
+            </div>
+          </div>
+        </section>
 
-          {/* ================================= */}
-          {/* MAIN DASHBOARD GRID                */}
-          {/* ================================= */}
-
-          <section className="
-            mt-6
-            grid
-            lg:grid-cols-[1.5fr_1fr]
-            gap-5
-          ">
-
-            {/* ================================= */}
-            {/* QUESTION BANK PREVIEW              */}
-            {/* ================================= */}
-
-            <div className="
-              bg-white
-              border-4
-              border-black
-              shadow-[6px_6px_0_#38aef0]
-            ">
-
-              <div className="
-                px-5
-                py-4
-                border-b-4
-                border-black
-                flex
-                items-center
-                justify-between
-                gap-3
-              ">
-
-                <div>
-                  <p className="
-                    text-[9px]
-                    font-black
-                    tracking-[0.15em]
-                    text-black/50
-                  ">
-                    PRACTICE
-                  </p>
-
-                  <h3 className="
-                    font-black
-                    text-lg
-                  ">
-                    QUESTION BANK
-                  </h3>
-                </div>
-
-                <button
-                  onClick={() => navigate('/questions')}
-                  className="
-                    bg-[#32e875]
-                    border-2
-                    border-black
-                    shadow-[2px_2px_0_#000]
-                    px-2.5
-                    py-1
-                    text-[9px]
-                    font-black
-                    hover:translate-x-[1px]
-                    hover:translate-y-[1px]
-                    transition-all
-                  "
-                >
-                  EXPLORE ALL →
-                </button>
-
-              </div>
-
-              <div className="p-5">
-
-                <div className="
-                  grid
-                  sm:grid-cols-2
-                  gap-4
-                ">
-
-                  <div className="
-                    border-4
-                    border-black
-                    bg-[#fff8d6]
-                    p-5
-                  ">
-                    <div className="
-                      text-3xl
-                      font-black
-                    ">
-                      {questionStats?.solvedCount ?? 0}
-                    </div>
-
-                    <p className="
-                      mt-1
-                      font-black
-                      text-sm
-                    ">
-                      QUESTIONS SOLVED
-                    </p>
-
-                    <p className="
-                      mt-1
-                      text-xs
-                      text-black/50
-                      font-semibold
-                    ">
-                      {questionStats?.totalQuestions ?? 0} total questions available.
-                    </p>
+        {/* ================================================= */}
+        {/* ARENA CORE: QUESTION BANK & DAILY CHALLENGE       */}
+        {/* ================================================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6">
+          {/* Question Bank Practice Module */}
+          <section className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#ffd43b] flex flex-col justify-between overflow-hidden">
+            <div>
+              <div className="p-5 sm:p-6 border-b-3 border-black flex items-center justify-between gap-3 bg-[#faf9f6]">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-[#ffd43b] border-2 border-black rounded-xl flex items-center justify-center font-display font-black shadow-[2px_2px_0_#000000]">
+                    Q
                   </div>
-
-                  <div className="
-                    border-4
-                    border-black
-                    bg-[#e9f6ff]
-                    p-5
-                  ">
-                    <div className="
-                      text-3xl
-                      font-black
-                    ">
-                      {questionStats?.accuracyRate ?? 0}%
-                    </div>
-
-                    <p className="
-                      mt-1
-                      font-black
-                      text-sm
-                    ">
-                      ACCURACY RATE
-                    </p>
-
-                    <p className="
-                      mt-1
-                      text-xs
-                      text-black/50
-                      font-semibold
-                    ">
-                      {questionStats?.totalPoints ?? 0} total points earned.
-                    </p>
-                  </div>
-
-                </div>
-
-                <div className="
-                  mt-4
-                  border-4
-                  border-black
-                  bg-[#f8fafc]
-                  p-5
-                  flex
-                  flex-col
-                  sm:flex-row
-                  items-center
-                  justify-between
-                  gap-4
-                ">
-
                   <div>
-                    <p className="
-                      font-black
-                      text-sm
-                    ">
-                      READY FOR APTITUDE TRAINING?
-                    </p>
+                    <h2 className="font-display font-black text-lg sm:text-xl uppercase text-black leading-none">
+                      QUESTION BANK
+                    </h2>
+                    <span className="font-mono text-[10px] font-bold text-black/60 uppercase">
+                      SPEED PRACTICE ARENA
+                    </span>
+                  </div>
+                </div>
 
-                    <p className="
-                      mt-0.5
-                      text-xs
-                      font-semibold
-                      text-black/60
-                    ">
-                      Quant • Logical Reasoning • Data Interpretation
-                    </p>
+                <Link
+                  to="/questions"
+                  className="px-3.5 py-1.5 bg-[#32e875] hover:bg-[#22c55e] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                >
+                  <span>ALL PROBLEMS</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              {/* Progress Summary Blocks */}
+              <div className="p-5 sm:p-6 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-4 bg-[#fffde7] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000]">
+                    <div className="font-display font-black text-2xl text-black">
+                      {solvedCount} / {totalQuestions}
+                    </div>
+                    <div className="font-display font-black text-xs uppercase text-black mt-0.5">
+                      PROBLEMS COMPLETED
+                    </div>
+                    <div className="w-full h-2.5 bg-white border-2 border-black rounded-full mt-2 overflow-hidden">
+                      <div
+                        className="h-full bg-[#ffd43b] rounded-full"
+                        style={{
+                          width: `${(solvedCount / Math.max(totalQuestions, 1)) * 100}%`,
+                        }}
+                      />
+                    </div>
                   </div>
 
-                  <button
-                    onClick={() => navigate('/questions')}
-                    className="
-                      w-full
-                      sm:w-auto
-                      bg-[#ffd43b]
-                      border-3
-                      border-black
-                      shadow-[3px_3px_0_#000]
-                      px-4
-                      py-2.5
-                      font-black
-                      text-xs
-                      hover:translate-x-[1px]
-                      hover:translate-y-[1px]
-                      transition-all
-                    "
+                  <div className="p-4 bg-[#e9f6ff] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000]">
+                    <div className="font-display font-black text-2xl text-[#071a2b]">
+                      {accuracyRate}%
+                    </div>
+                    <div className="font-display font-black text-xs uppercase text-black mt-0.5">
+                      SOLVER ACCURACY
+                    </div>
+                    <div className="w-full h-2.5 bg-white border-2 border-black rounded-full mt-2 overflow-hidden">
+                      <div
+                        className="h-full bg-[#38aef0] rounded-full"
+                        style={{ width: `${accuracyRate}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Topics strip */}
+                <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="font-display font-black text-xs uppercase text-black">
+                      CORE PRACTICE DOMAINS
+                    </div>
+                    <div className="text-xs font-body font-bold text-black/60 mt-0.5">
+                      Quantitative Aptitude • Logical Reasoning • Data Interpretation
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/questions"
+                    className="px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] text-center shrink-0 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
                   >
                     START SOLVING →
-                  </button>
-
+                  </Link>
                 </div>
-
               </div>
-
             </div>
 
-            {/* ================================= */}
-            {/* DAILY CHALLENGE                   */}
-            {/* ================================= */}
+            <div className="px-5 py-3 border-t-2 border-black bg-white flex items-center justify-between text-xs font-mono font-bold text-black/70">
+              <span>{totalQuestions - solvedCount} problems remaining to master</span>
+              <span
+                className="text-[#2563eb] font-black underline cursor-pointer"
+                onClick={() => navigate('/questions')}
+              >
+                Open Practice Arena
+              </span>
+            </div>
+          </section>
 
-            <div className="
-              bg-[#ffd43b]
-              border-4
-              border-black
-              shadow-[6px_6px_0_#000]
-            ">
+          {/* Daily Challenge Card */}
+          <section className="bg-[#ffd43b] border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] flex flex-col justify-between p-5 sm:p-6 overflow-hidden">
+            <div>
+              <div className="flex items-center justify-between pb-3 border-b-2 border-black">
+                <div className="flex items-center gap-2">
+                  <Flame className="w-5 h-5 fill-black text-black" />
+                  <span className="font-display font-black text-sm uppercase">
+                    DAILY CHALLENGE
+                  </span>
+                </div>
+                <div className="bg-[#ff5b5b] text-white border-2 border-black rounded-full px-2.5 py-0.5 font-mono text-[10px] font-black uppercase shadow-[1.5px_1.5px_0_#000000]">
+                  +50 BONUS XP
+                </div>
+              </div>
 
-              <div className="
-                px-5
-                py-4
-                border-b-4
-                border-black
-              ">
+              <div className="mt-4 bg-white border-2 border-black rounded-xl p-5 shadow-[3px_3px_0_#000000]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="bg-[#38aef0] border-2 border-black rounded-full px-2.5 py-0.5 text-[10px] font-display font-black uppercase">
+                    MEDIUM • 120 SEC
+                  </span>
+                  <div className="flex items-center gap-1 font-mono text-xs font-black text-black">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>23h 14m left</span>
+                  </div>
+                </div>
 
-                <p className="
-                  text-[9px]
-                  font-black
-                  tracking-[0.15em]
-                ">
-                  DAILY
+                <h3 className="font-display font-black text-lg sm:text-xl uppercase text-black leading-tight mt-2.5">
+                  PROBABILITY & COMBINATIONS SPRINT
+                </h3>
+
+                <p className="mt-2 text-xs font-body font-semibold text-black/70 leading-relaxed">
+                  Solve today's speed challenge in under 2 minutes to keep your daily streak alive and climb the leaderboard.
                 </p>
 
-                <h3 className="
-                  font-black
-                  text-lg
-                ">
-                  CHALLENGE
-                </h3>
+                <button
+                  type="button"
+                  onClick={() => navigate('/questions/quant-001')}
+                  className="mt-4 w-full py-3 bg-[#32e875] hover:bg-[#22c55e] border-2 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-4 h-4 fill-black" />
+                  <span>ACCEPT DAILY CHALLENGE →</span>
+                </button>
+              </div>
+            </div>
 
+            <div className="mt-4 pt-3 border-t-2 border-black/20 flex items-center justify-between text-[11px] font-mono font-black text-black/80">
+              <span>CURRENT STREAK: 1 DAY</span>
+              <span>BEST: 7 DAYS</span>
+            </div>
+          </section>
+        </div>
+
+        {/* ================================================= */}
+        {/* LOWER DECK: UPCOMING CONTESTS & ARENA SHORTCUTS   */}
+        {/* ================================================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6">
+          {/* Upcoming Contests */}
+          <section className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#38aef0] overflow-hidden">
+            <div className="p-5 sm:p-6 border-b-3 border-black flex items-center justify-between gap-3 bg-[#faf9f6]">
+              <div className="flex items-center gap-3">
+                <Trophy className="w-6 h-6 text-black" />
+                <div>
+                  <h2 className="font-display font-black text-lg sm:text-xl uppercase text-black leading-none">
+                    UPCOMING CONTESTS
+                  </h2>
+                  <span className="font-mono text-[10px] font-bold text-black/60 uppercase">
+                    COMPETITIVE ARENA SCHEDULE (SEASON 01 PREVIEW)
+                  </span>
+                </div>
               </div>
 
-              <div className="p-5">
+              <Link
+                to="/contests"
+                className="px-3.5 py-1.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+              >
+                <span>VIEW ALL</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
 
-                <div className="
-                  bg-white
-                  border-4
-                  border-black
-                  p-5
-                  shadow-[4px_4px_0_#000]
-                ">
-
-                  <div className="
-                    flex
-                    items-center
-                    justify-between
-                    gap-3
-                  ">
-
-                    <span className="
-                      bg-[#38aef0]
-                      border-2
-                      border-black
-                      px-2
-                      py-1
-                      text-[8px]
-                      font-black
-                    ">
-                      LOCKED
+            <div className="p-5 sm:p-6 space-y-3">
+              {/* Contest 1 */}
+              <div className="p-4 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#f8fafc] transition-colors">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="bg-[#ff5b5b] text-white border border-black rounded-full px-2 py-0.5 text-[9px] font-display font-black uppercase">
+                      PREVIEW ROUND
                     </span>
-
-                    <span className="
-                      text-xs
-                      font-black
-                    ">
-                      +XP
+                    <span className="text-xs font-mono font-bold text-black/60">
+                      30 MINS • 15 QUESTIONS
                     </span>
-
                   </div>
-
-                  <h4 className="
-                    mt-5
-                    text-xl
-                    font-black
-                  ">
-                    READY TO TEST YOUR SKILLS?
+                  <h4 className="font-display font-black text-base uppercase text-black">
+                    APTICKS SPEED CLASH #14
                   </h4>
-
-                  <p className="
-                    mt-2
-                    text-xs
-                    font-semibold
-                    text-black/60
-                  ">
-                    Daily aptitude challenges will
-                    appear here once the question
-                    system is connected.
+                  <p className="text-xs font-body font-semibold text-black/60 mt-0.5">
+                    Quantitative & Speed Arithmetic • Open Division
                   </p>
-
-                  <button
-                    type="button"
-                    disabled
-                    className="
-                      mt-5
-                      w-full
-                      bg-black
-                      text-white
-                      border-4
-                      border-black
-                      px-4
-                      py-3
-                      font-black
-                      text-sm
-                      opacity-60
-                    "
-                  >
-                    START CHALLENGE →
-                  </button>
-
                 </div>
 
+                <button
+                  type="button"
+                  onClick={() => navigate('/contests')}
+                  className="px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] shrink-0 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                >
+                  VIEW FIXTURE →
+                </button>
               </div>
 
-            </div>
-
-          </section>
-
-          {/* ================================= */}
-          {/* LOWER GRID                         */}
-          {/* ================================= */}
-
-          <section className="
-            mt-6
-            grid
-            lg:grid-cols-[1.5fr_1fr]
-            gap-5
-          ">
-
-            {/* Upcoming contests */}
-
-            <div className="
-              bg-white
-              border-4
-              border-black
-              shadow-[6px_6px_0_#38aef0]
-            ">
-
-              <div className="
-                px-5
-                py-4
-                border-b-4
-                border-black
-                flex
-                items-center
-                justify-between
-              ">
-
-                <h3 className="
-                  font-black
-                  text-lg
-                ">
-                  UPCOMING CONTESTS
-                </h3>
-
-                <span className="
-                  bg-[#ffd43b]
-                  border-2
-                  border-black
-                  px-2
-                  py-1
-                  text-[9px]
-                  font-black
-                ">
-                  SOON
-                </span>
-
-              </div>
-
-              <div className="p-5">
-
-                <div className="
-                  border-4
-                  border-dashed
-                  border-black/30
-                  p-8
-                  text-center
-                ">
-
-                  <div className="
-                    text-4xl
-                    font-black
-                  ">
-                    ◷
+              {/* Contest 2 */}
+              <div className="p-4 bg-white border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#f8fafc] transition-colors">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="bg-[#38aef0] text-black border border-black rounded-full px-2 py-0.5 text-[9px] font-display font-black uppercase">
+                      SATURDAY 8 PM
+                    </span>
+                    <span className="text-xs font-mono font-bold text-black/60">
+                      45 MINS • 25 QUESTIONS
+                    </span>
                   </div>
-
-                  <p className="
-                    mt-3
-                    font-black
-                  ">
-                    NO CONTESTS YET
+                  <h4 className="font-display font-black text-base uppercase text-black">
+                    WEEKEND GRAND PRIX: LOGICAL DOMINANCE
+                  </h4>
+                  <p className="text-xs font-body font-semibold text-black/60 mt-0.5">
+                    Puzzles, Seating & Logic • Master Division
                   </p>
-
-                  <p className="
-                    mt-2
-                    text-xs
-                    font-semibold
-                    text-black/50
-                  ">
-                    New aptitude contests will
-                    appear here.
-                  </p>
-
                 </div>
 
+                <button
+                  type="button"
+                  onClick={() => navigate('/contests')}
+                  className="px-4 py-2 bg-white hover:bg-[#e9f6ff] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] shrink-0 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                >
+                  VIEW FIXTURE →
+                </button>
               </div>
-
             </div>
-
-            {/* Quick actions */}
-
-            <div className="
-              bg-white
-              border-4
-              border-black
-              shadow-[6px_6px_0_#000]
-            ">
-
-              <div className="
-                px-5
-                py-4
-                border-b-4
-                border-black
-              ">
-                <h3 className="
-                  font-black
-                  text-lg
-                ">
-                  QUICK ACTIONS
-                </h3>
-              </div>
-
-              <div className="
-                p-5
-                space-y-3
-              ">
-
-                <button
-                  onClick={() =>
-                    navigate('/contests')
-                  }
-                  className="
-                    w-full
-                    text-left
-                    bg-[#ffd43b]
-                    border-4
-                    border-black
-                    shadow-[4px_4px_0_#000]
-                    p-4
-                    font-black
-                    text-sm
-                    hover:translate-x-[2px]
-                    hover:translate-y-[2px]
-                    hover:shadow-[2px_2px_0_#000]
-                    transition-all
-                  "
-                >
-                  JOIN A CONTEST →
-                </button>
-
-                <button
-                  onClick={() =>
-                    navigate('/questions')
-                  }
-                  className="
-                    w-full
-                    text-left
-                    bg-[#e9f6ff]
-                    border-4
-                    border-black
-                    shadow-[4px_4px_0_#000]
-                    p-4
-                    font-black
-                    text-sm
-                    hover:translate-x-[2px]
-                    hover:translate-y-[2px]
-                    hover:shadow-[2px_2px_0_#000]
-                    transition-all
-                  "
-                >
-                  PRACTICE QUESTIONS →
-                </button>
-
-                <button
-                  onClick={() =>
-                    navigate('/leaderboard')
-                  }
-                  className="
-                    w-full
-                    text-left
-                    bg-[#38aef0]
-                    border-4
-                    border-black
-                    shadow-[4px_4px_0_#000]
-                    p-4
-                    font-black
-                    text-sm
-                    hover:translate-x-[2px]
-                    hover:translate-y-[2px]
-                    hover:shadow-[2px_2px_0_#000]
-                    transition-all
-                  "
-                >
-                  VIEW LEADERBOARD →
-                </button>
-
-                <button
-                  onClick={() =>
-                    navigate('/profile')
-                  }
-                  className="
-                    w-full
-                    text-left
-                    bg-[#32e875]
-                    border-4
-                    border-black
-                    shadow-[4px_4px_0_#000]
-                    p-4
-                    font-black
-                    text-sm
-                    hover:translate-x-[2px]
-                    hover:translate-y-[2px]
-                    hover:shadow-[2px_2px_0_#000]
-                    transition-all
-                  "
-                >
-                  EDIT PROFILE →
-                </button>
-
-              </div>
-
-            </div>
-
           </section>
 
-          {/* ================================= */}
-          {/* FOOTER                             */}
-          {/* ================================= */}
+          {/* Quick Hub Navigation Actions */}
+          <section className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-5 sm:p-6 flex flex-col justify-between">
+            <div>
+              <div className="pb-3 border-b-2 border-black flex items-center justify-between">
+                <span className="font-display font-black text-sm uppercase">
+                  QUICK NAVIGATION
+                </span>
+                <Sparkles className="w-4 h-4 text-[#ffd43b]" />
+              </div>
 
-          <footer className="
-            mt-8
-            pb-8
-            text-center
-            text-[10px]
-            font-black
-            tracking-[0.15em]
-            text-white/40
-          ">
-            APTIVERSE • THINK FAST • PLAY SMART
-          </footer>
+              <div className="mt-4 space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => navigate('/questions')}
+                  className="w-full p-3 bg-[#fffde7] hover:bg-[#fff9c4] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] font-display font-black text-xs uppercase text-left flex items-center justify-between transition-transform hover:-translate-x-0.5 cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-black" />
+                    PRACTICE QUESTION BANK
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-black" />
+                </button>
 
-        </main>
+                <button
+                  type="button"
+                  onClick={() => navigate('/leaderboard')}
+                  className="w-full p-3 bg-[#e9f6ff] hover:bg-[#d0ebff] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] font-display font-black text-xs uppercase text-left flex items-center justify-between transition-transform hover:-translate-x-0.5 cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <BarChart2 className="w-4 h-4 text-black" />
+                    GLOBAL LEADERBOARD PREVIEW
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-black" />
+                </button>
 
+                <button
+                  type="button"
+                  onClick={() => navigate('/profile')}
+                  className="w-full p-3 bg-[#d1fae5] hover:bg-[#a7f3d0] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] font-display font-black text-xs uppercase text-left flex items-center justify-between transition-transform hover:-translate-x-0.5 cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-black" />
+                    ATHLETE PROFILE & SETTINGS
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-black" />
+                </button>
+              </div>
+            </div>
+
+            {/* Motivational motto */}
+            <div className="mt-5 pt-3 border-t-2 border-black/10 text-center font-mono text-[10px] font-black text-black/50 tracking-widest uppercase">
+              APTICKS • THINK FAST • SOLVE ACCURATE
+            </div>
+          </section>
+        </div>
       </div>
-    </div>
+    </AppLayout>
   )
 }
-
-export default Dashboard

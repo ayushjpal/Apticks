@@ -8,7 +8,7 @@ import { createRoot } from 'react-dom/client'
 // Example: /, /login, /signup, /dashboard
 import { BrowserRouter } from 'react-router-dom'
 
-// Global AptiVerse styles + Tailwind CSS.
+// Global Apticks styles + Tailwind CSS.
 import './index.css'
 
 // Main application component.
@@ -21,7 +21,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     {/* 
       BrowserRouter provides routing functionality
-      to the entire AptiVerse application.
+      to the entire Apticks application.
     */}
     <BrowserRouter>
       <App />
