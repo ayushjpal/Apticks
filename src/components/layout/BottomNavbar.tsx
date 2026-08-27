@@ -33,9 +33,9 @@ export default function BottomNavbar() {
   return (
     <nav
       aria-label="Arena Navigation"
-      className="fixed bottom-3 sm:bottom-5 inset-x-0 z-50 px-3 sm:px-4 pointer-events-none flex justify-center"
+      className="fixed bottom-2 sm:bottom-4 inset-x-0 z-50 px-2 sm:px-4 pointer-events-none flex justify-center pb-[env(safe-area-inset-bottom)]"
     >
-      <div className="w-full max-w-xl bg-white/95 backdrop-blur-md border-3 border-black shadow-[6px_6px_0_#000000] rounded-2xl sm:rounded-full px-2 py-1.5 pointer-events-auto flex items-center justify-between gap-1">
+      <div className="w-full max-w-md sm:max-w-lg bg-white/95 backdrop-blur-md border-2 sm:border-3 border-black shadow-[4px_4px_0_#000000] sm:shadow-[5px_5px_0_#000000] rounded-2xl sm:rounded-full px-1.5 sm:px-2 py-1 pointer-events-auto flex items-center justify-between gap-0.5 sm:gap-1">
         {NAV_TABS.map((tab) => {
           const isActive = getIsActive(tab.path)
           const IconComponent = tab.icon
@@ -47,18 +47,22 @@ export default function BottomNavbar() {
               onClick={() => navigate(tab.path)}
               aria-current={isActive ? 'page' : undefined}
               className={`
-                flex-1 min-w-0 py-2 sm:py-2.5 px-1.5 sm:px-3 rounded-xl sm:rounded-full
-                flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2
-                font-display font-black text-[10px] sm:text-xs uppercase tracking-wider
-                transition-all duration-120 cursor-pointer select-none
+                flex-1 min-w-0 py-1.5 sm:py-2 px-1 sm:px-2.5 rounded-xl sm:rounded-full
+                flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5
+                font-display font-black text-[9px] sm:text-xs uppercase tracking-wider
+                transition-all duration-150 cursor-pointer select-none
                 ${
                   isActive
-                    ? 'bg-[#ffd43b] text-black border-2 border-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
+                    ? 'bg-[#ffd43b] text-black border-1.5 sm:border-2 border-black shadow-[1.5px_1.5px_0_#000000] -translate-y-0.5'
                     : 'text-black/70 hover:text-black hover:bg-black/5 active:scale-95'
                 }
               `}
             >
-              <IconComponent className={`w-4 h-4 shrink-0 ${isActive ? 'stroke-[2.5]' : ''}`} />
+              <IconComponent
+                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+                  isActive ? 'stroke-[2.5px]' : 'stroke-2'
+                }`}
+              />
               <span className="truncate leading-none">{tab.label}</span>
             </button>
           )

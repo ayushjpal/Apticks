@@ -102,26 +102,26 @@ export default function Contests() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 sm:space-y-8 animate-entry">
+      <div className="space-y-4 sm:space-y-5 animate-entry">
         {/* ================================================= */}
         {/* TOP CONTEST ARENA HERO                            */}
         {/* ================================================= */}
-        <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#38aef0] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <section className="bg-white border-2 sm:border-3 border-black rounded-2xl shadow-[5px_5px_0_#38aef0] p-4 sm:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-2 bg-[#ffd43b] text-black border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-mono font-black tracking-widest uppercase shadow-[1.5px_1.5px_0_#000000] mb-2">
+            <div className="inline-flex items-center gap-1.5 bg-[#ffd43b] text-black border border-black rounded-full px-2.5 py-0.5 text-[9px] font-mono font-black tracking-widest uppercase shadow-[1px_1px_0_#000000] mb-1.5">
               <Trophy className="w-3 h-3 text-black" />
               <span>ARENA CONTESTS // SEASON 01 PREVIEW</span>
             </div>
-            <h1 className="font-display font-black text-3xl sm:text-4xl uppercase tracking-tight text-black leading-none">
+            <h1 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black leading-tight">
               SPEED TOURNAMENTS
             </h1>
-            <p className="mt-2 text-xs sm:text-sm font-body font-semibold text-black/70 max-w-xl">
+            <p className="mt-1 text-xs font-body font-semibold text-black/70 max-w-xl">
               Compete synchronously against top aptitude solvers in scheduled timed clashes. Win XP and Division rankings.
             </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className="bg-[#f1f5f9] border-2 border-black rounded-xl px-3.5 py-2 font-mono font-black text-xs">
+            <span className="bg-[#f1f5f9] border-1.5 border-black rounded-xl px-3 py-1.5 font-mono font-black text-[11px]">
               SEASON 01 ACTIVE
             </span>
           </div>
@@ -131,45 +131,45 @@ export default function Contests() {
         {/* LIVE CLASH ARENA BANNER (IF ACTIVE)               */}
         {/* ================================================= */}
         {liveContest && (
-          <section className="bg-[#ffd43b] border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8 relative overflow-hidden">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="space-y-2">
+          <section className="bg-[#ffd43b] border-2 sm:border-3 border-black rounded-2xl shadow-[5px_5px_0_#000000] p-4 sm:p-5 lg:p-6 relative overflow-hidden">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
+              <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="bg-[#ff5b5b] text-white border-2 border-black rounded-full px-3 py-0.5 font-display font-black text-[10px] uppercase shadow-[1.5px_1.5px_0_#000000] flex items-center gap-1.5 animate-pulse">
-                    <Flame className="w-3.5 h-3.5 fill-white" />
+                  <span className="bg-[#ff5b5b] text-white border border-black rounded-full px-2.5 py-0.5 font-display font-black text-[9px] uppercase shadow-[1px_1px_0_#000000] flex items-center gap-1 animate-pulse">
+                    <Flame className="w-3 h-3 fill-white" />
                     LIVE TOURNAMENT ROUND
                   </span>
-                  <span className="bg-white border-2 border-black rounded-full px-2.5 py-0.5 font-mono text-[10px] font-black uppercase">
+                  <span className="bg-white border border-black rounded-full px-2 py-0.5 font-mono text-[9px] font-black uppercase">
                     [ SEASON 01 PREVIEW ]
                   </span>
                 </div>
 
-                <h2 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black">
+                <h2 className="font-display font-black text-xl sm:text-2xl uppercase tracking-tight text-black">
                   {liveContest.title}
                 </h2>
-                <p className="text-xs sm:text-sm font-body font-semibold text-black/80 max-w-lg">
+                <p className="text-xs font-body font-semibold text-black/80 max-w-lg">
                   {liveContest.category} • 15 questions in 30 minutes. Real-time scoring and penalty deductions.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-3 pt-2 font-mono text-xs font-black">
-                  <span className="bg-white border-2 border-black rounded-lg px-2.5 py-1 flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5" />
-                    {liveContest.participantsCount} SOLVERS ARENA
+                <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px] font-black">
+                  <span className="bg-white border-1.5 border-black rounded-lg px-2 py-0.5 flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    {liveContest.participantsCount} SOLVERS
                   </span>
-                  <span className="bg-black text-white border-2 border-black rounded-lg px-2.5 py-1 flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 fill-[#ffd43b] text-[#ffd43b]" />
+                  <span className="bg-black text-white border-1.5 border-black rounded-lg px-2 py-0.5 flex items-center gap-1">
+                    <Zap className="w-3 h-3 fill-[#ffd43b] text-[#ffd43b]" />
                     {liveContest.xpPool} XP PRIZE POOL
                   </span>
                 </div>
               </div>
 
-              <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-2.5">
+              <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-2">
                 <button
                   type="button"
                   onClick={() => navigate('/questions/quant-001')}
-                  className="px-8 py-3.5 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 sm:border-3 border-black rounded-xl shadow-[4px_4px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
+                  className="px-6 py-2.5 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  <Flame className="w-4 h-4 fill-white" />
+                  <Flame className="w-3.5 h-3.5 fill-white" />
                   <span>ENTER LIVE ARENA →</span>
                 </button>
               </div>
@@ -180,7 +180,7 @@ export default function Contests() {
         {/* ================================================= */}
         {/* TAB FILTER CONTROLS                               */}
         {/* ================================================= */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
           {[
             { id: 'all', label: 'ALL TOURNAMENTS' },
             { id: 'live', label: 'LIVE NOW' },
@@ -192,11 +192,11 @@ export default function Contests() {
               type="button"
               onClick={() => setActiveTab(tab.id as 'all' | 'live' | 'upcoming' | 'completed')}
               className={`
-                px-4 py-2 border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all
+                px-3 py-1.5 border-2 border-black rounded-xl font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all
                 ${
                   activeTab === tab.id
-                    ? 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#000000] -translate-y-0.5'
-                    : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+                    ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
+                    : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
                 }
               `}
             >

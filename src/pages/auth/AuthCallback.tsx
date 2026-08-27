@@ -1,29 +1,24 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import type { User } from '@supabase/supabase-js'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
-  const processedRef = useRef(false)
 
   useEffect(() => {
-    // Prevent React StrictMode from executing duplicate PKCE code exchanges
-    if (processedRef.current) return
-    processedRef.current = true
-
     let mounted = true
 
     const handleAuthCallback = async () => {
       try {
         const url = new URL(window.location.href)
 
-        // 1. Check for provider error in query string or hash fragment
+        // 1. Check for OAuth errors in search params or hash fragment
         const searchParams = url.searchParams
-        const hashParams = new URLSearchParams(
-          url.hash.startsWith('#') ? url.hash.substring(1) : url.hash
-        )
+        const rawHash = window.location.hash.startsWith('#')
+          ? window.location.hash.substring(1)
+          : window.location.hash
+        const hashParams = new URLSearchParams(rawHash)
 
         const error = searchParams.get('error') || hashParams.get('error')
         const errorDescription =
@@ -42,121 +37,101 @@ export default function AuthCallback() {
           return
         }
 
-        // 2. Check for PKCE authorization code
-        const code = searchParams.get('code')
+        // 2. Handle Implicit Flow (hash contains access_token & refresh_token)
+        const hashAccessToken = hashParams.get('access_token')
+        const hashRefreshToken = hashParams.get('refresh_token')
 
-        let user: User | null = null
-
-        // Check if session already exists
-        const { data: initialSessionData } = await supabase.auth.getSession()
-        if (initialSessionData?.session?.user) {
-          user = initialSessionData.session.user
-        }
-
-        // If code is present and no active user yet, exchange code for session
-        if (!user && code) {
+        if (hashAccessToken && hashRefreshToken) {
           try {
-            const { data: exchangeData, error: exchangeError } =
-              await supabase.auth.exchangeCodeForSession(code)
-
-            if (!exchangeError && exchangeData?.user) {
-              user = exchangeData.user
-            } else if (exchangeError) {
-              console.warn(
-                'Direct code exchange note (checking if auto-detected):',
-                exchangeError.message
-              )
-              // If client auto-detected or already exchanged, verify session
-              const { data: fallbackSession } = await supabase.auth.getSession()
-              if (fallbackSession?.session?.user) {
-                user = fallbackSession.session.user
-              }
-            }
-          } catch (exchangeEx) {
-            console.warn('Code exchange exception, checking session:', exchangeEx)
-            const { data: fallbackSession } = await supabase.auth.getSession()
-            if (fallbackSession?.session?.user) {
-              user = fallbackSession.session.user
-            }
+            await supabase.auth.setSession({
+              access_token: hashAccessToken,
+              refresh_token: hashRefreshToken,
+            })
+          } catch (setSessionErr) {
+            console.warn('Manual setSession note:', setSessionErr)
           }
         }
 
-        // 3. If user is still not resolved, wait for onAuthStateChange
-        if (!user) {
-          user = await new Promise<User | null>((resolve) => {
-            let resolved = false
+        // 3. Handle PKCE Flow (search params contain code)
+        const code = searchParams.get('code')
+        if (code) {
+          try {
+            await supabase.auth.exchangeCodeForSession(code)
+          } catch (exchangeErr) {
+            console.warn('exchangeCodeForSession note:', exchangeErr)
+          }
+        }
 
-            // Check getSession one more time
-            supabase.auth.getSession().then(({ data }) => {
-              if (data?.session?.user && !resolved) {
-                resolved = true
-                resolve(data.session.user)
-              }
-            })
+        // 4. Resolve authenticated user from session
+        let user = (await supabase.auth.getSession()).data?.session?.user || null
+
+        // If session not yet in storage, check getUser() directly
+        if (!user) {
+          const { data: userData } = await supabase.auth.getUser()
+          user = userData?.user || null
+        }
+
+        // If still pending, wait briefly for onAuthStateChange
+        if (!user) {
+          user = await new Promise((resolve) => {
+            let done = false
 
             const {
               data: { subscription },
-            } = supabase.auth.onAuthStateChange((event, session) => {
-              if (
-                session?.user &&
-                !resolved &&
-                (event === 'SIGNED_IN' ||
-                  event === 'INITIAL_SESSION' ||
-                  event === 'TOKEN_REFRESHED')
-              ) {
-                resolved = true
+            } = supabase.auth.onAuthStateChange((_event, session) => {
+              if (session?.user && !done) {
+                done = true
                 subscription.unsubscribe()
                 resolve(session.user)
               }
             })
 
-            // Safety timeout after 5 seconds
-            setTimeout(() => {
-              if (!resolved) {
-                resolved = true
+            // Short timeout fallback
+            setTimeout(async () => {
+              if (!done) {
+                done = true
                 subscription.unsubscribe()
-                supabase.auth.getUser().then(({ data }) => {
-                  resolve(data?.user || null)
-                })
+                const { data: finalUserData } = await supabase.auth.getUser()
+                resolve(finalUserData?.user || null)
               }
-            }, 5000)
+            }, 2000)
           })
         }
 
         if (!mounted) return
 
-        // 4. If no user could be verified after all attempts, route to login
+        // 5. If no user resolved, route to login
         if (!user) {
-          console.error('Authentication user could not be established')
+          console.error('No authenticated session established in callback')
           navigate('/login', {
             replace: true,
             state: {
-              error: 'Authentication failed. Please try signing in again.',
+              error: 'Authentication session could not be established. Please try again.',
             },
           })
           return
         }
 
-        // Clean OAuth query parameters from browser history
+        // 6. Clean OAuth query and hash parameters from URL bar
         window.history.replaceState({}, document.title, window.location.pathname)
 
-        // 5. Check user profile / username
+        // 7. Check if user already has an Apticks profile / username
         let hasUsername = false
 
         try {
-          const { data: profile, error: profileError } = await supabase
+          const { data: profile } = await supabase
             .from('profiles')
             .select('username')
             .eq('id', user.id)
             .maybeSingle()
 
-          if (!profileError && profile?.username) {
+          if (profile?.username) {
             hasUsername = true
           } else if (user.user_metadata?.username) {
             hasUsername = true
           }
         } catch (profileErr) {
-          console.warn('Profile check fallback:', profileErr)
+          console.warn('Profile lookup note in callback:', profileErr)
           if (user.user_metadata?.username) {
             hasUsername = true
           }
@@ -164,16 +139,14 @@ export default function AuthCallback() {
 
         if (!mounted) return
 
-        // 6. Route based on profile status
-        if (!hasUsername) {
-          console.log('Username onboarding required for user:', user.id)
-          navigate('/choose-username', { replace: true })
-        } else {
-          console.log('Existing user verified. Entering dashboard:', user.email)
+        // 8. Destination Routing: Existing user -> /dashboard, New user -> /choose-username
+        if (hasUsername) {
           navigate('/dashboard', { replace: true })
+        } else {
+          navigate('/choose-username', { replace: true })
         }
-      } catch (error) {
-        console.error('Unexpected error in AuthCallback:', error)
+      } catch (err) {
+        console.error('Unexpected error in AuthCallback:', err)
         if (mounted) {
           navigate('/login', {
             replace: true,

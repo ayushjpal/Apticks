@@ -538,17 +538,17 @@ export default function Profile() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 animate-entry">
+      <div className="space-y-4 sm:space-y-5 animate-entry">
         {/* Success Alert */}
         {saveSuccess && (
-          <div className="p-4 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] shadow-[3px_3px_0_#000000] flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 font-display font-black text-sm uppercase">
-              <CheckCircle2 className="w-5 h-5 shrink-0 text-[#065f46]" />
+          <div className="p-3.5 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] shadow-[2.5px_2.5px_0_#000000] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 font-display font-black text-xs sm:text-sm uppercase">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-[#065f46]" />
               <span>PROFILE CHANGES SAVED SUCCESSFULLY</span>
             </div>
             <button
               onClick={() => setSaveSuccess(false)}
-              className="text-xs font-mono font-black underline cursor-pointer"
+              className="text-[11px] font-mono font-black underline cursor-pointer"
             >
               DISMISS
             </button>
@@ -557,14 +557,14 @@ export default function Profile() {
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="p-4 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] shadow-[3px_3px_0_#000000] flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 font-display font-black text-sm uppercase">
-              <AlertCircle className="w-5 h-5 shrink-0 text-[#991b1b]" />
+          <div className="p-3.5 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] shadow-[2.5px_2.5px_0_#000000] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 font-display font-black text-xs sm:text-sm uppercase">
+              <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
               <span>{errorMessage}</span>
             </div>
             <button
               onClick={() => setErrorMessage(null)}
-              className="text-xs font-mono font-black underline cursor-pointer"
+              className="text-[11px] font-mono font-black underline cursor-pointer"
             >
               DISMISS
             </button>
@@ -574,20 +574,20 @@ export default function Profile() {
         {/* ================================================= */}
         {/* TOP TABBED NAVIGATION CONTROLS                    */}
         {/* ================================================= */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
             className={`
-              px-4 py-2.5 rounded-xl border-2 sm:border-3 border-black font-display font-black text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-2
+              px-3.5 py-2 rounded-xl border-2 border-black font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
               ${
                 activeTab === 'overview'
-                  ? 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#000000] -translate-y-0.5'
-                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
               }
             `}
           >
-            <User className="w-4 h-4" />
+            <User className="w-3.5 h-3.5" />
             <span>ATHLETE IDENTITY</span>
           </button>
 
@@ -595,15 +595,15 @@ export default function Profile() {
             type="button"
             onClick={() => setActiveTab('edit')}
             className={`
-              px-4 py-2.5 rounded-xl border-2 sm:border-3 border-black font-display font-black text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-2
+              px-3.5 py-2 rounded-xl border-2 border-black font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
               ${
                 activeTab === 'edit'
-                  ? 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#000000] -translate-y-0.5'
-                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
               }
             `}
           >
-            <Award className="w-4 h-4" />
+            <Award className="w-3.5 h-3.5" />
             <span>EDIT PROFILE</span>
           </button>
 
@@ -611,15 +611,15 @@ export default function Profile() {
             type="button"
             onClick={() => setActiveTab('settings')}
             className={`
-              px-4 py-2.5 rounded-xl border-2 sm:border-3 border-black font-display font-black text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-2
+              px-3.5 py-2 rounded-xl border-2 border-black font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
               ${
                 activeTab === 'settings'
-                  ? 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#000000] -translate-y-0.5'
-                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
               }
             `}
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-3.5 h-3.5" />
             <span>SETTINGS & SECURITY</span>
           </button>
         </div>
