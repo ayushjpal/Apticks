@@ -526,3 +526,125 @@
   transform: translate(1px, 1px);
   box-shadow: 2px 2px 0 #000000;
 }
+
+/* =========================================================
+   EMAIL MANAGEMENT & OTP MODAL
+   ========================================================= */
+
+.prof-email-status-verified {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  font-weight: 900;
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.prof-email-status-unlinked {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  font-weight: 900;
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.prof-email-box {
+  background-color: #f8fafc;
+  border: 3px solid #000000;
+  box-shadow: 3px 3px 0 #000000;
+  padding: 16px;
+  margin-top: 8px;
+}
+
+/* Modal Overlay */
+.prof-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(6, 26, 45, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.prof-modal-card {
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 8px 8px 0 #ffd43b;
+  max-width: 480px;
+  width: 100%;
+  padding: 28px;
+  position: relative;
+  animation: profModalPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes profModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.prof-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.prof-modal-close-btn {
+  background: #ff5b5b;
+  color: #ffffff;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+  font-weight: 900;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+}
+
+.prof-modal-close-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000000;
+}
+
+.prof-otp-input {
+  width: 100%;
+  text-align: center;
+  font-family: monospace, monospace;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: 0.35em;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.prof-otp-input:focus {
+  box-shadow: 6px 6px 0 #38aef0;
+}
+
+.prof-otp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+

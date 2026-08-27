@@ -153,6 +153,16 @@ function AppRoutes() {
       />
 
       {/* -------------------------
+          Link Real Email (Redirects to Profile)
+          URL: /link-email
+      ------------------------- */}
+
+      <Route
+        path="/link-email"
+        element={<Navigate to="/profile" replace />}
+      />
+
+      {/* -------------------------
           Dashboard
           URL: /dashboard
       ------------------------- */}

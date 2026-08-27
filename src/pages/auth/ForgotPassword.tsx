@@ -1,192 +1,93 @@
 // React hook for managing form state
 import { useState } from 'react'
-
-// React Router navigation
 import { Link } from 'react-router-dom'
-
-// Supabase client
 import { supabase } from '../../lib/supabase'
-
-// Forgot password styling
 import './ForgotPassword.css'
 
-
-// Forgot Password component
 function ForgotPassword() {
-
-  // -----------------------------
-  // Form state
-  // -----------------------------
-
-  // Email entered by the user
-  const [email, setEmail] = useState('')
-
-  // Loading state
+  const [identifier, setIdentifier] = useState('')
   const [loading, setLoading] = useState(false)
-
-  // Error message
   const [error, setError] = useState('')
-
-  // Success message
   const [success, setSuccess] = useState('')
 
-
-  // -----------------------------
-  // Reset password handler
-  // -----------------------------
-
-  const handleResetPassword = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-
-    // Prevent normal browser form submission
+  const handleResetPassword = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
-    // Clear previous messages
     setError('')
     setSuccess('')
 
+    const cleanInput = identifier.trim()
 
-    // -----------------------------
-    // Validation
-    // -----------------------------
-
-    if (!email.trim()) {
-
-      setError(
-        'Please enter your email.'
-      )
-
+    if (!cleanInput) {
+      setError('Please enter your username or email address.')
       return
     }
 
-
-    // Start loading
     setLoading(true)
 
-
     try {
+      // 1. Invoke server-side request-password-reset Edge Function (prevents email enumeration)
+      const { data, error: fnError } = await supabase.functions.invoke('request-password-reset', {
+        body: { identifier: cleanInput },
+      })
 
-      // Send password reset email
-      const { error: resetError } =
-        await supabase.auth.resetPasswordForEmail(
-          email.trim().toLowerCase(),
-          {
-            redirectTo:
-              'http://localhost:5173/update-password',
-          }
-        )
-
-
-      // Supabase error
-      if (resetError) {
-
-        setError(
-          resetError.message
-        )
-
+      if (data?.unverified) {
+        setError(data.message || 'Add and verify an email from your Profile to enable account recovery.')
         return
       }
 
+      if (fnError) {
+        // Fallback: If input is an email address, trigger direct reset
+        if (cleanInput.includes('@') && !cleanInput.endsWith('@apticks.app') && !cleanInput.endsWith('@auth.apticks.internal') && !cleanInput.endsWith('@aptiverse.local')) {
+          const { error: resetErr } = await supabase.auth.resetPasswordForEmail(
+            cleanInput.toLowerCase(),
+            {
+              redirectTo: `${window.location.origin}/update-password`,
+            }
+          )
+          if (resetErr) {
+            console.warn('Password reset fallback notice:', resetErr)
+          }
+        }
+      }
 
-      // Success
       setSuccess(
-        'Reset link sent! Check your email to continue.'
+        data?.message ||
+          'If an account exists with a verified email, a password reset link has been sent. Check your inbox.'
       )
-
-    } catch (err) {
-
-      // Log unexpected errors
-      console.error(
-        'Password reset error:',
-        err
-      )
-
-      setError(
-        'Something went wrong. Please try again.'
-      )
-
+    } catch (err: unknown) {
+      console.error('Password reset error:', err)
+      setSuccess('If an account exists with a verified email, a password reset link has been sent.')
     } finally {
-
-      // Stop loading
       setLoading(false)
-
     }
-
   }
-
-
-  // -----------------------------
-  // UI
-  // -----------------------------
 
   return (
     <div className="forgot-page">
-
-
-      {/* =================================
-          Decorative background objects
-          ================================= */}
-
-      <div className="forgot-floating forgot-plus">
-        +
-      </div>
-
-      <div className="forgot-floating forgot-number">
-        7
-      </div>
-
-      <div className="forgot-floating forgot-cross">
-        ×
-      </div>
-
-      <div className="forgot-floating forgot-equals">
-        =
-      </div>
-
-      <div className="forgot-floating forgot-number-two">
-        2
-      </div>
-
+      {/* Decorative background objects */}
+      <div className="forgot-floating forgot-plus">+</div>
+      <div className="forgot-floating forgot-number">7</div>
+      <div className="forgot-floating forgot-cross">×</div>
+      <div className="forgot-floating forgot-equals">=</div>
+      <div className="forgot-floating forgot-number-two">2</div>
 
       {/* Floating clock */}
       <div className="forgot-clock">
-
         <div className="forgot-clock-hour" />
-
         <div className="forgot-clock-minute" />
-
         <div className="forgot-clock-center" />
-
       </div>
 
-
-      {/* =================================
-          Main card
-          ================================= */}
-
+      {/* Main card */}
       <main className="forgot-card">
-
-
         {/* AptiVerse logo */}
         <div className="forgot-brand">
-
-          <div className="forgot-logo">
-            A
-          </div>
-
-          <span>
-            APTIVERSE
-          </span>
-
+          <div className="forgot-logo">A</div>
+          <span>APTIVERSE</span>
         </div>
-
 
         {/* Small label */}
-        <div className="forgot-label">
-          ACCOUNT RECOVERY
-        </div>
-
+        <div className="forgot-label">ACCOUNT RECOVERY</div>
 
         {/* Heading */}
         <h1>
@@ -195,114 +96,57 @@ function ForgotPassword() {
           PASSWORD?
         </h1>
 
-
         {/* Description */}
         <p className="forgot-description">
-          No worries. Enter the email connected
-          to your AptiVerse account and we'll send
-          you a reset link.
+          Enter your username or verified email connected to your AptiVerse account and we'll send you a secure reset link.
         </p>
 
-
         {/* Form */}
-        <form
-          onSubmit={handleResetPassword}
-        >
-
-
-          {/* Email */}
+        <form onSubmit={handleResetPassword}>
+          {/* Username or Email */}
           <div className="forgot-form-group">
-
-            <label htmlFor="forgot-email">
-              EMAIL
-            </label>
-
+            <label htmlFor="forgot-identifier">USERNAME OR EMAIL</label>
 
             <div className="forgot-input-wrapper">
-
-              <span className="forgot-input-icon">
-                @
-              </span>
+              <span className="forgot-input-icon">@</span>
 
               <input
-                id="forgot-email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(event) =>
-                  setEmail(
-                    event.target.value
-                  )
-                }
-                autoComplete="email"
+                id="forgot-identifier"
+                type="text"
+                placeholder="Enter username or email"
+                value={identifier}
+                onChange={(event) => setIdentifier(event.target.value)}
+                autoComplete="username"
+                autoFocus
               />
-
             </div>
-
           </div>
 
-
           {/* Error */}
-          {error && (
-
-            <p className="forgot-message forgot-error">
-              {error}
-            </p>
-
-          )}
-
+          {error && <p className="forgot-message forgot-error">{error}</p>}
 
           {/* Success */}
-          {success && (
-
-            <p className="forgot-message forgot-success">
-              {success}
-            </p>
-
-          )}
-
+          {success && <p className="forgot-message forgot-success">{success}</p>}
 
           {/* Submit */}
-          <button
-            type="submit"
-            className="forgot-submit"
-            disabled={loading}
-          >
-
-            {loading
-              ? 'SENDING...'
-              : 'SEND RESET LINK →'}
-
+          <button type="submit" className="forgot-submit" disabled={loading}>
+            {loading ? 'SENDING...' : 'SEND RESET LINK →'}
           </button>
-
         </form>
 
-
         {/* Back to login */}
-        <Link
-          to="/login"
-          className="forgot-back"
-        >
+        <Link to="/login" className="forgot-back">
           ← BACK TO SIGN IN
         </Link>
-
 
         {/* Bottom note */}
         <div className="forgot-note">
           <span>?</span>
-
-          <p>
-            You'll receive an email with a
-            secure password reset link.
-          </p>
+          <p>You'll receive an email with a secure password reset link if a real email is linked.</p>
         </div>
-
       </main>
-
     </div>
   )
 }
 
-
-// Export component
 export default ForgotPassword

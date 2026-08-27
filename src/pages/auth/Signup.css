@@ -645,6 +645,55 @@
 
 
 /* =========================================================
+   USERNAME AVAILABILITY STATUS & HINTS
+   ========================================================= */
+
+.signup-username-status {
+  margin: 4px 0 6px;
+  padding: 5px 8px;
+  border: 2px solid #050505;
+  font-size: 9px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 2px 2px 0 #050505;
+}
+
+.signup-username-status.available {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #050505;
+}
+
+.signup-username-status.taken {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #050505;
+}
+
+.signup-username-status.checking {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #050505;
+}
+
+.signup-username-status.invalid {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #050505;
+}
+
+.signup-input-hint {
+  font-size: 8px;
+  font-weight: 750;
+  color: #555555;
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+}
+
+
+/* =========================================================
    ERROR
    ========================================================= */
 

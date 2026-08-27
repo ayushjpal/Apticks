@@ -39,16 +39,17 @@ export class QuestionService {
           .eq('user_id', userId)
 
         if (!error && data) {
-          data.forEach((row: any) => {
-            progressMap[row.question_id] = {
-              questionId: row.question_id,
+          data.forEach((row: Record<string, unknown>) => {
+            const qId = String(row.question_id)
+            progressMap[qId] = {
+              questionId: qId,
               isSolved: Boolean(row.is_solved),
               isCorrect: Boolean(row.is_correct),
               isBookmarked: Boolean(row.is_bookmarked),
-              selectedOption: row.selected_option || undefined,
-              attemptsCount: row.attempts_count || 1,
-              timeSpentSeconds: row.time_spent_seconds || 0,
-              lastAttemptedAt: row.last_attempted_at || new Date().toISOString(),
+              selectedOption: row.selected_option ? String(row.selected_option) : undefined,
+              attemptsCount: Number(row.attempts_count) || 1,
+              timeSpentSeconds: Number(row.time_spent_seconds) || 0,
+              lastAttemptedAt: String(row.last_attempted_at || new Date().toISOString()),
             }
           })
 
@@ -171,7 +172,7 @@ export class QuestionService {
 
     if (userId) {
       const localKey = `${LOCAL_STORAGE_KEY_PREFIX}${userId}`
-      let currentMap: Record<string, UserQuestionProgress> = {}
+      let currentMap: Record<string, UserQuestionProgress>
       try {
         currentMap = JSON.parse(localStorage.getItem(localKey) || '{}')
       } catch {

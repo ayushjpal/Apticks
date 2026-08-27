@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { ProfileService, type UserProfile } from '../services/profileService'
 import { QuestionService } from '../services/questionService'
 import type { QuestionBankStats } from '../types/questions'
-
-type Profile = {
-  username: string | null
-  display_name: string | null
-  avatar_url: string | null
-}
 
 function Dashboard() {
   const navigate = useNavigate()
 
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [questionStats, setQuestionStats] = useState<QuestionBankStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [loggingOut, setLoggingOut] = useState(false)
@@ -38,27 +33,24 @@ function Dashboard() {
           return
         }
 
-        const {
-          data,
-          error: profileError,
-        } = await supabase
-          .from('profiles')
-          .select(
-            'username, display_name, avatar_url'
-          )
-          .eq('id', user.id)
-          .maybeSingle()
-
-        if (profileError) {
-          console.error(
-            'Profile loading error:',
-            profileError
-          )
-
-          return
+        // Fetch complete profile using centralized service
+        let userProfile = await ProfileService.fetchProfile(user.id)
+        if (!userProfile?.username && user.user_metadata?.username) {
+          userProfile = {
+            id: user.id,
+            username: user.user_metadata.username,
+            display_name: user.user_metadata.display_name || user.user_metadata.username,
+            avatar_url: userProfile?.avatar_url || null,
+            bio: userProfile?.bio || null,
+            username_changed_at: userProfile?.username_changed_at || null,
+          }
         }
 
-        setProfile(data)
+        console.log('[Dashboard Init] authUser.id:', user.id)
+        console.log('[Dashboard Init] profile row returned from Supabase:', userProfile)
+        console.log('[Dashboard Init] profile.username:', userProfile?.username)
+
+        setProfile(userProfile)
 
         // Load Question Bank stats
         try {
@@ -116,6 +108,8 @@ function Dashboard() {
       setLoggingOut(false)
     }
   }
+
+
 
   // -----------------------------------------
   // Loading
@@ -597,7 +591,6 @@ function Dashboard() {
           lg:px-8
           xl:px-10
         ">
-
           {/* ================================= */}
           {/* TOP BAR                           */}
           {/* ================================= */}

@@ -6,6 +6,7 @@ import {
   type UserProfile,
   type UsernameCooldownInfo,
 } from '../../services/profileService'
+import { normalizeUsername } from '../../utils/validation'
 import { QuestionService } from '../../services/questionService'
 import type { QuestionBankStats } from '../../types/questions'
 import './Profile.css'
@@ -46,6 +47,7 @@ export default function Profile() {
   // User & DB State
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [isEmailVerified, setIsEmailVerified] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -61,6 +63,15 @@ export default function Profile() {
   const [bio, setBio] = useState('')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [usernameInput, setUsernameInput] = useState('')
+
+  // Email Linking Modal & OTP State
+  const [emailModalOpen, setEmailModalOpen] = useState(false)
+  const [emailInput, setEmailInput] = useState('')
+  const [otpCode, setOtpCode] = useState('')
+  const [otpStep, setOtpStep] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
+  const [emailModalError, setEmailModalError] = useState<string | null>(null)
+  const [emailModalSuccess, setEmailModalSuccess] = useState<string | null>(null)
 
   // Username Availability & Cooldown State
   const [checkingUsername, setCheckingUsername] = useState(false)
@@ -98,16 +109,45 @@ export default function Profile() {
         if (!isMounted) return
 
         setUserId(user.id)
-        setUserEmail(user.email || null)
+
+        // Determine email status (exclude internal system placeholders)
+        const rawEmail = user.email || ''
+        const isInternal =
+          !rawEmail ||
+          rawEmail.endsWith('@apticks.app') ||
+          rawEmail.endsWith('@auth.apticks.internal') ||
+          rawEmail.endsWith('@aptiverse.local')
+
+        const verified = !isInternal && Boolean(user.email_confirmed_at)
+        setIsEmailVerified(verified)
+        setUserEmail(verified ? rawEmail : null)
 
         // Load profile from Service
-        const profile = await ProfileService.fetchProfile(user.id)
+        let profile = await ProfileService.fetchProfile(user.id)
+        if (!profile?.username && user.user_metadata?.username) {
+          profile = {
+            id: user.id,
+            username: user.user_metadata.username,
+            display_name: user.user_metadata.display_name || user.user_metadata.username,
+            avatar_url: profile?.avatar_url || null,
+            bio: profile?.bio || null,
+            username_changed_at: profile?.username_changed_at || null,
+          }
+        }
+
+        console.log('[Profile Init] authUser.id:', user.id)
+        console.log('[Profile Init] profile row returned from Supabase:', profile)
+        console.log('[Profile Init] profile.username:', profile?.username)
+        console.log('[Profile Init] currentUsername:', profile?.username)
+
         if (isMounted) {
           setOriginalProfile(profile)
           setDisplayName(profile?.display_name || '')
           setBio(profile?.bio || '')
           setAvatarUrl(profile?.avatar_url || null)
           setUsernameInput(profile?.username || '')
+
+          console.log('[Profile Init] username state after initialization:', profile?.username || '')
 
           // Calculate 14-day username cooldown
           const coolInfo = ProfileService.getUsernameCooldownInfo(
@@ -117,9 +157,9 @@ export default function Profile() {
 
           if (profile?.username) {
             setUsernameStatus({
-              available: true,
+              available: false,
               isCurrent: true,
-              message: 'Current username',
+              message: 'This is your current username.',
             })
           }
         }
@@ -135,7 +175,7 @@ export default function Profile() {
         } catch (qErr) {
           console.warn('Could not load profile question stats:', qErr)
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error loading profile page:', err)
         if (isMounted) {
           setErrorMessage('Could not load profile details. Please refresh.')
@@ -160,36 +200,37 @@ export default function Profile() {
   useEffect(() => {
     if (!userId || loading) return
 
-    const trimmed = usernameInput.trim().toLowerCase()
-    if (!trimmed) {
-      setUsernameStatus({
-        available: false,
-        isCurrent: false,
-        message: 'Username cannot be empty',
-      })
-      return
-    }
+    const trimmed = normalizeUsername(usernameInput)
 
-    // If unchanged from original
-    if (
-      originalProfile?.username &&
-      trimmed === originalProfile.username.trim().toLowerCase()
-    ) {
-      setUsernameStatus({
-        available: true,
-        isCurrent: true,
-        message: 'Current username',
-      })
-      return
-    }
-
-    // If cooldown is active, don't query
-    if (!cooldown.canChange) {
-      return
-    }
-
-    setCheckingUsername(true)
     const timeoutId = setTimeout(async () => {
+      if (!trimmed) {
+        setUsernameStatus({
+          available: false,
+          isCurrent: false,
+          message: 'Username cannot be empty',
+        })
+        return
+      }
+
+      // If unchanged from original authenticated profile
+      if (
+        originalProfile?.username &&
+        trimmed === normalizeUsername(originalProfile.username)
+      ) {
+        setUsernameStatus({
+          available: false,
+          isCurrent: true,
+          message: 'This is your current username.',
+        })
+        return
+      }
+
+      // If cooldown is active, don't query
+      if (!cooldown.canChange) {
+        return
+      }
+
+      setCheckingUsername(true)
       const result = await ProfileService.validateAndCheckUsername(
         trimmed,
         userId,
@@ -202,7 +243,7 @@ export default function Profile() {
         message: result.message,
       })
       setCheckingUsername(false)
-    }, 450)
+    }, 400)
 
     return () => {
       clearTimeout(timeoutId)
@@ -226,8 +267,9 @@ export default function Profile() {
       } else {
         setAvatarUrl(url)
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Error uploading profile picture.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error uploading profile picture.'
+      setErrorMessage(msg)
     } finally {
       setUploadingAvatar(false)
       if (fileInputRef.current) {
@@ -257,8 +299,8 @@ export default function Profile() {
     setSaveSuccess(false)
 
     const isChangingUsername =
-      usernameInput.trim().toLowerCase() !==
-      (originalProfile?.username || '').trim().toLowerCase()
+      normalizeUsername(usernameInput) !==
+      normalizeUsername(originalProfile?.username || '')
 
     // Client-side rate-limit guard
     if (isChangingUsername && !cooldown.canChange) {
@@ -305,10 +347,127 @@ export default function Profile() {
           setSaveSuccess(false)
         }, 4000)
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Unexpected error while updating profile.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unexpected error while updating profile.'
+      setErrorMessage(msg)
     } finally {
       setSaving(false)
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // 5. In-App OTP Email Linking Handlers
+  // ---------------------------------------------------------------------------
+  const handleInitiateEmailLink = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailModalError(null)
+    setEmailModalSuccess(null)
+
+    const clean = emailInput.trim().toLowerCase()
+    if (!clean) {
+      setEmailModalError('Please enter an email address.')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(clean)) {
+      setEmailModalError('Please enter a valid email address.')
+      return
+    }
+
+    if (clean.endsWith('@apticks.app') || clean.endsWith('@auth.apticks.internal') || clean.endsWith('@aptiverse.local')) {
+      setEmailModalError('Please enter a real email address (e.g. Gmail).')
+      return
+    }
+
+    setEmailLoading(true)
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({
+        email: clean,
+      })
+
+      if (updateError) {
+        setEmailModalError(updateError.message || 'Failed to initiate email update.')
+        return
+      }
+
+      setOtpStep(true)
+      setEmailModalSuccess(`Verification code sent to ${clean}. Enter the 6-digit code below.`)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      setEmailModalError(msg)
+    } finally {
+      setEmailLoading(false)
+    }
+  }
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailModalError(null)
+    setEmailModalSuccess(null)
+
+    const cleanEmail = emailInput.trim().toLowerCase()
+    const cleanToken = otpCode.trim()
+
+    if (!cleanToken || cleanToken.length < 6) {
+      setEmailModalError('Please enter the full 6-digit verification code.')
+      return
+    }
+
+    setEmailLoading(true)
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: cleanToken,
+        type: 'email_change',
+      })
+
+      if (verifyError) {
+        setEmailModalError(verifyError.message || 'Invalid or expired verification code.')
+        return
+      }
+
+      setUserEmail(cleanEmail)
+      setIsEmailVerified(true)
+      setEmailModalSuccess('Email verified and linked successfully!')
+
+      setTimeout(() => {
+        setEmailModalOpen(false)
+        setOtpStep(false)
+        setEmailInput('')
+        setOtpCode('')
+        setEmailModalSuccess(null)
+      }, 1500)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Verification failed.'
+      setEmailModalError(msg)
+    } finally {
+      setEmailLoading(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    const cleanEmail = emailInput.trim().toLowerCase()
+    if (!cleanEmail) return
+
+    setEmailModalError(null)
+    setEmailLoading(true)
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'email_change',
+        email: cleanEmail,
+      })
+
+      if (resendError) {
+        setEmailModalError(resendError.message || 'Failed to resend code.')
+      } else {
+        setEmailModalSuccess(`New verification code sent to ${cleanEmail}.`)
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to resend verification code.'
+      setEmailModalError(msg)
+    } finally {
+      setEmailLoading(false)
     }
   }
 
@@ -327,8 +486,15 @@ export default function Profile() {
   }
 
   const effectiveDisplayName =
-    displayName.trim() || originalProfile?.username || 'Aptitude Ace'
-  const effectiveUsername = usernameInput.trim() || 'user'
+    displayName.trim() ||
+    originalProfile?.display_name ||
+    originalProfile?.username ||
+    'Aptitude Ace'
+
+  const effectiveUsername =
+    usernameInput.trim() ||
+    originalProfile?.username ||
+    'athlete'
   const firstLetter = effectiveDisplayName.charAt(0).toUpperCase()
 
   return (
@@ -582,7 +748,7 @@ export default function Profile() {
                     onChange={(e) => setUsernameInput(e.target.value)}
                     disabled={!cooldown.canChange}
                     placeholder="your_handle"
-                    maxLength={30}
+                    maxLength={20}
                     className={`prof-input-with-prefix ${
                       !cooldown.canChange ? 'disabled' : ''
                     }`}
@@ -595,7 +761,7 @@ export default function Profile() {
                   </p>
                   {cooldown.canChange && (
                     <p className="text-[10px] font-bold text-[#b45309]">
-                      * Note: Changing your username will lock it for 14 days.
+                      * Note: Changing your username will lock it for 14 days. Max 20 characters.
                     </p>
                   )}
                 </div>
@@ -630,12 +796,86 @@ export default function Profile() {
               </div>
 
               {/* ----------------------------------------- */}
+              {/* 5. ACCOUNT EMAIL & SECURITY (OTP FLOW)    */}
+              {/* ----------------------------------------- */}
+              <div className="prof-section">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="prof-label">ACCOUNT EMAIL & RECOVERY</label>
+                  {isEmailVerified ? (
+                    <span className="prof-email-status-verified">✓ EMAIL VERIFIED</span>
+                  ) : (
+                    <span className="prof-email-status-unlinked">⚠ NOT LINKED</span>
+                  )}
+                </div>
+
+                <div className="prof-email-box">
+                  {isEmailVerified ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="font-black text-sm text-[#071a2b] flex items-center gap-2">
+                          <span>✉</span> {userEmail}
+                        </div>
+                        <p className="text-[11px] font-bold text-black/60 mt-0.5">
+                          Verified recovery email. Used for secure password resets.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmailModalOpen(true)
+                          setEmailInput('')
+                          setOtpStep(false)
+                          setOtpCode('')
+                          setEmailModalError(null)
+                          setEmailModalSuccess(null)
+                        }}
+                        className="prof-btn-secondary text-xs"
+                      >
+                        CHANGE EMAIL
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="font-black text-sm text-[#991b1b]">
+                          No recovery email linked
+                        </div>
+                        <p className="text-[11px] font-bold text-black/60 mt-0.5">
+                          Add your Gmail / email to enable password recovery and account security.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmailModalOpen(true)
+                          setEmailInput('')
+                          setOtpStep(false)
+                          setOtpCode('')
+                          setEmailModalError(null)
+                          setEmailModalSuccess(null)
+                        }}
+                        className="prof-btn-secondary text-xs"
+                        style={{ backgroundColor: '#ffd43b' }}
+                      >
+                        + ADD EMAIL
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* ----------------------------------------- */}
               {/* SUBMIT BUTTON                             */}
               {/* ----------------------------------------- */}
               <div className="pt-3">
                 <button
                   type="submit"
-                  disabled={saving || (usernameInput.trim().toLowerCase() !== (originalProfile?.username || '').trim().toLowerCase() && (!usernameStatus?.available || !cooldown.canChange))}
+                  disabled={
+                    saving ||
+                    (normalizeUsername(usernameInput) !==
+                      normalizeUsername(originalProfile?.username || '') &&
+                      (!usernameStatus?.available || !cooldown.canChange))
+                  }
                   className="prof-submit-btn"
                 >
                   {saving ? 'SAVING CHANGES...' : 'SAVE PROFILE CHANGES →'}
@@ -692,7 +932,7 @@ export default function Profile() {
                         @{effectiveUsername}
                       </div>
                       <div className="text-[10px] font-black text-black/50 uppercase mt-0.5">
-                        {userEmail || 'AUTHENTICATED MEMBER'}
+                        ATHLETE MEMBER
                       </div>
                     </div>
                   </div>
@@ -766,6 +1006,130 @@ export default function Profile() {
           </aside>
         </div>
       </div>
+
+      {/* ================================================= */}
+      {/* IN-APP OTP EMAIL LINKING MODAL                     */}
+      {/* ================================================= */}
+      {emailModalOpen && (
+        <div className="prof-modal-overlay" onClick={() => setEmailModalOpen(false)}>
+          <div
+            className="prof-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="prof-modal-header">
+              <div className="font-black text-base text-[#071a2b] uppercase tracking-wide">
+                {otpStep ? 'ENTER VERIFICATION CODE' : 'LINK ACCOUNT EMAIL'}
+              </div>
+              <button
+                type="button"
+                className="prof-modal-close-btn"
+                onClick={() => setEmailModalOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {emailModalError && (
+              <div className="p-3 mb-4 bg-[#ff5b5b] text-white border-2 border-black font-bold text-xs">
+                {emailModalError}
+              </div>
+            )}
+
+            {emailModalSuccess && (
+              <div className="p-3 mb-4 bg-[#32e875] text-black border-2 border-black font-bold text-xs">
+                {emailModalSuccess}
+              </div>
+            )}
+
+            {!otpStep ? (
+              <form onSubmit={handleInitiateEmailLink} className="space-y-4">
+                <p className="text-xs font-bold text-black/75">
+                  Enter your real email address. We will send a 6-digit OTP code to verify ownership.
+                </p>
+
+                <div>
+                  <label htmlFor="modal-email-input" className="prof-label">
+                    REAL EMAIL / GMAIL
+                  </label>
+                  <input
+                    id="modal-email-input"
+                    type="email"
+                    placeholder="yourname@gmail.com"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    required
+                    autoFocus
+                    className="prof-input"
+                  />
+                </div>
+
+                <div className="prof-otp-actions">
+                  <button
+                    type="submit"
+                    disabled={emailLoading}
+                    className="prof-submit-btn"
+                  >
+                    {emailLoading ? 'SENDING CODE...' : 'SEND VERIFICATION CODE →'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <p className="text-xs font-bold text-black/75">
+                  Enter the 6-digit verification code sent to <strong>{emailInput}</strong>.
+                </p>
+
+                <div>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="000000"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    required
+                    autoFocus
+                    className="prof-otp-input"
+                  />
+                </div>
+
+                <div className="prof-otp-actions">
+                  <button
+                    type="submit"
+                    disabled={emailLoading || otpCode.length < 6}
+                    className="prof-submit-btn"
+                  >
+                    {emailLoading ? 'VERIFYING...' : 'VERIFY & LINK EMAIL →'}
+                  </button>
+
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t-2 border-black/10">
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={emailLoading}
+                      className="text-xs font-black underline text-black/70 hover:text-black cursor-pointer bg-transparent border-none p-0"
+                    >
+                      ↻ Resend Code
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpStep(false)
+                        setOtpCode('')
+                        setEmailModalError(null)
+                        setEmailModalSuccess(null)
+                      }}
+                      className="text-xs font-black underline text-black/70 hover:text-black cursor-pointer bg-transparent border-none p-0"
+                    >
+                      Use Different Email
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { validateUsername, normalizeUsername } from '../utils/validation'
 
 export interface UserProfile {
   id: string
@@ -24,8 +25,6 @@ export interface UsernameValidationResult {
   isCurrent: boolean
   message: string
 }
-
-const LOCAL_STORAGE_KEY_PREFIX = 'aptiverse_profile_'
 
 export class ProfileService {
   /**
@@ -87,60 +86,33 @@ export class ProfileService {
    */
   static async validateAndCheckUsername(
     rawUsername: string,
-    currentUserId: string,
-    currentUsername: string | null | undefined
+    currentUserId?: string | null,
+    currentUsername?: string | null
   ): Promise<UsernameValidationResult> {
-    const clean = rawUsername.trim().toLowerCase()
+    const validation = validateUsername(rawUsername)
 
-    if (!clean) {
+    if (!validation.isValid) {
       return {
         isValid: false,
         isAvailable: false,
         isCurrent: false,
-        message: 'Username cannot be empty.',
+        message: validation.message,
       }
     }
 
-    if (clean.length < 3) {
-      return {
-        isValid: false,
-        isAvailable: false,
-        isCurrent: false,
-        message: 'Username must be at least 3 characters.',
-      }
-    }
+    const clean = validation.clean
 
-    if (clean.length > 30) {
-      return {
-        isValid: false,
-        isAvailable: false,
-        isCurrent: false,
-        message: 'Username cannot exceed 30 characters.',
-      }
-    }
-
-    // Only alphanumeric and underscores/dots (like Instagram)
-    const validPattern = /^[a-z0-9_][a-z0-9_.]*[a-z0-9_]$/
-    if (!validPattern.test(clean) && clean.length > 2) {
-      return {
-        isValid: false,
-        isAvailable: false,
-        isCurrent: false,
-        message: 'Use only letters, numbers, periods, and underscores. Cannot start or end with a period.',
-      }
-    }
-
-    // Check if it's identical to current username
-    if (currentUsername && clean === currentUsername.trim().toLowerCase()) {
+    // 1. Check against provided currentUsername argument
+    if (currentUsername && clean === normalizeUsername(currentUsername)) {
       return {
         isValid: true,
-        isAvailable: true,
+        isAvailable: false,
         isCurrent: true,
         message: 'This is your current username.',
       }
     }
 
-    // Query Supabase for username existence
+    // 2. Query Supabase for username existence (Read-only check)
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -150,16 +122,27 @@ export class ProfileService {
 
       if (error) {
         console.warn('Supabase username check error:', error)
-        // If DB query fails, allow pass if clean format is valid
         return {
           isValid: true,
           isAvailable: true,
           isCurrent: false,
-          message: 'Username format is valid.',
+          message: `@${clean} format is valid.`,
         }
       }
 
-      if (data && data.id !== currentUserId) {
+      // If a profile exists in the database with this username
+      if (data) {
+        // If it belongs to the current user
+        if (currentUserId && data.id === currentUserId) {
+          return {
+            isValid: true,
+            isAvailable: false,
+            isCurrent: true,
+            message: 'This is your current username.',
+          }
+        }
+
+        // If it belongs to someone else
         return {
           isValid: true,
           isAvailable: false,
@@ -168,6 +151,7 @@ export class ProfileService {
         }
       }
 
+      // If no profile exists with this username
       return {
         isValid: true,
         isAvailable: true,
@@ -180,71 +164,63 @@ export class ProfileService {
         isValid: true,
         isAvailable: true,
         isCurrent: false,
-        message: 'Username format is valid.',
+        message: `@${clean} format is valid.`,
       }
     }
   }
 
   /**
-   * Fetch complete user profile from Supabase with localStorage fallback
+   * Fetch complete user profile directly from Supabase (single authoritative source of truth)
    */
   static async fetchProfile(userId: string): Promise<UserProfile | null> {
-    // Try localStorage cache first for fast initial load
-    let localData: Partial<UserProfile> | null = null
     try {
-      const stored = localStorage.getItem(`${LOCAL_STORAGE_KEY_PREFIX}${userId}`)
-      if (stored) {
-        localData = JSON.parse(stored)
-      }
-    } catch (e) {
-      console.warn('Failed reading local profile cache', e)
-    }
-
-    try {
+      // 1. Primary authoritative query: Fetch complete row from public.profiles
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username, display_name, avatar_url, bio, username_changed_at, created_at, updated_at')
+        .select('*')
         .eq('id', userId)
         .maybeSingle()
 
       if (error) {
-        console.warn('Error fetching Supabase profile, using fallback:', error)
+        console.warn('Primary Supabase profile query note, attempting fallback:', error)
+
+        // Resilient fallback query if specific optional column constraints/schema issues exist
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('profiles')
+          .select('id, username, display_name')
+          .eq('id', userId)
+          .maybeSingle()
+
+        if (!fallbackError && fallbackData) {
+          return {
+            id: fallbackData.id || userId,
+            username: fallbackData.username || null,
+            display_name: fallbackData.display_name || fallbackData.username || null,
+            avatar_url: null,
+            bio: null,
+            username_changed_at: null,
+            created_at: undefined,
+            updated_at: undefined,
+          }
+        }
       }
 
       if (data) {
-        const mergedProfile: UserProfile = {
+        const profile: UserProfile = {
           id: data.id || userId,
-          username: data.username || localData?.username || null,
-          display_name: data.display_name || localData?.display_name || null,
-          avatar_url: data.avatar_url || localData?.avatar_url || null,
-          bio: data.bio ?? localData?.bio ?? null,
-          username_changed_at: data.username_changed_at ?? localData?.username_changed_at ?? null,
-          created_at: data.created_at || localData?.created_at,
-          updated_at: data.updated_at || localData?.updated_at,
+          username: data.username || null,
+          display_name: data.display_name || data.username || null,
+          avatar_url: data.avatar_url || null,
+          bio: data.bio ?? null,
+          username_changed_at: data.username_changed_at ?? null,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
         }
 
-        // Cache latest in localStorage
-        try {
-          localStorage.setItem(`${LOCAL_STORAGE_KEY_PREFIX}${userId}`, JSON.stringify(mergedProfile))
-        } catch {}
-
-        return mergedProfile
+        return profile
       }
     } catch (err) {
-      console.warn('Exception during profile fetch:', err)
-    }
-
-    if (localData) {
-      return {
-        id: userId,
-        username: localData.username || null,
-        display_name: localData.display_name || null,
-        avatar_url: localData.avatar_url || null,
-        bio: localData.bio || null,
-        username_changed_at: localData.username_changed_at || null,
-        created_at: localData.created_at,
-        updated_at: localData.updated_at,
-      }
+      console.error('Exception during profile fetch:', err)
     }
 
     return null
@@ -265,13 +241,13 @@ export class ProfileService {
     }
   ): Promise<{ success: boolean; error?: string; profile?: UserProfile }> {
     const isChangingUsername =
-      updates.newUsername &&
-      updates.newUsername.trim().toLowerCase() !== (updates.currentUsername || '').trim().toLowerCase()
+      updates.newUsername !== undefined &&
+      normalizeUsername(updates.newUsername) !== normalizeUsername(updates.currentUsername || '')
 
     let newUsernameChangedAt = updates.currentUsernameChangedAt
 
     // Check 14-day rate limit if username is changing
-    if (isChangingUsername) {
+    if (isChangingUsername && updates.newUsername) {
       const cooldown = this.getUsernameCooldownInfo(updates.currentUsernameChangedAt)
       if (!cooldown.canChange) {
         return {
@@ -282,7 +258,7 @@ export class ProfileService {
 
       // Re-validate availability
       const validation = await this.validateAndCheckUsername(
-        updates.newUsername!,
+        updates.newUsername,
         userId,
         updates.currentUsername
       )
@@ -292,22 +268,22 @@ export class ProfileService {
       }
 
       if (!validation.isAvailable && !validation.isCurrent) {
-        return { success: false, error: `Username @${updates.newUsername} is already taken.` }
+        return { success: false, error: `Username @${normalizeUsername(updates.newUsername)} is already taken.` }
       }
 
       newUsernameChangedAt = new Date().toISOString()
     }
 
-    const payload: Record<string, any> = {
-      display_name: updates.displayName?.trim(),
+    const payload: Record<string, string | null> = {
+      display_name: updates.displayName?.trim() || null,
       bio: updates.bio?.trim() || null,
       avatar_url: updates.avatarUrl ?? null,
       updated_at: new Date().toISOString(),
     }
 
-    if (isChangingUsername) {
-      payload.username = updates.newUsername!.trim().toLowerCase()
-      payload.username_changed_at = newUsernameChangedAt
+    if (isChangingUsername && updates.newUsername) {
+      payload.username = normalizeUsername(updates.newUsername)
+      payload.username_changed_at = newUsernameChangedAt || null
     }
 
     // Update Supabase
@@ -316,7 +292,7 @@ export class ProfileService {
         .from('profiles')
         .update(payload)
         .eq('id', userId)
-        .select()
+        .select('*')
         .maybeSingle()
 
       if (error) {
@@ -324,44 +300,97 @@ export class ProfileService {
         if (error.code === '23505') {
           return { success: false, error: 'That username is already taken by another user.' }
         }
+
         // Try fallback update without optional columns if column doesn't exist yet
         try {
-          const minimalPayload: Record<string, any> = {
-            display_name: updates.displayName?.trim(),
+          const minimalPayload: Record<string, string | null> = {
+            display_name: updates.displayName?.trim() || null,
+            avatar_url: updates.avatarUrl ?? null,
             updated_at: new Date().toISOString(),
           }
-          if (isChangingUsername) {
-            minimalPayload.username = updates.newUsername!.trim().toLowerCase()
+          if (isChangingUsername && updates.newUsername) {
+            minimalPayload.username = normalizeUsername(updates.newUsername)
           }
-          await supabase.from('profiles').update(minimalPayload).eq('id', userId)
-        } catch {}
+          const { data: fallbackData } = await supabase
+            .from('profiles')
+            .update(minimalPayload)
+            .eq('id', userId)
+            .select('*')
+            .maybeSingle()
+
+          const finalUsername = (isChangingUsername && updates.newUsername)
+            ? normalizeUsername(updates.newUsername)
+            : (fallbackData?.username || updates.currentUsername || null)
+
+          // Sync auth user metadata
+          try {
+            await supabase.auth.updateUser({
+              data: {
+                username: finalUsername,
+                display_name: updates.displayName?.trim() || finalUsername,
+              },
+            })
+          } catch (syncErr) {
+            console.warn('Syncing user_metadata failed:', syncErr)
+          }
+
+          const updatedProfile: UserProfile = {
+            id: userId,
+            username: finalUsername,
+            display_name: fallbackData?.display_name || updates.displayName?.trim() || null,
+            avatar_url: fallbackData?.avatar_url ?? updates.avatarUrl ?? null,
+            bio: updates.bio?.trim() || null,
+            username_changed_at: newUsernameChangedAt || null,
+            updated_at: minimalPayload.updated_at || undefined,
+            created_at: fallbackData?.created_at,
+          }
+
+          return {
+            success: true,
+            profile: updatedProfile,
+          }
+        } catch (fallbackErr) {
+          console.warn('Fallback update failed', fallbackErr)
+        }
       }
 
-      // Merge and save to localStorage
+      const finalUsername = (isChangingUsername && updates.newUsername)
+        ? normalizeUsername(updates.newUsername)
+        : (data?.username || updates.currentUsername || null)
+
+      // Sync auth user metadata
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            username: finalUsername,
+            display_name: updates.displayName?.trim() || finalUsername,
+          },
+        })
+      } catch (syncErr) {
+        console.warn('Syncing user_metadata failed:', syncErr)
+      }
+
       const updatedProfile: UserProfile = {
         id: userId,
-        username: isChangingUsername ? updates.newUsername!.trim().toLowerCase() : (updates.currentUsername || null),
-        display_name: updates.displayName?.trim() || null,
-        avatar_url: updates.avatarUrl ?? null,
-        bio: updates.bio?.trim() || null,
-        username_changed_at: newUsernameChangedAt || null,
-        updated_at: payload.updated_at,
+        username: finalUsername,
+        display_name: data?.display_name || updates.displayName?.trim() || null,
+        avatar_url: data?.avatar_url ?? updates.avatarUrl ?? null,
+        bio: data?.bio ?? updates.bio?.trim() ?? null,
+        username_changed_at: data?.username_changed_at ?? newUsernameChangedAt ?? null,
+        updated_at: data?.updated_at || payload.updated_at || undefined,
         created_at: data?.created_at,
       }
-
-      try {
-        localStorage.setItem(`${LOCAL_STORAGE_KEY_PREFIX}${userId}`, JSON.stringify(updatedProfile))
-      } catch {}
 
       return {
         success: true,
         profile: updatedProfile,
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'An unexpected error occurred while saving profile.'
       console.error('Exception updating profile:', err)
       return {
         success: false,
-        error: err.message || 'An unexpected error occurred while saving profile.',
+        error: errorMsg,
       }
     }
   }

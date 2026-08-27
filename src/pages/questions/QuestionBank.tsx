@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
+import { ProfileService } from '../../services/profileService'
 import type {
   Question,
   UserQuestionProgress,
@@ -47,17 +48,13 @@ export default function QuestionBank() {
         if (user) {
           setUserId(user.id)
 
-          // Fetch profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('username, display_name')
-            .eq('id', user.id)
-            .maybeSingle()
+          // Fetch profile using centralized service
+          const profile = await ProfileService.fetchProfile(user.id)
 
-          if (profile && isMounted) {
+          if (isMounted) {
             setUserProfile({
-              username: profile.username,
-              displayName: profile.display_name,
+              username: profile?.username || user.user_metadata?.username || null,
+              displayName: profile?.display_name || user.user_metadata?.display_name || null,
             })
           }
         }
