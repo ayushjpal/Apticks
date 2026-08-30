@@ -2,73 +2,438 @@ import { supabase } from '../lib/supabase'
 import { INITIAL_QUESTIONS } from '../data/questionsData'
 import type {
   Question,
+  Category,
+  Difficulty,
+  QuestionOption,
   UserQuestionProgress,
+  UserQuestionAttempt,
   QuestionBankStats,
+  QuestionFilters,
+  DatabaseQuestion,
 } from '../types/questions'
 
 const LOCAL_STORAGE_KEY_PREFIX = 'aptiverse_user_progress_'
+const LOCAL_ATTEMPTS_KEY_PREFIX = 'aptiverse_user_attempts_'
+
+const inMemoryCache: Record<string, string> = {}
+
+/**
+ * Safe localStorage reader (resilient to SSR, Node.js, and private browsing)
+ */
+function getStoredItem(key: string): string | null {
+  try {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key)
+    }
+  } catch {
+    // ignore
+  }
+  return inMemoryCache[key] ?? null
+}
+
+/**
+ * Safe localStorage writer (resilient to SSR, Node.js, and private browsing)
+ */
+function setStoredItem(key: string, value: string): void {
+  try {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value)
+    }
+  } catch {
+    // ignore
+  }
+  inMemoryCache[key] = value
+}
+
+/**
+ * Helper to normalize category strings from database or user inputs
+ */
+function normalizeCategory(category: string): Category {
+  const c = category.trim().toLowerCase()
+  if (c.includes('quant')) return 'Quantitative Aptitude'
+  if (c.includes('logic')) return 'Logical Reasoning'
+  if (c.includes('data')) return 'Data Interpretation'
+  if (c.includes('verbal')) return 'Verbal & Abstract'
+  return 'Quantitative Aptitude'
+}
+
+/**
+ * Helper to normalize difficulty strings
+ */
+function normalizeDifficulty(difficulty: string): Difficulty {
+  const d = difficulty.trim().toLowerCase()
+  if (d === 'hard') return 'hard'
+  if (d === 'medium') return 'medium'
+  return 'easy'
+}
+
+/**
+ * Helper to parse JSON or array fields safely
+ */
+function safeParseArray<T>(val: unknown, fallback: T[] = []): T[] {
+  if (Array.isArray(val)) return val as T[]
+  if (typeof val === 'string') {
+    try {
+      const parsed = JSON.parse(val)
+      if (Array.isArray(parsed)) return parsed as T[]
+    } catch {
+      // fallback
+    }
+  }
+  return fallback
+}
 
 export class QuestionService {
   /**
-   * Get all questions with current user progress attached
+   * Centralized Deterministic Competitive XP Calculation Engine
+   * Rules:
+   * 1. First Correct Solve: +question.points (e.g. +10, +15, +20 XP)
+   * 2. Correct Reattempt (Already Solved): +0 XP (records attempt without farming duplicate XP)
+   * 3. Incorrect Attempt / Reattempt: -25% of question.points (e.g. -3, -4, -5 XP)
    */
-  static async getQuestionsWithProgress(userId?: string): Promise<{
+  static calculateXPChange(
+    points: number,
+    isCorrect: boolean,
+    wasAlreadySolved: boolean
+  ): { xpChange: number; reason: string } {
+    const penalty = Math.max(1, Math.round(points * 0.25))
+
+    if (isCorrect) {
+      if (!wasAlreadySolved) {
+        return {
+          xpChange: points,
+          reason: `First correct solve (+${points} XP)`,
+        }
+      } else {
+        return {
+          xpChange: 0,
+          reason: `Reattempt already solved (+0 XP)`,
+        }
+      }
+    } else {
+      return {
+        xpChange: -penalty,
+        reason: `Incorrect answer penalty (-${penalty} XP)`,
+      }
+    }
+  }
+
+  /**
+   * Sorts questions into an intelligent Unsolved-First Question Queue:
+   * Priority 1: Unsolved & Bookmarked questions
+   * Priority 2: Unsolved questions
+   * Priority 3: Previously solved questions
+   * Within each partition, preserves natural question ID ordering.
+   */
+  static sortQuestionsForUser(
+    questions: Question[],
+    progressMap: Record<string, UserQuestionProgress>
+  ): Question[] {
+    const bookmarkedUnsolved: Question[] = []
+    const otherUnsolved: Question[] = []
+    const solved: Question[] = []
+
+    questions.forEach((q) => {
+      const prog = progressMap[q.id]
+      const isSolved = prog?.isSolved ?? false
+      const isBookmarked = prog?.isBookmarked ?? false
+
+      if (isSolved) {
+        solved.push(q)
+      } else if (isBookmarked) {
+        bookmarkedUnsolved.push(q)
+      } else {
+        otherUnsolved.push(q)
+      }
+    })
+
+    return [...bookmarkedUnsolved, ...otherUnsolved, ...solved]
+  }
+
+  /**
+   * Maps a raw Supabase database row into a frontend Question object
+   */
+  static mapRowToQuestion(row: DatabaseQuestion | Record<string, unknown>): Question {
+    const rawOptions = safeParseArray<QuestionOption>(row.options, [])
+    const hints = safeParseArray<string>(row.hints, [])
+    const tags = safeParseArray<string>(row.tags, [])
+
+    return {
+      id: String(row.id),
+      title: String(row.title || ''),
+      prompt: String(row.prompt || ''),
+      category: normalizeCategory(String(row.category || '')),
+      topic: String(row.topic || ''),
+      difficulty: normalizeDifficulty(String(row.difficulty || 'easy')),
+      options: rawOptions.length > 0 ? rawOptions : [
+        { id: 'A', text: 'Option A' },
+        { id: 'B', text: 'Option B' },
+        { id: 'C', text: 'Option C' },
+        { id: 'D', text: 'Option D' },
+      ],
+      correctOption: String(row.correct_option || 'A').trim().toUpperCase(),
+      explanation: String(row.explanation || ''),
+      formulaOrRule: row.formula_or_rule ? String(row.formula_or_rule) : undefined,
+      hints,
+      points: Number(row.points) || 10,
+      acceptanceRate: typeof row.acceptance_rate === 'number' ? row.acceptance_rate : undefined,
+      tags,
+    }
+  }
+
+  /**
+   * Fetch questions directly from Supabase (with fallback to local dataset if offline/empty)
+   */
+  static async getQuestions(
+    filters?: Partial<QuestionFilters>,
+    options?: { limit?: number; offset?: number }
+  ): Promise<Question[]> {
+    try {
+      let query = supabase
+        .from('questions')
+        .select('*')
+        .eq('is_active', true)
+        .order('id', { ascending: true })
+
+      if (filters?.category && filters.category !== 'all') {
+        query = query.eq('category', filters.category)
+      }
+
+      if (filters?.difficulty && filters.difficulty !== 'all') {
+        query = query.eq('difficulty', filters.difficulty.toLowerCase())
+      }
+
+      if (filters?.topic && filters.topic !== 'all') {
+        query = query.ilike('topic', filters.topic)
+      }
+
+      if (typeof options?.limit === 'number') {
+        const offset = options.offset || 0
+        query = query.range(offset, offset + options.limit - 1)
+      }
+
+      const { data, error } = await query
+
+      if (!error && data && data.length > 0) {
+        return data.map((row: Record<string, unknown>) =>
+          this.mapRowToQuestion(row as unknown as DatabaseQuestion)
+        )
+      }
+    } catch (err) {
+      console.warn('Supabase questions fetch note (using fallback):', err)
+    }
+
+    // Fallback to local INITIAL_QUESTIONS if database is empty/unreachable
+    let fallback = [...INITIAL_QUESTIONS]
+    if (filters?.category && filters.category !== 'all') {
+      fallback = fallback.filter((q) => q.category === filters.category)
+    }
+    if (filters?.difficulty && filters.difficulty !== 'all') {
+      fallback = fallback.filter((q) => q.difficulty === filters.difficulty)
+    }
+    if (filters?.topic && filters.topic !== 'all') {
+      fallback = fallback.filter(
+        (q) => q.topic.toLowerCase() === filters.topic?.toLowerCase()
+      )
+    }
+    return fallback
+  }
+
+  /**
+   * Fetch a single question by ID from Supabase
+   */
+  static async getQuestionById(id: string): Promise<Question | null> {
+    try {
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('id', id)
+        .eq('is_active', true)
+        .maybeSingle()
+
+      if (!error && data) {
+        return this.mapRowToQuestion(data as unknown as DatabaseQuestion)
+      }
+    } catch (err) {
+      console.warn(`Supabase getQuestionById(${id}) note:`, err)
+    }
+
+    const fallbackQ = INITIAL_QUESTIONS.find((q) => q.id === id)
+    return fallbackQ || null
+  }
+
+  /**
+   * Fetch all progress records for a user from Supabase and LocalStorage cache
+   */
+  static async getUserProgress(
+    userId: string
+  ): Promise<Record<string, UserQuestionProgress>> {
+    const progressMap: Record<string, UserQuestionProgress> = {}
+
+    // 1. First load from LocalStorage cache for instant responsiveness
+    const localData = getStoredItem(`${LOCAL_STORAGE_KEY_PREFIX}${userId}`)
+    if (localData) {
+      try {
+        const parsed = JSON.parse(localData) as Record<string, UserQuestionProgress>
+        Object.assign(progressMap, parsed)
+      } catch {
+        // ignore
+      }
+    }
+
+    // 2. Query Supabase for cloud-synced user progress
+    try {
+      const { data, error } = await supabase
+        .from('user_question_progress')
+        .select('*')
+        .eq('user_id', userId)
+
+      if (!error && data) {
+        data.forEach((row: Record<string, unknown>) => {
+          const qId = String(row.question_id)
+          progressMap[qId] = {
+            questionId: qId,
+            isSolved: Boolean(row.is_solved),
+            isCorrect: Boolean(row.is_correct),
+            isBookmarked: Boolean(row.is_bookmarked),
+            selectedOption: row.selected_option ? String(row.selected_option) : undefined,
+            attemptsCount: Number(row.attempts_count) || 1,
+            timeSpentSeconds: Number(row.time_spent_seconds) || 0,
+            lastAttemptedAt: String(row.last_attempted_at || new Date().toISOString()),
+          }
+        })
+
+        // Update local storage with fresh Supabase state
+        setStoredItem(
+          `${LOCAL_STORAGE_KEY_PREFIX}${userId}`,
+          JSON.stringify(progressMap)
+        )
+      }
+    } catch (cloudErr) {
+      console.warn('Supabase progress fetch note:', cloudErr)
+    }
+
+    return progressMap
+  }
+
+  /**
+   * Get all questions with current user progress attached, sorted by Unsolved-First Queue
+   */
+  static async getQuestionsWithProgress(
+    userId?: string,
+    filters?: Partial<QuestionFilters>
+  ): Promise<{
     questions: Question[]
     progressMap: Record<string, UserQuestionProgress>
   }> {
-    const questions = [...INITIAL_QUESTIONS]
-    const progressMap: Record<string, UserQuestionProgress> = {}
+    const [rawQuestions, progressMap] = await Promise.all([
+      this.getQuestions(filters),
+      userId ? this.getUserProgress(userId) : Promise.resolve({}),
+    ])
 
-    // 1. First load from LocalStorage cache for immediate instant rendering
-    if (userId) {
-      try {
-        const localData = localStorage.getItem(`${LOCAL_STORAGE_KEY_PREFIX}${userId}`)
-        if (localData) {
-          const parsed = JSON.parse(localData) as Record<string, UserQuestionProgress>
-          Object.assign(progressMap, parsed)
-        }
-      } catch (err) {
-        console.warn('Could not read local progress cache:', err)
-      }
-
-      // 2. Fetch from Supabase Cloud if available
-      try {
-        const { data, error } = await supabase
-          .from('user_question_progress')
-          .select('*')
-          .eq('user_id', userId)
-
-        if (!error && data) {
-          data.forEach((row: Record<string, unknown>) => {
-            const qId = String(row.question_id)
-            progressMap[qId] = {
-              questionId: qId,
-              isSolved: Boolean(row.is_solved),
-              isCorrect: Boolean(row.is_correct),
-              isBookmarked: Boolean(row.is_bookmarked),
-              selectedOption: row.selected_option ? String(row.selected_option) : undefined,
-              attemptsCount: Number(row.attempts_count) || 1,
-              timeSpentSeconds: Number(row.time_spent_seconds) || 0,
-              lastAttemptedAt: String(row.last_attempted_at || new Date().toISOString()),
-            }
-          })
-
-          // Update local cache with fresh Supabase state
-          localStorage.setItem(
-            `${LOCAL_STORAGE_KEY_PREFIX}${userId}`,
-            JSON.stringify(progressMap)
-          )
-        }
-      } catch (cloudErr) {
-        console.warn('Supabase progress sync note (using local cache):', cloudErr)
-      }
-    }
+    // Intelligently sort questions: Unsolved first, Solved last
+    const questions = userId
+      ? this.sortQuestionsForUser(rawQuestions, progressMap)
+      : rawQuestions
 
     return { questions, progressMap }
   }
 
   /**
-   * Submit an answer to a question, update local cache and sync to Supabase
+   * Fetch user attempt history from Supabase with local cache fallback
+   */
+  static async getUserAttempts(
+    userId: string,
+    limit = 50
+  ): Promise<UserQuestionAttempt[]> {
+    const attemptsList: UserQuestionAttempt[] = []
+
+    // 1. Load local cache
+    const local = getStoredItem(`${LOCAL_ATTEMPTS_KEY_PREFIX}${userId}`)
+    if (local) {
+      try {
+        const parsed = JSON.parse(local) as UserQuestionAttempt[]
+        if (Array.isArray(parsed)) {
+          attemptsList.push(...parsed)
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    // 2. Query Supabase
+    try {
+      const { data, error } = await supabase
+        .from('user_question_attempts')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+
+      if (!error && data && data.length > 0) {
+        const freshAttempts: UserQuestionAttempt[] = data.map((row: Record<string, unknown>) => ({
+          id: String(row.id),
+          userId: String(row.user_id),
+          questionId: String(row.question_id),
+          selectedOption: String(row.selected_option || ''),
+          isCorrect: Boolean(row.is_correct),
+          xpChange: Number(row.xp_change) || 0,
+          attemptNumber: Number(row.attempt_number) || 1,
+          timeSpentSeconds: Number(row.time_spent_seconds) || 0,
+          createdAt: String(row.created_at || new Date().toISOString()),
+        }))
+
+        // Update local cache
+        setStoredItem(
+          `${LOCAL_ATTEMPTS_KEY_PREFIX}${userId}`,
+          JSON.stringify(freshAttempts)
+        )
+        return freshAttempts
+      }
+    } catch (err) {
+      console.warn('Supabase fetch attempts note:', err)
+    }
+
+    return attemptsList.slice(0, limit)
+  }
+
+  /**
+   * Get attempt breakdown for a specific question and user
+   */
+  static async getQuestionAttempts(
+    questionId: string,
+    userId?: string
+  ): Promise<{
+    attempts: UserQuestionAttempt[]
+    totalAttempts: number
+    correctCount: number
+    incorrectCount: number
+  }> {
+    if (!userId) {
+      return { attempts: [], totalAttempts: 0, correctCount: 0, incorrectCount: 0 }
+    }
+
+    const allUserAttempts = await this.getUserAttempts(userId, 100)
+    const questionAttempts = allUserAttempts.filter((a) => a.questionId === questionId)
+
+    let correctCount = 0
+    let incorrectCount = 0
+    questionAttempts.forEach((a) => {
+      if (a.isCorrect) correctCount++
+      else incorrectCount++
+    })
+
+    return {
+      attempts: questionAttempts,
+      totalAttempts: questionAttempts.length,
+      correctCount,
+      incorrectCount,
+    }
+  }
+
+  /**
+   * Submit an answer to a question, evaluate correctness via centralized XP engine,
+   * insert an immutable attempt record, and sync progress.
    */
   static async submitAnswer(
     questionId: string,
@@ -78,64 +443,114 @@ export class QuestionService {
   ): Promise<{
     isCorrect: boolean
     correctOption: string
+    xpChange: number
+    xpReason: string
+    attemptNumber: number
     progress: UserQuestionProgress
+    attempt?: UserQuestionAttempt
   }> {
-    const question = INITIAL_QUESTIONS.find((q) => q.id === questionId)
+    // 1. Load authoritative question from database / cache
+    const question = await this.getQuestionById(questionId)
     if (!question) {
       throw new Error(`Question ${questionId} not found`)
     }
 
-    const isCorrect =
-      selectedOption.trim().toUpperCase() ===
-      question.correctOption.trim().toUpperCase()
+    const cleanSelected = selectedOption.trim().toUpperCase()
+    const cleanCorrect = question.correctOption.trim().toUpperCase()
+    const isCorrect = cleanSelected === cleanCorrect
 
-    // Get current progress
+    // 2. Load existing progress
     let existingProgress: UserQuestionProgress | undefined
     if (userId) {
-      try {
-        const local = localStorage.getItem(`${LOCAL_STORAGE_KEY_PREFIX}${userId}`)
-        if (local) {
+      const local = getStoredItem(`${LOCAL_STORAGE_KEY_PREFIX}${userId}`)
+      if (local) {
+        try {
           const map = JSON.parse(local)
           existingProgress = map[questionId]
+        } catch {
+          // ignore
         }
-      } catch {
-        // ignore
       }
     }
+
+    const wasAlreadySolved = existingProgress?.isSolved ?? false
+    const attemptNumber = (existingProgress?.attemptsCount ?? 0) + 1
+
+    // 3. Centralized XP calculation (First solve vs reattempt vs negative marking)
+    const { xpChange, reason: xpReason } = this.calculateXPChange(
+      question.points,
+      isCorrect,
+      wasAlreadySolved
+    )
 
     const updatedProgress: UserQuestionProgress = {
       questionId,
-      isSolved: isCorrect || (existingProgress?.isSolved ?? false),
+      isSolved: isCorrect || wasAlreadySolved,
       isCorrect,
       isBookmarked: existingProgress?.isBookmarked ?? false,
-      selectedOption,
-      attemptsCount: (existingProgress?.attemptsCount ?? 0) + 1,
-      timeSpentSeconds:
-        (existingProgress?.timeSpentSeconds ?? 0) + timeSpentSeconds,
+      selectedOption: cleanSelected,
+      attemptsCount: attemptNumber,
+      timeSpentSeconds: (existingProgress?.timeSpentSeconds ?? 0) + timeSpentSeconds,
       lastAttemptedAt: new Date().toISOString(),
     }
 
-    // Save to local cache
+    let createdAttempt: UserQuestionAttempt | undefined
+
+    // 4. Record progress and attempt in local cache
     if (userId) {
-      try {
-        const localKey = `${LOCAL_STORAGE_KEY_PREFIX}${userId}`
-        const currentMap = JSON.parse(localStorage.getItem(localKey) || '{}')
-        currentMap[questionId] = updatedProgress
-        localStorage.setItem(localKey, JSON.stringify(currentMap))
-      } catch (err) {
-        console.warn('Failed to update local progress storage:', err)
+      const localKey = `${LOCAL_STORAGE_KEY_PREFIX}${userId}`
+      let currentMap: Record<string, UserQuestionProgress> = {}
+      const currentStored = getStoredItem(localKey)
+      if (currentStored) {
+        try {
+          currentMap = JSON.parse(currentStored)
+        } catch {
+          currentMap = {}
+        }
+      }
+      currentMap[questionId] = updatedProgress
+      setStoredItem(localKey, JSON.stringify(currentMap))
+
+      createdAttempt = {
+        id: `att-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        userId,
+        questionId,
+        selectedOption: cleanSelected,
+        isCorrect,
+        xpChange,
+        attemptNumber,
+        timeSpentSeconds,
+        createdAt: new Date().toISOString(),
+        questionTitle: question.title,
+        questionCategory: question.category,
+        questionDifficulty: question.difficulty,
       }
 
-      // Sync with Supabase (fire and forget / background sync)
+      // Add to local attempts list
+      const localAttemptsKey = `${LOCAL_ATTEMPTS_KEY_PREFIX}${userId}`
+      let attemptsArr: UserQuestionAttempt[] = []
+      const currentAttemptsStored = getStoredItem(localAttemptsKey)
+      if (currentAttemptsStored) {
+        try {
+          attemptsArr = JSON.parse(currentAttemptsStored)
+        } catch {
+          attemptsArr = []
+        }
+      }
+      attemptsArr.unshift(createdAttempt)
+      setStoredItem(localAttemptsKey, JSON.stringify(attemptsArr))
+
+      // 5. Cloud-sync to Supabase tables asynchronously
       ;(async () => {
         try {
-          const { error } = await supabase
+          // A. Upsert progress
+          const { error: progErr } = await supabase
             .from('user_question_progress')
             .upsert(
               {
                 user_id: userId,
                 question_id: questionId,
-                selected_option: selectedOption,
+                selected_option: cleanSelected,
                 is_solved: updatedProgress.isSolved,
                 is_correct: isCorrect,
                 is_bookmarked: updatedProgress.isBookmarked,
@@ -145,11 +560,27 @@ export class QuestionService {
               },
               { onConflict: 'user_id,question_id' }
             )
-          if (error) {
-            console.warn('Supabase upsert progress note:', error.message)
+          if (progErr) {
+            console.warn('Supabase progress upsert note:', progErr.message)
+          }
+
+          // B. Insert attempt history log
+          const { error: attErr } = await supabase
+            .from('user_question_attempts')
+            .insert({
+              user_id: userId,
+              question_id: questionId,
+              selected_option: cleanSelected,
+              is_correct: isCorrect,
+              xp_change: xpChange,
+              attempt_number: attemptNumber,
+              time_spent_seconds: timeSpentSeconds,
+            })
+          if (attErr) {
+            console.warn('Supabase attempt insert note:', attErr.message)
           }
         } catch (e) {
-          console.warn('Supabase network issue:', e)
+          console.warn('Supabase sync network note:', e)
         }
       })()
     }
@@ -157,7 +588,11 @@ export class QuestionService {
     return {
       isCorrect,
       correctOption: question.correctOption,
+      xpChange,
+      xpReason,
+      attemptNumber,
       progress: updatedProgress,
+      attempt: createdAttempt,
     }
   }
 
@@ -172,11 +607,14 @@ export class QuestionService {
 
     if (userId) {
       const localKey = `${LOCAL_STORAGE_KEY_PREFIX}${userId}`
-      let currentMap: Record<string, UserQuestionProgress>
-      try {
-        currentMap = JSON.parse(localStorage.getItem(localKey) || '{}')
-      } catch {
-        currentMap = {}
+      let currentMap: Record<string, UserQuestionProgress> = {}
+      const currentStored = getStoredItem(localKey)
+      if (currentStored) {
+        try {
+          currentMap = JSON.parse(currentStored)
+        } catch {
+          currentMap = {}
+        }
       }
 
       const existing = currentMap[questionId]
@@ -194,7 +632,7 @@ export class QuestionService {
       }
 
       currentMap[questionId] = updated
-      localStorage.setItem(localKey, JSON.stringify(currentMap))
+      setStoredItem(localKey, JSON.stringify(currentMap))
 
       // Sync to Supabase
       ;(async () => {
@@ -227,11 +665,45 @@ export class QuestionService {
   }
 
   /**
-   * Calculate summary statistics for question bank and user progress
+   * Get randomized questions from the database pool, preferring unsolved
+   */
+  static async getRandomQuestions(options?: {
+    filters?: Partial<QuestionFilters>
+    limit?: number
+    userId?: string
+    excludeSolved?: boolean
+  }): Promise<Question[]> {
+    const { questions, progressMap } = await this.getQuestionsWithProgress(
+      options?.userId,
+      options?.filters
+    )
+
+    let pool = [...questions]
+
+    if (options?.excludeSolved && options.userId) {
+      const unsolved = pool.filter((q) => !progressMap[q.id]?.isSolved)
+      if (unsolved.length > 0) {
+        pool = unsolved
+      }
+    }
+
+    // Fisher-Yates shuffle
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[pool[i], pool[j]] = [pool[j], pool[i]]
+    }
+
+    const limit = options?.limit || pool.length
+    return pool.slice(0, limit)
+  }
+
+  /**
+   * Calculate summary statistics for question bank and athlete progression
    */
   static calculateStats(
     questions: Question[],
-    progressMap: Record<string, UserQuestionProgress>
+    progressMap: Record<string, UserQuestionProgress>,
+    attemptsList: UserQuestionAttempt[] = []
   ): QuestionBankStats {
     let solvedCount = 0
     let easySolved = 0
@@ -241,10 +713,13 @@ export class QuestionService {
     let hardSolved = 0
     let hardTotal = 0
     let bookmarkedCount = 0
-    let totalPoints = 0
     let totalAttempts = 0
     let correctAttempts = 0
+    let incorrectAttempts = 0
+    let xpEarned = 0
+    let xpLost = 0
 
+    // Question bank difficulty breakdown
     questions.forEach((q) => {
       const prog = progressMap[q.id]
       const isSolved = prog?.isSolved ?? false
@@ -262,7 +737,7 @@ export class QuestionService {
 
       if (isSolved) {
         solvedCount++
-        totalPoints += q.points
+        xpEarned += q.points
       }
 
       if (prog?.isBookmarked) {
@@ -273,10 +748,39 @@ export class QuestionService {
         totalAttempts += prog.attemptsCount
         if (prog.isCorrect) {
           correctAttempts++
+        } else if (prog.attemptsCount > 0) {
+          const penalty = Math.max(1, Math.round(q.points * 0.25))
+          xpLost += penalty * prog.attemptsCount
         }
       }
     })
 
+    // If explicit attempt history is available, calculate exact attempt metrics
+    if (attemptsList.length > 0) {
+      totalAttempts = attemptsList.length
+      correctAttempts = 0
+      incorrectAttempts = 0
+      xpEarned = 0
+      xpLost = 0
+
+      attemptsList.forEach((att) => {
+        if (att.isCorrect) {
+          correctAttempts++
+          if (att.xpChange > 0) {
+            xpEarned += att.xpChange
+          }
+        } else {
+          incorrectAttempts++
+          if (att.xpChange < 0) {
+            xpLost += Math.abs(att.xpChange)
+          }
+        }
+      })
+    } else {
+      incorrectAttempts = Math.max(0, totalAttempts - correctAttempts)
+    }
+
+    const netXp = Math.max(0, xpEarned - xpLost)
     const accuracyRate =
       totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0
 
@@ -291,7 +795,13 @@ export class QuestionService {
       hardTotal,
       bookmarkedCount,
       accuracyRate,
-      totalPoints,
+      totalPoints: netXp,
+      totalAttempts,
+      correctAttempts,
+      incorrectAttempts,
+      xpEarned,
+      xpLost,
+      netXp,
     }
   }
 }

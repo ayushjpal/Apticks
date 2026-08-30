@@ -565,17 +565,20 @@ export default function QuestionBank() {
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto">
+          <div
+            data-lenis-prevent
+            className="hidden md:block question-list-scroll max-h-[480px] lg:max-h-[520px] overflow-y-auto overflow-x-auto min-h-0"
+          >
             <table className="w-full text-left border-collapse">
-              <thead>
+              <thead className="sticky top-0 z-10 shadow-[0_2px_0_#000000]">
                 <tr className="bg-[#071a2b] text-white border-b-2 border-black font-mono text-[11px] uppercase tracking-wider">
-                  <th className="py-2.5 px-3 text-center w-12">STATUS</th>
-                  <th className="py-2.5 px-2 text-center w-10">SAVE</th>
-                  <th className="py-2.5 px-3">PROBLEM TITLE</th>
-                  <th className="py-2.5 px-3">CATEGORY // TOPIC</th>
-                  <th className="py-2.5 px-3 text-center w-24">DIFFICULTY</th>
-                  <th className="py-2.5 px-3 text-center w-20">ACCURACY</th>
-                  <th className="py-2.5 px-4 text-right w-28">ACTION</th>
+                  <th className="py-2.5 px-3 text-center w-12 bg-[#071a2b]">STATUS</th>
+                  <th className="py-2.5 px-2 text-center w-10 bg-[#071a2b]">SAVE</th>
+                  <th className="py-2.5 px-3 bg-[#071a2b]">PROBLEM TITLE</th>
+                  <th className="py-2.5 px-3 bg-[#071a2b]">CATEGORY // TOPIC</th>
+                  <th className="py-2.5 px-3 text-center w-24 bg-[#071a2b]">DIFFICULTY</th>
+                  <th className="py-2.5 px-3 text-center w-20 bg-[#071a2b]">ACCURACY</th>
+                  <th className="py-2.5 px-4 text-right w-28 bg-[#071a2b]">ACTION</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10 font-body text-xs">
@@ -719,7 +722,10 @@ export default function QuestionBank() {
           </div>
 
           {/* Mobile Card List View */}
-          <div className="md:hidden divide-y divide-black/10">
+          <div
+            data-lenis-prevent
+            className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y divide-black/10"
+          >
             {filteredQuestions.length === 0 ? (
               <div className="p-6 text-center">
                 <div className="w-8 h-8 bg-[#ffd43b] border-2 border-black rounded-lg mx-auto mb-2 flex items-center justify-center font-display font-black text-xs shadow-[1.5px_1.5px_0_#000000]">

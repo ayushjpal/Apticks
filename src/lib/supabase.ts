@@ -7,10 +7,13 @@ import { createClient } from '@supabase/supabase-js'
 
 // Vite exposes only variables prefixed with VITE_
 // to frontend code.
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabasePublishableKey =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+const supabaseUrl =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) ||
+  'https://zglujtystsnqyouroxbq.supabase.co'
 
+const supabasePublishableKey =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) ||
+  'sb_publishable_KbBJDqazSl8vPdaJjl0HLw_JqCEZR-k'
 
 // Fail early if the environment variables are missing.
 // This makes configuration errors much easier to debug.

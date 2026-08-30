@@ -1,30 +1,34 @@
-import { useEffect, useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft,
-  Clock,
   Bookmark,
-  CheckCircle2,
-  XCircle,
+  Sparkles,
   HelpCircle,
   Edit3,
   RotateCcw,
-  Sparkles,
   ChevronRight,
+  CheckCircle2,
+  XCircle,
+  Timer,
+  Award,
+  Zap,
+  Tag,
   ShieldAlert,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
-import { INITIAL_QUESTIONS } from '../../data/questionsData'
-import type { Question } from '../../types/questions'
+import type { Question, UserQuestionProgress } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
 
 export default function QuestionSolver() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
+  // App & Question State
   const [userId, setUserId] = useState<string | undefined>()
   const [question, setQuestion] = useState<Question | null>(null)
+  const [allQuestions, setAllQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
 
   // Solver State
@@ -33,6 +37,18 @@ export default function QuestionSolver() {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [timeSpent, setTimeSpent] = useState(0)
   const [timerActive, setTimerActive] = useState(true)
+
+  // Attempt & XP Result State
+  const [xpResult, setXpResult] = useState<{
+    xpChange: number
+    xpReason: string
+    attemptNumber: number
+  } | null>(null)
+  const [questionAttemptStats, setQuestionAttemptStats] = useState<{
+    totalAttempts: number
+    correctCount: number
+    incorrectCount: number
+  } | null>(null)
 
   // Interactive Tools
   const [showHint, setShowHint] = useState(false)
@@ -57,6 +73,7 @@ export default function QuestionSolver() {
       setShowHint(false)
       setTimeSpent(0)
       setTimerActive(true)
+      setXpResult(null)
 
       try {
         const {
@@ -67,7 +84,18 @@ export default function QuestionSolver() {
           setUserId(user.id)
         }
 
-        const foundQuestion = INITIAL_QUESTIONS.find((q) => q.id === id)
+        const [foundQuestion, fetchedList, progressMap, attemptStats] =
+          await Promise.all([
+            QuestionService.getQuestionById(id),
+            QuestionService.getQuestions(),
+            user?.id
+              ? QuestionService.getUserProgress(user.id)
+              : Promise.resolve<Record<string, UserQuestionProgress>>({}),
+            user?.id
+              ? QuestionService.getQuestionAttempts(id, user.id)
+              : Promise.resolve({ attempts: [], totalAttempts: 0, correctCount: 0, incorrectCount: 0 }),
+          ])
+
         if (!foundQuestion) {
           navigate('/questions', { replace: true })
           return
@@ -75,12 +103,15 @@ export default function QuestionSolver() {
 
         if (isMounted) {
           setQuestion(foundQuestion)
-        }
+          setAllQuestions(fetchedList)
+          setQuestionAttemptStats({
+            totalAttempts: attemptStats.totalAttempts,
+            correctCount: attemptStats.correctCount,
+            incorrectCount: attemptStats.incorrectCount,
+          })
 
-        if (user?.id) {
-          const { progressMap } = await QuestionService.getQuestionsWithProgress(user.id)
           const p = progressMap[id]
-          if (isMounted && p) {
+          if (p) {
             setIsBookmarked(p.isBookmarked)
             if (p.isSolved) {
               setSelectedOption(p.selectedOption || null)
@@ -123,7 +154,7 @@ export default function QuestionSolver() {
   }, [timerActive, isSubmitted])
 
   // ---------------------------------------------------------------------------
-  // 3. Submit Answer
+  // 3. Submit Answer with Competitive XP & Attempt History Logging
   // ---------------------------------------------------------------------------
   const handleSubmitAnswer = async () => {
     if (!selectedOption || !question || isSubmitted) return
@@ -135,12 +166,27 @@ export default function QuestionSolver() {
     setIsCorrect(correct)
 
     try {
-      await QuestionService.submitAnswer(
+      const res = await QuestionService.submitAnswer(
         question.id,
         selectedOption,
         timeSpent,
         userId
       )
+      setXpResult({
+        xpChange: res.xpChange,
+        xpReason: res.xpReason,
+        attemptNumber: res.attemptNumber,
+      })
+
+      // Refresh question-specific attempt statistics
+      if (userId) {
+        const stats = await QuestionService.getQuestionAttempts(question.id, userId)
+        setQuestionAttemptStats({
+          totalAttempts: stats.totalAttempts,
+          correctCount: stats.correctCount,
+          incorrectCount: stats.incorrectCount,
+        })
+      }
     } catch (err) {
       console.warn('Progress save notice:', err)
     }
@@ -153,23 +199,35 @@ export default function QuestionSolver() {
     if (!question) return
     const newStatus = !isBookmarked
     setIsBookmarked(newStatus)
-    await QuestionService.toggleBookmark(question.id, userId)
+
+    try {
+      await QuestionService.toggleBookmark(question.id, userId)
+    } catch (err) {
+      console.warn('Bookmark toggle error:', err)
+    }
   }
 
   // ---------------------------------------------------------------------------
-  // 5. Navigate Next Question
+  // 5. Navigate to Next Question in Pool
   // ---------------------------------------------------------------------------
   const handleNextQuestion = () => {
-    if (!question) return
-    const currentIndex = INITIAL_QUESTIONS.findIndex((q) => q.id === question.id)
-    if (currentIndex >= 0 && currentIndex < INITIAL_QUESTIONS.length - 1) {
-      const nextQ = INITIAL_QUESTIONS[currentIndex + 1]
+    if (!question || allQuestions.length === 0) {
+      navigate('/questions')
+      return
+    }
+
+    const currentIndex = allQuestions.findIndex((q) => q.id === question.id)
+    const nextIndex = (currentIndex + 1) % allQuestions.length
+    const nextQ = allQuestions[nextIndex]
+
+    if (nextQ) {
       navigate(`/questions/${nextQ.id}`)
     } else {
       navigate('/questions')
     }
   }
 
+  // Helper to format seconds into mm:ss
   const formatTimer = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -178,124 +236,131 @@ export default function QuestionSolver() {
 
   if (loading || !question) {
     return (
-      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
-        <div className="text-center font-display font-black">
-          <div className="w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
-          <p className="tracking-wider">LOADING ARENA QUESTION...</p>
+      <AppLayout>
+        <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-12 h-12 border-4 border-black border-t-[#ffd43b] rounded-full animate-spin mb-4" />
+          <div className="font-display font-black text-xl uppercase tracking-wider text-black">
+            LOADING ARENA QUESTION...
+          </div>
         </div>
-      </div>
+      </AppLayout>
     )
   }
 
-  const targetTime = 120
-  const isTimeUrgent = timeSpent > targetTime - 20
-
   return (
-    <AppLayout hideBottomNav={true}>
-      <div className="max-w-4xl mx-auto space-y-5 animate-entry">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6">
         {/* ================================================= */}
-        {/* TOP SOLVER HUD BAR                                */}
+        {/* TOP BAR / NAVIGATION                              */}
         {/* ================================================= */}
-        <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-4 sm:p-5 flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-black">
           <Link
             to="/questions"
-            className="px-3.5 py-2 bg-[#f1f5f9] hover:bg-[#e2e8f0] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-x-0.5"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] transition-transform hover:-translate-x-0.5"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">BACK TO BANK</span>
+            <span>BACK TO QUESTION BANK</span>
           </Link>
 
-          {/* Stopwatch with Urgency state */}
-          <div
-            className={`
-              flex items-center gap-2 px-4 py-1.5 border-2 border-black rounded-full shadow-[2px_2px_0_#000000] font-mono font-black text-sm sm:text-base
-              ${
-                isTimeUrgent && !isSubmitted
-                  ? 'bg-[#ff5b5b] text-white animate-pulse'
-                  : timeSpent > targetTime / 2
-                  ? 'bg-[#ffd43b] text-black'
-                  : 'bg-[#e9f6ff] text-[#071a2b]'
-              }
-            `}
-          >
-            <Clock className="w-4 h-4 shrink-0" />
-            <span>{formatTimer(timeSpent)}</span>
-            <span className="text-[10px] font-bold opacity-75 hidden sm:inline">
-              / {formatTimer(targetTime)} TARGET
-            </span>
-          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Stopwatch HUD */}
+            <div
+              className={`
+                px-3 py-1.5 border-2 border-black rounded-xl font-mono font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-[2px_2px_0_#000000]
+                ${timerActive && !isSubmitted ? 'bg-[#ffd43b] animate-pulse' : 'bg-white'}
+              `}
+            >
+              <Timer className="w-4 h-4" />
+              <span>{formatTimer(timeSpent)}</span>
+            </div>
 
-          {/* Problem meta badges */}
-          <div className="flex items-center gap-2">
+            {/* Bookmark Button */}
             <button
               type="button"
               onClick={handleToggleBookmark}
-              className={`p-2 border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] transition-transform hover:scale-105 cursor-pointer ${
-                isBookmarked ? 'bg-[#ffd43b] text-black' : 'bg-white text-black/60'
-              }`}
-              title={isBookmarked ? 'Saved' : 'Save for review'}
+              aria-label={isBookmarked ? 'Remove Bookmark' : 'Bookmark Question'}
+              className={`
+                p-2 border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] transition-transform hover:-translate-y-0.5 cursor-pointer
+                ${isBookmarked ? 'bg-[#ffd43b]' : 'bg-white hover:bg-slate-100'}
+              `}
             >
-              <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-black' : ''}`} />
+              <Bookmark
+                className={`w-4 h-4 ${isBookmarked ? 'fill-black text-black' : 'text-black'}`}
+              />
             </button>
-
-            <span className="hidden sm:inline-block bg-black text-white border-2 border-black rounded-xl px-3 py-2 font-mono font-black text-xs shadow-[2px_2px_0_#ffd43b]">
-              +{question.points} XP
-            </span>
           </div>
         </div>
 
         {/* ================================================= */}
-        {/* QUESTION PROMPT CARD                              */}
+        {/* QUESTION HEADER CARD                              */}
         {/* ================================================= */}
-        <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#ffd43b] p-6 sm:p-8">
-          {/* Metadata chips */}
-          <div className="flex flex-wrap items-center gap-2 pb-4 mb-5 border-b-2 border-black">
-            <span className="bg-[#38aef0] text-black border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-mono font-black uppercase">
+        <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
+            <span className="px-2.5 py-1 bg-[#071a2b] text-[#ffd43b] border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase">
               {question.category}
             </span>
-            <span className="bg-[#f1f5f9] text-black border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-mono font-black uppercase">
+            <span className="px-2.5 py-1 bg-[#e9f6ff] text-black border-2 border-black rounded-lg font-mono font-bold text-[10px] uppercase">
               {question.topic}
             </span>
             <span
-              className={`border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-display font-black uppercase ${
-                question.difficulty === 'easy'
-                  ? 'bg-[#32e875] text-black'
-                  : question.difficulty === 'medium'
-                  ? 'bg-[#ffd43b] text-black'
-                  : 'bg-[#ff5b5b] text-white'
-              }`}
+              className={`
+                px-2.5 py-1 border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase
+                ${
+                  question.difficulty === 'easy'
+                    ? 'bg-[#32e875] text-black'
+                    : question.difficulty === 'medium'
+                      ? 'bg-[#ffd43b] text-black'
+                      : 'bg-[#ff5b5b] text-white'
+                }
+              `}
             >
               {question.difficulty}
             </span>
+
+            <div className="ml-auto flex items-center gap-1.5 px-3 py-1 bg-[#ffd43b] border-2 border-black rounded-lg font-display font-black text-xs text-black">
+              <Award className="w-3.5 h-3.5" />
+              <span>{question.points} XP</span>
+            </div>
           </div>
 
-          <h1 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black leading-snug">
+          <h1 className="font-display font-black text-xl sm:text-2xl text-black uppercase tracking-tight leading-tight">
             {question.title}
           </h1>
 
-          <div className="mt-4 p-5 bg-[#f8fafc] border-2 border-black rounded-xl font-body font-semibold text-sm sm:text-base text-black/90 leading-relaxed whitespace-pre-line">
+          <div className="mt-4 pt-4 border-t-2 border-dashed border-black/30 font-body font-bold text-base sm:text-lg text-black/90 leading-relaxed whitespace-pre-line">
             {question.prompt}
           </div>
+        </div>
 
-          {/* =============================================== */}
-          {/* OPTIONS LIST (A / B / C / D)                     */}
-          {/* =============================================== */}
-          <div className="mt-6 space-y-3">
+        {/* ================================================= */}
+        {/* OPTIONS SELECTION                                 */}
+        {/* ================================================= */}
+        <section
+          aria-label="Options"
+          className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8"
+        >
+          <div className="font-mono text-xs font-black text-black/60 uppercase mb-4 tracking-wider">
+            CHOOSE THE CORRECT RESPONSE:
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
             {question.options.map((opt) => {
               const isSelected = selectedOption === opt.id
-              const isCorrectOption = question.correctOption === opt.id
+              const isCorrectOption = opt.id === question.correctOption
 
-              let stateStyle = 'bg-white hover:bg-[#f8fafc] border-black text-black'
+              let cardBg = 'bg-white hover:bg-slate-50'
+              const borderColor = 'border-black'
+
               if (isSubmitted) {
                 if (isCorrectOption) {
-                  stateStyle = 'bg-[#d1fae5] border-black text-[#065f46] font-bold ring-2 ring-[#059669]'
+                  cardBg = 'bg-[#32e875] text-black'
                 } else if (isSelected && !isCorrectOption) {
-                  stateStyle = 'bg-[#fee2e2] border-black text-[#991b1b]'
+                  cardBg = 'bg-[#ff5b5b] text-white'
                 } else {
-                  stateStyle = 'bg-slate-100 opacity-60 border-black/40 text-black'
+                  cardBg = 'bg-slate-100 opacity-60'
                 }
               } else if (isSelected) {
-                stateStyle = 'bg-[#ffd43b] border-black text-black font-bold shadow-[4px_4px_0_#000000] -translate-y-0.5'
+                cardBg = 'bg-[#ffd43b] text-black shadow-[4px_4px_0_#000000]'
               }
 
               return (
@@ -305,12 +370,18 @@ export default function QuestionSolver() {
                   disabled={isSubmitted}
                   onClick={() => setSelectedOption(opt.id)}
                   className={`
-                    w-full p-4 border-2 sm:border-3 rounded-xl sm:rounded-2xl text-left flex items-center justify-between gap-3 transition-all cursor-pointer select-none shadow-[3px_3px_0_#000000]
-                    ${stateStyle}
+                    p-4 rounded-xl border-2 sm:border-3 ${borderColor} ${cardBg}
+                    flex items-center justify-between text-left transition-all cursor-pointer
+                    ${!isSubmitted ? 'hover:-translate-y-0.5 active:translate-y-0' : ''}
                   `}
                 >
                   <div className="flex items-center gap-3.5">
-                    <span className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-mono font-black text-sm shrink-0">
+                    <span
+                      className={`
+                        w-8 h-8 rounded-lg border-2 border-black flex items-center justify-center font-display font-black text-sm
+                        ${isSelected ? 'bg-black text-white' : 'bg-[#e9f6ff] text-black'}
+                      `}
+                    >
                       {opt.id}
                     </span>
                     <span className="font-body font-bold text-sm sm:text-base">
@@ -437,7 +508,7 @@ export default function QuestionSolver() {
         )}
 
         {/* ================================================= */}
-        {/* EXPLANATION & ACCURACY SUMMARY (AFTER SUBMIT)     */}
+        {/* EXPLANATION & COMPETITIVE SUMMARY (AFTER SUBMIT)  */}
         {/* ================================================= */}
         {isSubmitted && (
           <div
@@ -446,36 +517,84 @@ export default function QuestionSolver() {
               ${isCorrect ? 'bg-[#d1fae5]' : 'bg-[#fee2e2]'}
             `}
           >
-            <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-black">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b-2 border-black">
               <div className="flex items-center gap-2.5">
                 {isCorrect ? (
                   <>
-                    <CheckCircle2 className="w-6 h-6 text-[#065f46]" />
-                    <span className="font-display font-black text-lg uppercase text-[#065f46]">
-                      CORRECT! +{question.points} XP EARNED
-                    </span>
+                    <CheckCircle2 className="w-6 h-6 text-[#065f46] shrink-0" />
+                    <div>
+                      <span className="font-display font-black text-base sm:text-lg uppercase text-[#065f46]">
+                        {xpResult && xpResult.xpChange === 0
+                          ? 'CORRECT REATTEMPT! (+0 XP — ALREADY EARNED)'
+                          : `CORRECT! +${xpResult?.xpChange ?? question.points} XP EARNED`}
+                      </span>
+                      {xpResult?.xpReason && (
+                        <div className="font-mono text-[10px] font-bold text-[#065f46]/80">
+                          {xpResult.xpReason}
+                        </div>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <>
-                    <ShieldAlert className="w-6 h-6 text-[#991b1b]" />
-                    <span className="font-display font-black text-lg uppercase text-[#991b1b]">
-                      INCORRECT ATTEMPT • CORRECT ANSWER IS OPTION {question.correctOption}
-                    </span>
+                    <ShieldAlert className="w-6 h-6 text-[#991b1b] shrink-0" />
+                    <div>
+                      <span className="font-display font-black text-base sm:text-lg uppercase text-[#991b1b]">
+                        INCORRECT ATTEMPT • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP PENALTY
+                      </span>
+                      <div className="font-mono text-[10px] font-bold text-[#991b1b]/80">
+                        CORRECT ANSWER IS OPTION {question.correctOption}
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
 
-              <div className="font-mono text-xs font-black text-black">
-                SOLVE TIME: {formatTimer(timeSpent)}
+              {/* Question-Specific Attempt Breakdown */}
+              <div className="flex items-center gap-2">
+                {questionAttemptStats && (
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] font-black uppercase bg-white px-2.5 py-1 border-2 border-black rounded-lg shadow-[1.5px_1.5px_0_#000000]">
+                    <span>ATTEMPTS: {questionAttemptStats.totalAttempts}</span>
+                    <span>•</span>
+                    <span className="text-[#059669]">CORRECT: {questionAttemptStats.correctCount}</span>
+                    <span>•</span>
+                    <span className="text-[#dc2626]">INCORRECT: {questionAttemptStats.incorrectCount}</span>
+                  </div>
+                )}
+                <div className="font-mono text-xs font-black text-black">
+                  SOLVE TIME: {formatTimer(timeSpent)}
+                </div>
               </div>
             </div>
 
             <div className="p-4 bg-white border-2 border-black rounded-xl font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
               <div className="font-display font-black text-xs uppercase text-black mb-1.5">
-                STEP-BY-STEP SOLUTION:
+                STEP-BY-STEP MATHEMATICAL SOLUTION:
               </div>
-              {question.explanation}
+              <div className="whitespace-pre-line">{question.explanation}</div>
+
+              {question.formulaOrRule && (
+                <div className="mt-3 p-3 bg-[#fffde7] border-2 border-black rounded-lg font-mono text-xs font-bold text-black flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-[#ffd43b] shrink-0" />
+                  <span>FORMULA / KEY PRINCIPLE: {question.formulaOrRule}</span>
+                </div>
+              )}
             </div>
+
+            {/* Question Tags */}
+            {question.tags && question.tags.length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-black/60" />
+                {question.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-0.5 bg-white border border-black rounded-md font-mono text-[10px] font-bold text-black/80"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -118,6 +118,36 @@
   background: #facc15;
 }
 
+/* Custom Question List Scroll Container */
+.question-list-scroll {
+  overflow-y: auto;
+  overscroll-behavior: auto;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: #ffd43b #f1f5f9;
+  -webkit-overflow-scrolling: touch;
+}
+
+.question-list-scroll::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.question-list-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-left: 1.5px solid #000000;
+}
+
+.question-list-scroll::-webkit-scrollbar-thumb {
+  background: #ffd43b;
+  border: 1.5px solid #000000;
+  border-radius: 4px;
+}
+
+.question-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: #facc15;
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

@@ -29,7 +29,7 @@ import {
 } from '../../services/profileService'
 import { normalizeUsername } from '../../utils/validation'
 import { QuestionService } from '../../services/questionService'
-import type { QuestionBankStats } from '../../types/questions'
+import type { QuestionBankStats, UserQuestionAttempt } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
 
 // Curated avatar presets
@@ -82,6 +82,7 @@ export default function Profile() {
   // Original Profile data
   const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null)
   const [questionStats, setQuestionStats] = useState<QuestionBankStats | null>(null)
+  const [userAttempts, setUserAttempts] = useState<UserQuestionAttempt[]>([])
 
   // Form Fields
   const [displayName, setDisplayName] = useState('')
@@ -195,11 +196,14 @@ export default function Profile() {
         }
 
         try {
-          const { questions, progressMap } =
-            await QuestionService.getQuestionsWithProgress(user.id)
-          const stats = QuestionService.calculateStats(questions, progressMap)
+          const [{ questions, progressMap }, attempts] = await Promise.all([
+            QuestionService.getQuestionsWithProgress(user.id),
+            QuestionService.getUserAttempts(user.id, 20),
+          ])
+          const stats = QuestionService.calculateStats(questions, progressMap, attempts)
           if (isMounted) {
             setQuestionStats(stats)
+            setUserAttempts(attempts)
           }
         } catch (qErr) {
           console.warn('Could not load profile question stats:', qErr)
@@ -788,6 +792,149 @@ export default function Profile() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Competitive Performance & Attempt History Deck */}
+              <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+                <div className="flex items-center justify-between pb-3 border-b-2 border-black mb-5">
+                  <div>
+                    <h3 className="font-display font-black text-xl uppercase text-black">
+                      COMPETITIVE PERFORMANCE
+                    </h3>
+                    <p className="text-xs font-semibold text-black/60 mt-0.5">
+                      Deterministic XP breakdown & speed practice attempt logs.
+                    </p>
+                  </div>
+                  <Award className="w-5 h-5 text-[#ffd43b]" />
+                </div>
+
+                {/* 7 Performance KPI Blocks */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6 text-center">
+                  <div className="p-3 bg-[#e9f6ff] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-lg sm:text-xl text-black">
+                      {questionStats?.totalAttempts ?? 0}
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-black/70 mt-0.5">
+                      ATTEMPTS
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#d1fae5] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-lg sm:text-xl text-[#065f46]">
+                      {questionStats?.correctAttempts ?? 0}
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-[#065f46] mt-0.5">
+                      CORRECT
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#fee2e2] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-lg sm:text-xl text-[#991b1b]">
+                      {questionStats?.incorrectAttempts ?? 0}
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-[#991b1b] mt-0.5">
+                      INCORRECT
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#ffd43b] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-lg sm:text-xl text-black">
+                      {questionStats?.accuracyRate ?? 0}%
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-black/80 mt-0.5">
+                      ACCURACY
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#fefce8] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-base sm:text-lg text-[#854d0e]">
+                      +{questionStats?.xpEarned ?? 0}
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-[#854d0e] mt-0.5">
+                      XP EARNED
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#fff1f2] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                    <div className="font-display font-black text-base sm:text-lg text-[#be123c]">
+                      -{questionStats?.xpLost ?? 0}
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-[#be123c] mt-0.5">
+                      XP PENALTY
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-black text-white border-2 border-black rounded-xl shadow-[2px_2px_0_#ffd43b] col-span-2">
+                    <div className="font-display font-black text-base sm:text-lg text-[#ffd43b]">
+                      {questionStats?.netXp ?? 0} XP
+                    </div>
+                    <div className="font-mono text-[9px] font-black uppercase text-white/80 mt-0.5">
+                      NET COMPETITIVE XP
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Attempt History Feed */}
+                <div>
+                  <div className="flex items-center justify-between pb-2 border-b-2 border-black mb-3">
+                    <div className="font-display font-black text-xs uppercase text-black">
+                      RECENT ATTEMPT LOG
+                    </div>
+                    <div className="font-mono text-[10px] font-bold text-black/60">
+                      {userAttempts.length} Records
+                    </div>
+                  </div>
+
+                  {userAttempts.length === 0 ? (
+                    <div className="p-4 bg-[#f8fafc] border-2 border-dashed border-black/30 rounded-xl text-center font-body text-xs font-semibold text-black/60">
+                      No attempt history recorded yet. Solve problems in the Question Bank to build your competitive track record!
+                    </div>
+                  ) : (
+                    <div
+                      data-lenis-prevent
+                      className="space-y-2 max-h-64 sm:max-h-72 question-list-scroll overflow-y-auto min-h-0 pr-1"
+                    >
+                      {userAttempts.map((att) => (
+                        <div
+                          key={att.id}
+                          className="p-3 bg-white border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center justify-between gap-2"
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="px-1.5 py-0.2 bg-[#071a2b] text-white border border-black rounded text-[9px] font-mono font-black uppercase">
+                                {att.questionId}
+                              </span>
+                              <span className="font-display font-black text-xs text-black truncate">
+                                {att.questionTitle || `Attempt #${att.attemptNumber}`}
+                              </span>
+                            </div>
+                            <div className="font-mono text-[10px] font-bold text-black/60 mt-0.5">
+                              Option {att.selectedOption} • Attempt #{att.attemptNumber}
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 text-right">
+                            <span
+                              className={`
+                                inline-flex items-center px-2 py-0.5 border border-black rounded-lg font-mono font-black text-[10px] uppercase shadow-[1px_1px_0_#000000]
+                                ${
+                                  att.isCorrect
+                                    ? 'bg-[#32e875] text-black'
+                                    : 'bg-[#ff5b5b] text-white'
+                                }
+                              `}
+                            >
+                              {att.isCorrect ? `+${att.xpChange} XP` : `${att.xpChange} XP`}
+                            </span>
+                            <div className="font-mono text-[9px] text-black/50 mt-0.5">
+                              {new Date(att.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -39,6 +39,21 @@ export interface UserQuestionProgress {
   lastAttemptedAt: string
 }
 
+export interface UserQuestionAttempt {
+  id: string
+  userId: string
+  questionId: string
+  selectedOption: string
+  isCorrect: boolean
+  xpChange: number
+  attemptNumber: number
+  timeSpentSeconds: number
+  createdAt: string
+  questionTitle?: string
+  questionCategory?: string
+  questionDifficulty?: Difficulty
+}
+
 export interface QuestionBankStats {
   totalQuestions: number
   solvedCount: number
@@ -51,6 +66,13 @@ export interface QuestionBankStats {
   bookmarkedCount: number
   accuracyRate: number
   totalPoints: number
+  // Competitive Progression Metrics
+  totalAttempts: number
+  correctAttempts: number
+  incorrectAttempts: number
+  xpEarned: number
+  xpLost: number
+  netXp: number
 }
 
 export interface QuestionFilters {
@@ -59,4 +81,24 @@ export interface QuestionFilters {
   topic: string | 'all'
   difficulty: Difficulty | 'all'
   status: 'all' | 'solved' | 'unsolved' | 'bookmarked'
+}
+
+export interface DatabaseQuestion {
+  id: string
+  title: string
+  prompt: string
+  category: string
+  topic: string
+  difficulty: string
+  options: QuestionOption[] | string
+  correct_option: string
+  explanation: string
+  formula_or_rule?: string | null
+  hints?: string[] | string | null
+  points?: number | null
+  acceptance_rate?: number | null
+  tags?: string[] | string | null
+  is_active?: boolean | null
+  created_at?: string | null
+  updated_at?: string | null
 }
