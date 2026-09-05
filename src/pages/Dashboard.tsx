@@ -19,7 +19,9 @@ import { ProfileService, type UserProfile } from '../services/profileService'
 import { QuestionService } from '../services/questionService'
 import { StreakService } from '../services/streakService'
 import { ChallengeService } from '../services/challengeService'
+import { ContestService } from '../services/contestService'
 import type { UserStreak, DailyChallenge } from '../types/questions'
+import type { Contest } from '../types/contests'
 import AppLayout from '../components/layout/AppLayout'
 
 export default function Dashboard() {
@@ -28,6 +30,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [streakData, setStreakData] = useState<UserStreak | null>(null)
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null)
+  const [contests, setContests] = useState<Contest[]>([])
+  const [contestsPlayed, setContestsPlayed] = useState(0)
+  const [podiumFinishes, setPodiumFinishes] = useState(0)
   const [questionStats, setQuestionStats] = useState<{
     totalQuestions: number
     solvedCount: number
@@ -82,15 +87,37 @@ export default function Dashboard() {
         }
 
         try {
-          const [userStreak, challenge, { questions, progressMap, challengeBonusXp }] = await Promise.all([
+          const [
+            userStreak,
+            challenge,
+            { questions, progressMap, challengeBonusXp },
+            contestList,
+            completedContestsRes,
+            podiumRes,
+          ] = await Promise.all([
             StreakService.getUserStreak(user.id),
             ChallengeService.getDailyChallenge(),
             QuestionService.getQuestionsWithProgress(user.id),
+            ContestService.getContests(),
+            supabase
+              .from('contest_participants')
+              .select('*', { count: 'exact', head: true })
+              .eq('user_id', user.id)
+              .eq('status', 'completed'),
+            supabase
+              .from('contest_participants')
+              .select('*', { count: 'exact', head: true })
+              .eq('user_id', user.id)
+              .eq('status', 'completed')
+              .lte('rank', 3),
           ])
 
           if (isMounted) {
             setStreakData(userStreak)
             setDailyChallenge(challenge)
+            setContests(contestList)
+            setContestsPlayed(completedContestsRes.count || 0)
+            setPodiumFinishes(podiumRes.count || 0)
             const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp)
             setQuestionStats(stats)
           }
@@ -196,10 +223,10 @@ export default function Dashboard() {
               <Trophy className="w-3.5 h-3.5 text-black" />
             </div>
             <div className="font-display font-black text-2xl sm:text-3xl text-black leading-none mt-1">
-              0
+              {contestsPlayed}
             </div>
             <div className="text-[10px] font-bold text-black/60 mt-1 truncate">
-              0 podium finishes
+              {podiumFinishes} podium {podiumFinishes === 1 ? 'finish' : 'finishes'}
             </div>
           </div>
 
@@ -456,61 +483,53 @@ export default function Dashboard() {
             </div>
 
             <div className="p-3.5 sm:p-4 space-y-2.5">
-              {/* Contest 1 */}
-              <div className="p-3 bg-white border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-[#f8fafc] transition-colors">
-                <div>
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="bg-[#ff5b5b] text-white border border-black rounded-full px-2 py-0.2 text-[8px] font-display font-black uppercase">
-                      PREVIEW ROUND
-                    </span>
-                    <span className="text-[11px] font-mono font-bold text-black/60">
-                      30 MINS • 15 QUESTIONS
-                    </span>
-                  </div>
-                  <h4 className="font-display font-black text-sm uppercase text-black">
-                    APTICKS SPEED CLASH #14
-                  </h4>
-                  <p className="text-[11px] font-body font-semibold text-black/60 mt-0.5">
-                    Quantitative & Speed Arithmetic • Open Division
-                  </p>
+              {contests.length === 0 ? (
+                <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl text-center font-mono text-xs font-bold text-black/60">
+                  NO ACTIVE OR UPCOMING TOURNAMENTS SCHEDULED
                 </div>
+              ) : (
+                contests.slice(0, 2).map((c) => (
+                  <div
+                    key={c.id}
+                    className="p-3 bg-white border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-[#f8fafc] transition-colors"
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        {c.status === 'live' ? (
+                          <span className="bg-[#ff5b5b] text-white border border-black rounded-full px-2 py-0.2 text-[8px] font-display font-black uppercase animate-pulse">
+                            LIVE NOW
+                          </span>
+                        ) : (
+                          <span className="bg-[#38aef0] text-black border border-black rounded-full px-2 py-0.2 text-[8px] font-display font-black uppercase">
+                            SCHEDULED
+                          </span>
+                        )}
+                        <span className="text-[11px] font-mono font-bold text-black/60">
+                          {c.durationMinutes} MINS • {c.totalQuestions} QUESTIONS
+                        </span>
+                      </div>
+                      <h4 className="font-display font-black text-sm uppercase text-black">
+                        {c.title}
+                      </h4>
+                      <p className="text-[11px] font-body font-semibold text-black/60 mt-0.5">
+                        {c.category} • {c.difficulty.toUpperCase()} Division
+                      </p>
+                    </div>
 
-                <button
-                  type="button"
-                  onClick={() => navigate('/contests')}
-                  className="px-3 py-1.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#000000] shrink-0 transition-transform hover:-translate-x-0.5"
-                >
-                  VIEW FIXTURE →
-                </button>
-              </div>
-
-              {/* Contest 2 */}
-              <div className="p-3 bg-white border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-[#f8fafc] transition-colors">
-                <div>
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="bg-[#38aef0] text-black border border-black rounded-full px-2 py-0.2 text-[8px] font-display font-black uppercase">
-                      SATURDAY 8 PM
-                    </span>
-                    <span className="text-[11px] font-mono font-bold text-black/60">
-                      45 MINS • 25 QUESTIONS
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/contests/${c.id}`)}
+                      className={`px-3 py-1.5 border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#000000] shrink-0 transition-transform hover:-translate-x-0.5 cursor-pointer ${
+                        c.status === 'live'
+                          ? 'bg-[#ffd43b] hover:bg-[#facc15]'
+                          : 'bg-white hover:bg-[#e9f6ff]'
+                      }`}
+                    >
+                      {c.status === 'live' ? 'ENTER ARENA →' : 'VIEW FIXTURE →'}
+                    </button>
                   </div>
-                  <h4 className="font-display font-black text-sm uppercase text-black">
-                    WEEKEND GRAND PRIX: LOGICAL DOMINANCE
-                  </h4>
-                  <p className="text-[11px] font-body font-semibold text-black/60 mt-0.5">
-                    Puzzles, Seating & Logic • Master Division
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => navigate('/contests')}
-                  className="px-3 py-1.5 bg-white hover:bg-[#e9f6ff] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#000000] shrink-0 transition-transform hover:-translate-x-0.5"
-                >
-                  VIEW FIXTURE →
-                </button>
-              </div>
+                ))
+              )}
             </div>
           </section>
 

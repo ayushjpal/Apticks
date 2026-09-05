@@ -19,6 +19,9 @@ import Profile from '../pages/profile/Profile'
 import QuestionBank from '../pages/questions/QuestionBank'
 import QuestionSolver from '../pages/questions/QuestionSolver'
 import Contests from '../pages/contests/Contests'
+import ContestDetails from '../pages/contests/ContestDetails'
+import ContestArena from '../pages/contests/ContestArena'
+import ContestResults from '../pages/contests/ContestResults'
 import Leaderboard from '../pages/leaderboard/Leaderboard'
 
 // -----------------------------
@@ -74,6 +77,9 @@ export default function AppRoutes() {
       <Route path="/questions" element={<QuestionBank />} />
       <Route path="/questions/:id" element={<QuestionSolver />} />
       <Route path="/contests" element={<Contests />} />
+      <Route path="/contests/:id" element={<ContestDetails />} />
+      <Route path="/contests/:id/arena" element={<ContestArena />} />
+      <Route path="/contests/:id/results" element={<ContestResults />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/profile" element={<Profile />} />
 
