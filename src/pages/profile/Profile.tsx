@@ -29,7 +29,8 @@ import {
 } from '../../services/profileService'
 import { normalizeUsername } from '../../utils/validation'
 import { QuestionService } from '../../services/questionService'
-import type { QuestionBankStats, UserQuestionAttempt } from '../../types/questions'
+import { StreakService } from '../../services/streakService'
+import type { QuestionBankStats, UserQuestionAttempt, UserStreak } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
 
 // Curated avatar presets
@@ -83,6 +84,7 @@ export default function Profile() {
   const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null)
   const [questionStats, setQuestionStats] = useState<QuestionBankStats | null>(null)
   const [userAttempts, setUserAttempts] = useState<UserQuestionAttempt[]>([])
+  const [userStreak, setUserStreak] = useState<UserStreak | null>(null)
 
   // Form Fields
   const [displayName, setDisplayName] = useState('')
@@ -196,17 +198,19 @@ export default function Profile() {
         }
 
         try {
-          const [{ questions, progressMap }, attempts] = await Promise.all([
+          const [{ questions, progressMap, challengeBonusXp }, attempts, streak] = await Promise.all([
             QuestionService.getQuestionsWithProgress(user.id),
             QuestionService.getUserAttempts(user.id, 20),
+            StreakService.getUserStreak(user.id),
           ])
-          const stats = QuestionService.calculateStats(questions, progressMap, attempts)
+          const stats = QuestionService.calculateStats(questions, progressMap, attempts, challengeBonusXp)
           if (isMounted) {
             setQuestionStats(stats)
             setUserAttempts(attempts)
+            setUserStreak(streak)
           }
         } catch (qErr) {
-          console.warn('Could not load profile question stats:', qErr)
+          console.warn('Could not load profile question stats/streak:', qErr)
         }
       } catch (err: unknown) {
         console.error('Error loading profile page:', err)
@@ -758,13 +762,15 @@ export default function Profile() {
                   </div>
 
                   <div className="p-3.5 bg-[#ffd43b] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
-                    <Flame className="w-5 h-5 text-black shrink-0" />
+                    <Flame className={`w-5 h-5 text-black shrink-0 ${userStreak?.isActiveToday ? 'animate-pulse' : ''}`} />
                     <div>
                       <div className="font-display font-black text-xs leading-tight uppercase">
                         STREAK RUNNER
                       </div>
                       <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
-                        Active 3-Day streak
+                        {userStreak && userStreak.currentStreak > 0
+                          ? `Active ${userStreak.currentStreak}-Day streak${userStreak.longestStreak > userStreak.currentStreak ? ` (Best: ${userStreak.longestStreak}d)` : ''}`
+                          : 'Solve today to build streak'}
                       </div>
                     </div>
                   </div>

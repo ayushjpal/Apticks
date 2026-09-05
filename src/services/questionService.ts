@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { INITIAL_QUESTIONS } from '../data/questionsData'
+import { StreakService } from './streakService'
 import type {
   Question,
   Category,
@@ -325,10 +326,12 @@ export class QuestionService {
   ): Promise<{
     questions: Question[]
     progressMap: Record<string, UserQuestionProgress>
+    challengeBonusXp: number
   }> {
-    const [rawQuestions, progressMap] = await Promise.all([
+    const [rawQuestions, progressMap, challengeBonusXp] = await Promise.all([
       this.getQuestions(filters),
       userId ? this.getUserProgress(userId) : Promise.resolve({}),
+      userId ? this.getUserChallengeBonusXp(userId) : Promise.resolve(0),
     ])
 
     // Intelligently sort questions: Unsolved first, Solved last
@@ -336,7 +339,28 @@ export class QuestionService {
       ? this.sortQuestionsForUser(rawQuestions, progressMap)
       : rawQuestions
 
-    return { questions, progressMap }
+    return { questions, progressMap, challengeBonusXp }
+  }
+
+  /**
+   * Fetch total Daily Challenge bonus XP awarded to the user from public.user_daily_challenge_completions.
+   * Authoritative, persistent, and read-only.
+   */
+  static async getUserChallengeBonusXp(userId: string): Promise<number> {
+    if (!userId) return 0
+    try {
+      const { data, error } = await supabase
+        .from('user_daily_challenge_completions')
+        .select('bonus_xp_awarded')
+        .eq('user_id', userId)
+
+      if (!error && data && data.length > 0) {
+        return data.reduce((sum, row) => sum + (Number(row.bonus_xp_awarded) || 0), 0)
+      }
+    } catch (err) {
+      console.warn('Supabase fetch challenge bonus XP note:', err)
+    }
+    return 0
   }
 
   /**
@@ -579,6 +603,11 @@ export class QuestionService {
           if (attErr) {
             console.warn('Supabase attempt insert note:', attErr.message)
           }
+
+          // C. If solved correctly, advance/maintain daily streak idempotently via trusted RPC
+          if (isCorrect) {
+            StreakService.recordDailyActivity(userId).catch(() => {})
+          }
         } catch (e) {
           console.warn('Supabase sync network note:', e)
         }
@@ -703,7 +732,8 @@ export class QuestionService {
   static calculateStats(
     questions: Question[],
     progressMap: Record<string, UserQuestionProgress>,
-    attemptsList: UserQuestionAttempt[] = []
+    attemptsList: UserQuestionAttempt[] = [],
+    challengeBonusXp = 0
   ): QuestionBankStats {
     let solvedCount = 0
     let easySolved = 0
@@ -780,6 +810,9 @@ export class QuestionService {
       incorrectAttempts = Math.max(0, totalAttempts - correctAttempts)
     }
 
+    // Add authoritative Daily Challenge bonus XP to total XP earned
+    xpEarned += Math.max(0, challengeBonusXp)
+
     const netXp = Math.max(0, xpEarned - xpLost)
     const accuracyRate =
       totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0
@@ -802,6 +835,7 @@ export class QuestionService {
       xpEarned,
       xpLost,
       netXp,
+      challengeBonusXp,
     }
   }
 }

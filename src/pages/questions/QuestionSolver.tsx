@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import {
   ArrowLeft,
   Bookmark,
@@ -15,15 +15,22 @@ import {
   Zap,
   Tag,
   ShieldAlert,
+  Flame,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
+import { ChallengeService } from '../../services/challengeService'
 import type { Question, UserQuestionProgress } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
 
 export default function QuestionSolver() {
   const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
+  const isChallengeMode = searchParams.get('challenge') === 'true'
+  const challengeId = searchParams.get('challengeId')
+  const [resolvedChallengeId, setResolvedChallengeId] = useState<string | null>(challengeId)
 
   // App & Question State
   const [userId, setUserId] = useState<string | undefined>()
@@ -35,6 +42,9 @@ export default function QuestionSolver() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
+  const [authoritativeCorrectOption, setAuthoritativeCorrectOption] = useState<string | null>(null)
+  const [authoritativeExplanation, setAuthoritativeExplanation] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [timeSpent, setTimeSpent] = useState(0)
   const [timerActive, setTimerActive] = useState(true)
 
@@ -74,6 +84,8 @@ export default function QuestionSolver() {
       setTimeSpent(0)
       setTimerActive(true)
       setXpResult(null)
+      setAuthoritativeCorrectOption(null)
+      setAuthoritativeExplanation(null)
 
       try {
         const {
@@ -84,6 +96,53 @@ export default function QuestionSolver() {
           setUserId(user.id)
         }
 
+        // =====================================================================
+        // A. DAILY CHALLENGE MODE: Authoritative RPC Retrieval
+        // =====================================================================
+        if (isChallengeMode) {
+          const [dailyChallenge, fetchedList, attemptStats] = await Promise.all([
+            ChallengeService.getDailyChallenge(),
+            QuestionService.getQuestions(),
+            user?.id
+              ? QuestionService.getQuestionAttempts(id, user.id)
+              : Promise.resolve({ attempts: [], totalAttempts: 0, correctCount: 0, incorrectCount: 0 }),
+          ])
+
+          if (!isMounted) return
+
+          if (dailyChallenge && dailyChallenge.question) {
+            setQuestion(dailyChallenge.question)
+            setAllQuestions(fetchedList)
+            setResolvedChallengeId(dailyChallenge.challengeId)
+            setQuestionAttemptStats({
+              totalAttempts: attemptStats.totalAttempts,
+              correctCount: attemptStats.correctCount,
+              incorrectCount: attemptStats.incorrectCount,
+            })
+
+            // Only treat the challenge as completed when challenge.isCompleted is true.
+            // Do NOT rely on normal user_question_progress.isSolved.
+            if (dailyChallenge.isCompleted) {
+              setIsSubmitted(true)
+              setIsCorrect(true)
+              setTimerActive(false)
+              setXpResult({
+                xpChange: dailyChallenge.bonusXpAwarded || dailyChallenge.bonusXp,
+                xpReason: 'Daily Challenge completed today (+50 BONUS XP)',
+                attemptNumber: 1,
+              })
+            }
+            return
+          } else {
+            // Challenge could not be loaded - safely redirect back to Dashboard
+            navigate('/dashboard', { replace: true })
+            return
+          }
+        }
+
+        // =====================================================================
+        // B. STANDARD QUESTION BANK PRACTICE FLOW (Completely Unchanged)
+        // =====================================================================
         const [foundQuestion, fetchedList, progressMap, attemptStats] =
           await Promise.all([
             QuestionService.getQuestionById(id),
@@ -134,7 +193,7 @@ export default function QuestionSolver() {
       isMounted = false
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [id, navigate])
+  }, [id, navigate, isChallengeMode])
 
   // ---------------------------------------------------------------------------
   // 2. Stopwatch Timer
@@ -157,11 +216,58 @@ export default function QuestionSolver() {
   // 3. Submit Answer with Competitive XP & Attempt History Logging
   // ---------------------------------------------------------------------------
   const handleSubmitAnswer = async () => {
-    if (!selectedOption || !question || isSubmitted) return
+    if (!selectedOption || !question || isSubmitted || isSubmitting) return
 
     setTimerActive(false)
-    setIsSubmitted(true)
 
+    // A. Daily Challenge Mode: Authoritative Server RPC Check
+    const targetChallengeId = resolvedChallengeId || challengeId
+    if (isChallengeMode && targetChallengeId) {
+      setIsSubmitting(true)
+      try {
+        const res = await ChallengeService.submitDailyChallenge(
+          targetChallengeId,
+          selectedOption,
+          timeSpent
+        )
+
+        setIsSubmitted(true)
+        setIsCorrect(res.isCorrect)
+
+        if (res.correctOption) {
+          setAuthoritativeCorrectOption(res.correctOption)
+        }
+        if (res.explanation) {
+          setAuthoritativeExplanation(res.explanation)
+        }
+
+        const totalEarned = (res.bonusXp || 0) + (res.questionXp || (res.isCorrect ? question.points : 0))
+        setXpResult({
+          xpChange: res.isCorrect ? totalEarned : (res.xpChange !== undefined ? res.xpChange : 0),
+          xpReason: res.bonusXp > 0
+            ? `+${res.bonusXp} Daily Bonus + ${res.questionXp || question.points} Problem XP`
+            : (res.alreadyCompleted ? 'Challenge completed (+0 Bonus XP)' : (res.message || 'Challenge attempt logged')),
+          attemptNumber: 1,
+        })
+
+        if (userId) {
+          const stats = await QuestionService.getQuestionAttempts(question.id, userId)
+          setQuestionAttemptStats({
+            totalAttempts: stats.totalAttempts,
+            correctCount: stats.correctCount,
+            incorrectCount: stats.incorrectCount,
+          })
+        }
+      } catch (err) {
+        console.warn('Daily challenge submit error:', err)
+      } finally {
+        setIsSubmitting(false)
+      }
+      return
+    }
+
+    // B. Standard Question Bank Practice Flow
+    setIsSubmitted(true)
     const correct = selectedOption === question.correctOption
     setIsCorrect(correct)
 
@@ -292,6 +398,30 @@ export default function QuestionSolver() {
         </div>
 
         {/* ================================================= */}
+        {/* DAILY CHALLENGE BANNER                            */}
+        {/* ================================================= */}
+        {isChallengeMode && (
+          <div className="bg-[#ffd43b] border-2 sm:border-3 border-black rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0_#000000] flex flex-wrap items-center justify-between gap-3 animate-entry">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center shrink-0">
+                <Flame className="w-6 h-6 text-[#ffd43b] fill-[#ffd43b]" />
+              </div>
+              <div>
+                <div className="font-display font-black text-base uppercase text-black leading-tight">
+                  DAILY CHALLENGE ARENA
+                </div>
+                <div className="font-mono text-xs font-bold text-black/80 mt-0.5">
+                  Authoritative daily problem. First correct solve unlocks +50 BONUS XP & extends streak!
+                </div>
+              </div>
+            </div>
+            <div className="bg-[#ff5b5b] text-white border-2 border-black rounded-full px-3 py-1 font-mono text-xs font-black uppercase shadow-[2px_2px_0_#000000]">
+              +50 BONUS XP
+            </div>
+          </div>
+        )}
+
+        {/* ================================================= */}
         {/* QUESTION HEADER CARD                              */}
         {/* ================================================= */}
         <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
@@ -346,7 +476,8 @@ export default function QuestionSolver() {
           <div className="grid grid-cols-1 gap-3">
             {question.options.map((opt) => {
               const isSelected = selectedOption === opt.id
-              const isCorrectOption = opt.id === question.correctOption
+              const effectiveCorrect = authoritativeCorrectOption || question.correctOption
+              const isCorrectOption = opt.id === effectiveCorrect
 
               let cardBg = 'bg-white hover:bg-slate-50'
               const borderColor = 'border-black'
@@ -432,10 +563,10 @@ export default function QuestionSolver() {
               <button
                 type="button"
                 onClick={handleSubmitAnswer}
-                disabled={!selectedOption}
+                disabled={!selectedOption || isSubmitting}
                 className="px-7 py-3 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                <span>LOCK & SUBMIT ANSWER</span>
+                <span>{isSubmitting ? 'PROCESSING...' : 'LOCK & SUBMIT ANSWER'}</span>
                 <CheckCircle2 className="w-4 h-4" />
               </button>
             ) : (
@@ -454,14 +585,25 @@ export default function QuestionSolver() {
                   <span>RE-ATTEMPT</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleNextQuestion}
-                  className="px-6 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
-                >
-                  <span>NEXT PROBLEM</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                {isChallengeMode ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate('/dashboard')}
+                    className="px-6 py-2.5 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                  >
+                    <span>RETURN TO DASHBOARD</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleNextQuestion}
+                    className="px-6 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                  >
+                    <span>NEXT PROBLEM</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -543,7 +685,7 @@ export default function QuestionSolver() {
                         INCORRECT ATTEMPT • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP PENALTY
                       </span>
                       <div className="font-mono text-[10px] font-bold text-[#991b1b]/80">
-                        CORRECT ANSWER IS OPTION {question.correctOption}
+                        CORRECT ANSWER IS OPTION {authoritativeCorrectOption || question.correctOption}
                       </div>
                     </div>
                   </>
@@ -571,7 +713,7 @@ export default function QuestionSolver() {
               <div className="font-display font-black text-xs uppercase text-black mb-1.5">
                 STEP-BY-STEP MATHEMATICAL SOLUTION:
               </div>
-              <div className="whitespace-pre-line">{question.explanation}</div>
+              <div className="whitespace-pre-line">{authoritativeExplanation || question.explanation}</div>
 
               {question.formulaOrRule && (
                 <div className="mt-3 p-3 bg-[#fffde7] border-2 border-black rounded-lg font-mono text-xs font-bold text-black flex items-center gap-2">

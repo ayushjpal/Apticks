@@ -4,12 +4,14 @@ import { Flame, Zap } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UserProfile } from '../../services/profileService'
 import { QuestionService } from '../../services/questionService'
+import { StreakService } from '../../services/streakService'
+import type { UserStreak } from '../../types/questions'
 
 export default function AppHeader() {
   const navigate = useNavigate()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [totalXP, setTotalXP] = useState(0)
-  const [streak] = useState(1) // Active Daily Streak
+  const [streakData, setStreakData] = useState<UserStreak | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -38,16 +40,20 @@ export default function AppHeader() {
           setProfile(p)
         }
 
-        // Fetch XP
+        // Fetch Live Streak & XP concurrently
         try {
-          const { questions, progressMap } =
-            await QuestionService.getQuestionsWithProgress(user.id)
-          const stats = QuestionService.calculateStats(questions, progressMap)
+          const [userStreak, { questions, progressMap, challengeBonusXp }] = await Promise.all([
+            StreakService.getUserStreak(user.id),
+            QuestionService.getQuestionsWithProgress(user.id),
+          ])
+
           if (isMounted) {
+            setStreakData(userStreak)
+            const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp)
             setTotalXP(stats.totalPoints)
           }
         } catch (e) {
-          console.warn('Header XP fetch note:', e)
+          console.warn('Header stats/streak fetch note:', e)
         }
       } catch (err) {
         console.warn('Header load note:', err)
@@ -87,10 +93,17 @@ export default function AppHeader() {
         {/* Quick HUD Metrics & Profile Avatar */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Streak pill (hidden on very narrow screens, visible on >= 400px) */}
-          <div className="hidden min-[400px]:flex items-center gap-1.5 bg-[#ff5b5b] text-white border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 py-1 text-[11px] font-display font-black">
-            <Flame className="w-3.5 h-3.5 fill-white shrink-0" />
-            <span>{streak}D STREAK</span>
-          </div>
+          {(streakData?.currentStreak ?? 0) > 0 ? (
+            <div className={`hidden min-[400px]:flex items-center gap-1.5 ${streakData?.isActiveToday ? 'bg-[#ff5b5b]' : 'bg-[#ff7b7b]'} text-white border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 py-1 text-[11px] font-display font-black`}>
+              <Flame className={`w-3.5 h-3.5 fill-white shrink-0 ${streakData?.isActiveToday ? 'animate-pulse' : ''}`} />
+              <span>{streakData?.currentStreak}D STREAK</span>
+            </div>
+          ) : (
+            <div className="hidden min-[400px]:flex items-center gap-1.5 bg-white/10 text-white/70 border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 py-1 text-[11px] font-display font-black">
+              <Flame className="w-3.5 h-3.5 text-white/50 shrink-0" />
+              <span>0D STREAK</span>
+            </div>
+          )}
 
           {/* XP pill */}
           <div className="flex items-center gap-1.5 bg-[#ffd43b] text-black border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black">

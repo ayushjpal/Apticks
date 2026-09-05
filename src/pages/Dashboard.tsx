@@ -17,12 +17,17 @@ import {
 import { supabase } from '../lib/supabase'
 import { ProfileService, type UserProfile } from '../services/profileService'
 import { QuestionService } from '../services/questionService'
+import { StreakService } from '../services/streakService'
+import { ChallengeService } from '../services/challengeService'
+import type { UserStreak, DailyChallenge } from '../types/questions'
 import AppLayout from '../components/layout/AppLayout'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [streakData, setStreakData] = useState<UserStreak | null>(null)
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null)
   const [questionStats, setQuestionStats] = useState<{
     totalQuestions: number
     solvedCount: number
@@ -77,14 +82,20 @@ export default function Dashboard() {
         }
 
         try {
-          const { questions, progressMap } =
-            await QuestionService.getQuestionsWithProgress(user.id)
-          const stats = QuestionService.calculateStats(questions, progressMap)
+          const [userStreak, challenge, { questions, progressMap, challengeBonusXp }] = await Promise.all([
+            StreakService.getUserStreak(user.id),
+            ChallengeService.getDailyChallenge(),
+            QuestionService.getQuestionsWithProgress(user.id),
+          ])
+
           if (isMounted) {
+            setStreakData(userStreak)
+            setDailyChallenge(challenge)
+            const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp)
             setQuestionStats(stats)
           }
         } catch (qErr) {
-          console.warn('Could not load dashboard question stats:', qErr)
+          console.warn('Could not load dashboard metrics:', qErr)
         }
       } catch (error) {
         console.error('Dashboard loading error:', error)
@@ -116,6 +127,13 @@ export default function Dashboard() {
   const totalQuestions = questionStats?.totalQuestions ?? 30
   const accuracyRate = questionStats?.accuracyRate ?? 0
   const totalPoints = questionStats?.totalPoints ?? 0
+
+  const formatTimeLeft = (seconds: number) => {
+    if (seconds <= 0) return 'Ending soon'
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    return `${h}h ${m}m left`
+  }
 
   return (
     <AppLayout>
@@ -338,43 +356,73 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <div className="bg-[#ff5b5b] text-white border-1.5 border-black rounded-full px-2 py-0.5 font-mono text-[9px] font-black uppercase shadow-[1px_1px_0_#000000]">
-                  +50 BONUS XP
+                  +{dailyChallenge?.bonusXp ?? 50} BONUS XP
                 </div>
               </div>
 
               <div className="mt-3 bg-white border-2 border-black rounded-xl p-3.5 sm:p-4 shadow-[2.5px_2.5px_0_#000000]">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="bg-[#38aef0] border-1.5 border-black rounded-full px-2 py-0.5 text-[9px] font-display font-black uppercase">
-                    MEDIUM • 120 SEC
+                    {dailyChallenge ? `${dailyChallenge.question.difficulty.toUpperCase()} • ${dailyChallenge.question.category.toUpperCase()}` : 'DAILY ARENA'}
                   </span>
                   <div className="flex items-center gap-1 font-mono text-[11px] font-black text-black">
                     <Clock className="w-3 h-3" />
-                    <span>23h 14m left</span>
+                    <span>{dailyChallenge ? formatTimeLeft(dailyChallenge.secondsLeft) : 'STANDBY'}</span>
                   </div>
                 </div>
 
                 <h3 className="font-display font-black text-base uppercase text-black leading-tight mt-1.5">
-                  PROBABILITY & COMBINATIONS SPRINT
+                  {dailyChallenge?.question.title || "DAILY CHALLENGE ARENA"}
                 </h3>
 
-                <p className="mt-1 text-xs font-body font-semibold text-black/70 leading-relaxed">
-                  Solve today's speed challenge in under 2 minutes to keep your streak alive.
+                <p className="mt-1 text-xs font-body font-semibold text-black/70 leading-relaxed line-clamp-2">
+                  {dailyChallenge?.question.prompt || "Today's speed challenge is loading or currently unavailable. Please verify your connection."}
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() => navigate('/questions/quant-001')}
-                  className="mt-3 w-full py-2.5 bg-[#32e875] hover:bg-[#22c55e] border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2.5px_2.5px_0_#000000] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Zap className="w-3.5 h-3.5 fill-black" />
-                  <span>ACCEPT DAILY CHALLENGE →</span>
-                </button>
+                {dailyChallenge?.isCompleted ? (
+                  <div className="mt-3 w-full py-2.5 bg-[#32e875] text-[#050505] border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2.5px_2.5px_0_#000000] flex items-center justify-center gap-1.5 cursor-default">
+                    <CheckCircle2 className="w-4 h-4 text-black shrink-0" />
+                    <span>CHALLENGE COMPLETED TODAY (+{dailyChallenge.bonusXpAwarded || dailyChallenge.bonusXp} XP)</span>
+                  </div>
+                ) : dailyChallenge ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigate(`/questions/${dailyChallenge.question.id}?challenge=true&challengeId=${dailyChallenge.challengeId}`)
+                    }}
+                    className="mt-3 w-full py-2.5 bg-[#32e875] hover:bg-[#22c55e] text-[#050505] border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2.5px_2.5px_0_#000000] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <Zap className="w-3.5 h-3.5 fill-black shrink-0" />
+                    <span>ACCEPT DAILY CHALLENGE →</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="mt-3 w-full py-2.5 bg-slate-100 text-black/50 border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2.5px_2.5px_0_#000000] cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    <Clock className="w-3.5 h-3.5 text-black/40 shrink-0" />
+                    <span>CHALLENGE CURRENTLY UNAVAILABLE</span>
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="mt-3 pt-2.5 border-t-2 border-black/20 flex items-center justify-between text-[10px] font-mono font-black text-black/80">
-              <span>CURRENT STREAK: 1 DAY</span>
-              <span>BEST: 7 DAYS</span>
+              <div className="flex items-center gap-1.5">
+                <span>CURRENT STREAK: {streakData?.currentStreak ?? 0} {(streakData?.currentStreak ?? 0) === 1 ? 'DAY' : 'DAYS'}</span>
+                {streakData?.isActiveToday && (
+                  <span className="bg-[#32e875] text-black border border-black rounded-full px-1.5 py-0.2 text-[8px] font-display font-black">
+                    ACTIVE TODAY
+                  </span>
+                )}
+                {streakData?.isAtRisk && (
+                  <span className="bg-[#ffd43b] text-black border border-black rounded-full px-1.5 py-0.2 text-[8px] font-display font-black">
+                    AT RISK
+                  </span>
+                )}
+              </div>
+              <span>BEST: {streakData?.longestStreak ?? 0} DAYS</span>
             </div>
           </section>
         </div>

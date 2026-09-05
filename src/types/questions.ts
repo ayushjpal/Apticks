@@ -73,6 +73,7 @@ export interface QuestionBankStats {
   xpEarned: number
   xpLost: number
   netXp: number
+  challengeBonusXp?: number
 }
 
 export interface QuestionFilters {
@@ -101,4 +102,42 @@ export interface DatabaseQuestion {
   is_active?: boolean | null
   created_at?: string | null
   updated_at?: string | null
+}
+
+// =============================================================================
+// MODULE 3: DAILY STREAKS & DAILY CHALLENGES TYPES
+// =============================================================================
+
+export interface UserStreak {
+  currentStreak: number
+  longestStreak: number
+  isActiveToday: boolean
+  isAtRisk: boolean
+  lastActiveDate: string | null
+}
+
+export interface DailyChallenge {
+  challengeId: string
+  challengeDate: string
+  bonusXp: number
+  isCompleted: boolean
+  bonusXpAwarded?: number
+  completedAt?: string | null
+  secondsLeft: number
+  question: Question
+}
+
+export interface DailyChallengeSubmissionResult {
+  success: boolean
+  isCorrect: boolean
+  correctOption?: string
+  explanation?: string
+  bonusXp: number
+  questionXp?: number
+  xpChange?: number
+  alreadyCompleted: boolean
+  streak?: number
+  longestStreak?: number
+  message: string
+  error?: string
 }
