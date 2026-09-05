@@ -355,7 +355,7 @@ export default function QuestionSolver() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6">
+      <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 py-6 sm:py-8 space-y-6">
         {/* ================================================= */}
         {/* TOP BAR / NAVIGATION                              */}
         {/* ================================================= */}
@@ -422,125 +422,136 @@ export default function QuestionSolver() {
         )}
 
         {/* ================================================= */}
-        {/* QUESTION HEADER CARD                              */}
+        {/* TWO-COLUMN QUESTION + OPTIONS ARENA               */}
         {/* ================================================= */}
-        <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
-            <span className="px-2.5 py-1 bg-[#071a2b] text-[#ffd43b] border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase">
-              {question.category}
-            </span>
-            <span className="px-2.5 py-1 bg-[#e9f6ff] text-black border-2 border-black rounded-lg font-mono font-bold text-[10px] uppercase">
-              {question.topic}
-            </span>
-            <span
-              className={`
-                px-2.5 py-1 border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase
-                ${
-                  question.difficulty === 'easy'
-                    ? 'bg-[#32e875] text-black'
-                    : question.difficulty === 'medium'
-                      ? 'bg-[#ffd43b] text-black'
-                      : 'bg-[#ff5b5b] text-white'
-                }
-              `}
-            >
-              {question.difficulty}
-            </span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* =============================================== */}
+          {/* 1. LEFT COLUMN: QUESTION CARD (~60% width)      */}
+          {/* =============================================== */}
+          <div className="order-1 lg:order-1 lg:col-span-7 flex flex-col">
+            <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
+                <span className="px-2.5 py-1 bg-[#071a2b] text-[#ffd43b] border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase">
+                  {question.category}
+                </span>
+                <span className="px-2.5 py-1 bg-[#e9f6ff] text-black border-2 border-black rounded-lg font-mono font-bold text-[10px] uppercase">
+                  {question.topic}
+                </span>
+                <span
+                  className={`
+                    px-2.5 py-1 border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase
+                    ${
+                      question.difficulty === 'easy'
+                        ? 'bg-[#32e875] text-black'
+                        : question.difficulty === 'medium'
+                          ? 'bg-[#ffd43b] text-black'
+                          : 'bg-[#ff5b5b] text-white'
+                    }
+                  `}
+                >
+                  {question.difficulty}
+                </span>
 
-            <div className="ml-auto flex items-center gap-1.5 px-3 py-1 bg-[#ffd43b] border-2 border-black rounded-lg font-display font-black text-xs text-black">
-              <Award className="w-3.5 h-3.5" />
-              <span>{question.points} XP</span>
+                <div className="ml-auto flex items-center gap-1.5 px-3 py-1 bg-[#ffd43b] border-2 border-black rounded-lg font-display font-black text-xs text-black shadow-[1.5px_1.5px_0_#000000]">
+                  <Award className="w-3.5 h-3.5" />
+                  <span>{question.points} XP</span>
+                </div>
+              </div>
+
+              <h1 className="font-display font-black text-xl sm:text-2xl text-black uppercase tracking-tight leading-tight">
+                {question.title}
+              </h1>
+
+              <div className="mt-4 pt-4 border-t-2 border-dashed border-black/30 font-body font-bold text-base sm:text-lg text-black/90 leading-relaxed whitespace-pre-line break-words">
+                {question.prompt}
+              </div>
             </div>
           </div>
 
-          <h1 className="font-display font-black text-xl sm:text-2xl text-black uppercase tracking-tight leading-tight">
-            {question.title}
-          </h1>
+          {/* =============================================== */}
+          {/* 2. RIGHT COLUMN: OPTIONS CARD (~40% width)      */}
+          {/* =============================================== */}
+          <section
+            aria-label="Options"
+            className="order-2 lg:order-2 lg:col-span-5 bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8 flex flex-col justify-between"
+          >
+            <div>
+              <div className="font-mono text-xs font-black text-black/60 uppercase mb-4 tracking-wider">
+                CHOOSE THE CORRECT RESPONSE:
+              </div>
 
-          <div className="mt-4 pt-4 border-t-2 border-dashed border-black/30 font-body font-bold text-base sm:text-lg text-black/90 leading-relaxed whitespace-pre-line">
-            {question.prompt}
-          </div>
-        </div>
+              <div className="grid grid-cols-1 gap-3">
+                {question.options.map((opt) => {
+                  const isSelected = selectedOption === opt.id
+                  const effectiveCorrect = authoritativeCorrectOption || question.correctOption
+                  const isCorrectOption = opt.id === effectiveCorrect
 
-        {/* ================================================= */}
-        {/* OPTIONS SELECTION                                 */}
-        {/* ================================================= */}
-        <section
-          aria-label="Options"
-          className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8"
-        >
-          <div className="font-mono text-xs font-black text-black/60 uppercase mb-4 tracking-wider">
-            CHOOSE THE CORRECT RESPONSE:
-          </div>
+                  let cardBg = 'bg-white hover:bg-slate-50'
+                  const borderColor = 'border-black'
 
-          <div className="grid grid-cols-1 gap-3">
-            {question.options.map((opt) => {
-              const isSelected = selectedOption === opt.id
-              const effectiveCorrect = authoritativeCorrectOption || question.correctOption
-              const isCorrectOption = opt.id === effectiveCorrect
+                  if (isSubmitted) {
+                    if (isCorrectOption) {
+                      cardBg = 'bg-[#32e875] text-black'
+                    } else if (isSelected && !isCorrectOption) {
+                      cardBg = 'bg-[#ff5b5b] text-white'
+                    } else {
+                      cardBg = 'bg-slate-100 opacity-60'
+                    }
+                  } else if (isSelected) {
+                    cardBg = 'bg-[#ffd43b] text-black shadow-[4px_4px_0_#000000]'
+                  }
 
-              let cardBg = 'bg-white hover:bg-slate-50'
-              const borderColor = 'border-black'
-
-              if (isSubmitted) {
-                if (isCorrectOption) {
-                  cardBg = 'bg-[#32e875] text-black'
-                } else if (isSelected && !isCorrectOption) {
-                  cardBg = 'bg-[#ff5b5b] text-white'
-                } else {
-                  cardBg = 'bg-slate-100 opacity-60'
-                }
-              } else if (isSelected) {
-                cardBg = 'bg-[#ffd43b] text-black shadow-[4px_4px_0_#000000]'
-              }
-
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  disabled={isSubmitted}
-                  onClick={() => setSelectedOption(opt.id)}
-                  className={`
-                    p-4 rounded-xl border-2 sm:border-3 ${borderColor} ${cardBg}
-                    flex items-center justify-between text-left transition-all cursor-pointer
-                    ${!isSubmitted ? 'hover:-translate-y-0.5 active:translate-y-0' : ''}
-                  `}
-                >
-                  <div className="flex items-center gap-3.5">
-                    <span
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      disabled={isSubmitted}
+                      aria-pressed={isSelected}
+                      onClick={() => setSelectedOption(opt.id)}
                       className={`
-                        w-8 h-8 rounded-lg border-2 border-black flex items-center justify-center font-display font-black text-sm
-                        ${isSelected ? 'bg-black text-white' : 'bg-[#e9f6ff] text-black'}
+                        p-3.5 sm:p-4 rounded-xl border-2 sm:border-3 ${borderColor} ${cardBg}
+                        flex items-center justify-between text-left transition-all cursor-pointer
+                        ${!isSubmitted ? 'hover:-translate-y-0.5 active:translate-y-0 shadow-[2px_2px_0_#000000]' : ''}
                       `}
                     >
-                      {opt.id}
-                    </span>
-                    <span className="font-body font-bold text-sm sm:text-base">
-                      {opt.text}
-                    </span>
-                  </div>
+                      <div className="flex items-center gap-3 sm:gap-3.5">
+                        <span
+                          className={`
+                            w-8 h-8 rounded-lg border-2 border-black flex items-center justify-center font-display font-black text-sm shrink-0
+                            ${isSelected ? 'bg-black text-white' : 'bg-[#e9f6ff] text-black'}
+                          `}
+                        >
+                          {opt.id}
+                        </span>
+                        <span className="font-body font-bold text-sm sm:text-base leading-snug">
+                          {opt.text}
+                        </span>
+                      </div>
 
-                  {isSubmitted && isCorrectOption && (
-                    <CheckCircle2 className="w-5 h-5 text-[#059669] shrink-0" />
-                  )}
-                  {isSubmitted && isSelected && !isCorrectOption && (
-                    <XCircle className="w-5 h-5 text-[#dc2626] shrink-0" />
-                  )}
-                </button>
-              )
-            })}
-          </div>
+                      {isSubmitted && isCorrectOption && (
+                        <CheckCircle2 className="w-5 h-5 text-[#059669] shrink-0" />
+                      )}
+                      {isSubmitted && isSelected && !isCorrectOption && (
+                        <XCircle className="w-5 h-5 text-[#dc2626] shrink-0" />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
 
           {/* =============================================== */}
-          {/* ACTIONS: SUBMIT / HINT / SCRATCHPAD              */}
+          {/* 3. HINT & SCRATCHPAD CONTROLS & DRAWERS         */}
+          {/* (Desktop: Col 1-7, Mobile: order-3)             */}
           {/* =============================================== */}
-          <div className="mt-6 pt-5 border-t-2 border-black flex flex-wrap items-center justify-between gap-3">
+          <div className="order-3 lg:order-3 lg:col-span-7 flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setShowHint(!showHint)}
                 className={`px-3.5 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
-                  showHint ? 'bg-[#ffd43b]' : 'bg-white'
+                  showHint ? 'bg-[#ffd43b]' : 'bg-white hover:bg-slate-100'
                 }`}
               >
                 <HelpCircle className="w-4 h-4" />
@@ -551,7 +562,7 @@ export default function QuestionSolver() {
                 type="button"
                 onClick={() => setShowScratchpad(!showScratchpad)}
                 className={`px-3.5 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
-                  showScratchpad ? 'bg-[#38aef0]' : 'bg-white'
+                  showScratchpad ? 'bg-[#38aef0] text-white' : 'bg-white hover:bg-slate-100 text-black'
                 }`}
               >
                 <Edit3 className="w-4 h-4" />
@@ -559,12 +570,54 @@ export default function QuestionSolver() {
               </button>
             </div>
 
+            {/* Hint Drawer */}
+            {showHint && question.hints && question.hints.length > 0 && (
+              <div className="p-5 bg-[#fffde7] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
+                <div className="flex items-center gap-2 font-display font-black text-xs uppercase text-[#926002] mb-2">
+                  <Sparkles className="w-4 h-4" />
+                  <span>ARENA COACH HINTS:</span>
+                </div>
+                <ul className="space-y-1.5 list-disc list-inside font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
+                  {question.hints.map((hintText, idx) => (
+                    <li key={idx}>{hintText}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Scratchpad Drawer */}
+            {showScratchpad && (
+              <div className="p-5 bg-[#e9f6ff] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
+                <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-black">
+                  <span className="font-display font-black text-xs uppercase text-[#071a2b]">
+                    DIGITAL CALCULATION SCRATCHPAD
+                  </span>
+                  <span className="font-mono text-[10px] font-bold text-black/60">
+                    Notes stay in this session
+                  </span>
+                </div>
+                <textarea
+                  value={scratchpadNotes}
+                  onChange={(e) => setScratchpadNotes(e.target.value)}
+                  placeholder="Jot down rough calculations, formulas, or step-by-step logic here..."
+                  rows={4}
+                  className="w-full p-3 bg-white border-2 border-black rounded-xl font-mono text-xs font-bold outline-none focus:shadow-[2px_2px_0_#38aef0]"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* =============================================== */}
+          {/* 4. SUBMIT / NEXT PROBLEM ACTION                 */}
+          {/* (Desktop: Col 8-12, Mobile: order-4)            */}
+          {/* =============================================== */}
+          <div className="order-4 lg:order-4 lg:col-span-5">
             {!isSubmitted ? (
               <button
                 type="button"
                 onClick={handleSubmitAnswer}
                 disabled={!selectedOption || isSubmitting}
-                className="px-7 py-3 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                className="w-full py-3.5 px-6 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <span>{isSubmitting ? 'PROCESSING...' : 'LOCK & SUBMIT ANSWER'}</span>
                 <CheckCircle2 className="w-4 h-4" />
@@ -579,7 +632,7 @@ export default function QuestionSolver() {
                     setSelectedOption(null)
                     setTimerActive(true)
                   }}
-                  className="px-4 py-2.5 bg-white hover:bg-slate-100 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-3 bg-white hover:bg-slate-100 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>RE-ATTEMPT</span>
@@ -589,7 +642,7 @@ export default function QuestionSolver() {
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="px-6 py-2.5 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                    className="flex-1 py-3 px-5 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
                   >
                     <span>RETURN TO DASHBOARD</span>
                     <ChevronRight className="w-4 h-4" />
@@ -598,7 +651,7 @@ export default function QuestionSolver() {
                   <button
                     type="button"
                     onClick={handleNextQuestion}
-                    className="px-6 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                    className="flex-1 py-3 px-5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
                   >
                     <span>NEXT PROBLEM</span>
                     <ChevronRight className="w-4 h-4" />
@@ -607,138 +660,99 @@ export default function QuestionSolver() {
               </div>
             )}
           </div>
-        </section>
 
-        {/* ================================================= */}
-        {/* HINT DRAWER                                       */}
-        {/* ================================================= */}
-        {showHint && question.hints && question.hints.length > 0 && (
-          <div className="p-5 bg-[#fffde7] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
-            <div className="flex items-center gap-2 font-display font-black text-xs uppercase text-[#926002] mb-2">
-              <Sparkles className="w-4 h-4" />
-              <span>ARENA COACH HINTS:</span>
-            </div>
-            <ul className="space-y-1.5 list-disc list-inside font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
-              {question.hints.map((hintText, idx) => (
-                <li key={idx}>{hintText}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* ================================================= */}
-        {/* SCRATCHPAD DRAWER                                 */}
-        {/* ================================================= */}
-        {showScratchpad && (
-          <div className="p-5 bg-[#e9f6ff] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
-            <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-black">
-              <span className="font-display font-black text-xs uppercase text-[#071a2b]">
-                DIGITAL CALCULATION SCRATCHPAD
-              </span>
-              <span className="font-mono text-[10px] font-bold text-black/60">
-                Notes stay in this session
-              </span>
-            </div>
-            <textarea
-              value={scratchpadNotes}
-              onChange={(e) => setScratchpadNotes(e.target.value)}
-              placeholder="Jot down rough calculations, formulas, or step-by-step logic here..."
-              rows={4}
-              className="w-full p-3 bg-white border-2 border-black rounded-xl font-mono text-xs font-bold outline-none focus:shadow-[2px_2px_0_#38aef0]"
-            />
-          </div>
-        )}
-
-        {/* ================================================= */}
-        {/* EXPLANATION & COMPETITIVE SUMMARY (AFTER SUBMIT)  */}
-        {/* ================================================= */}
-        {isSubmitted && (
-          <div
-            className={`
-              p-6 border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] animate-entry
-              ${isCorrect ? 'bg-[#d1fae5]' : 'bg-[#fee2e2]'}
-            `}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b-2 border-black">
-              <div className="flex items-center gap-2.5">
-                {isCorrect ? (
-                  <>
-                    <CheckCircle2 className="w-6 h-6 text-[#065f46] shrink-0" />
-                    <div>
-                      <span className="font-display font-black text-base sm:text-lg uppercase text-[#065f46]">
-                        {xpResult && xpResult.xpChange === 0
-                          ? 'CORRECT REATTEMPT! (+0 XP — ALREADY EARNED)'
-                          : `CORRECT! +${xpResult?.xpChange ?? question.points} XP EARNED`}
-                      </span>
-                      {xpResult?.xpReason && (
-                        <div className="font-mono text-[10px] font-bold text-[#065f46]/80">
-                          {xpResult.xpReason}
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <ShieldAlert className="w-6 h-6 text-[#991b1b] shrink-0" />
-                    <div>
-                      <span className="font-display font-black text-base sm:text-lg uppercase text-[#991b1b]">
-                        INCORRECT ATTEMPT • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP PENALTY
-                      </span>
-                      <div className="font-mono text-[10px] font-bold text-[#991b1b]/80">
-                        CORRECT ANSWER IS OPTION {authoritativeCorrectOption || question.correctOption}
+          {/* =============================================== */}
+          {/* 5. EXPLANATION & SUMMARY (AFTER SUBMIT)         */}
+          {/* (Desktop: Col 1-12 full width, Mobile: order-5) */}
+          {/* =============================================== */}
+          {isSubmitted && (
+            <div
+              className={`
+                order-5 lg:order-5 lg:col-span-12 p-6 border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] animate-entry
+                ${isCorrect ? 'bg-[#d1fae5]' : 'bg-[#fee2e2]'}
+              `}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b-2 border-black">
+                <div className="flex items-center gap-2.5">
+                  {isCorrect ? (
+                    <>
+                      <CheckCircle2 className="w-6 h-6 text-[#065f46] shrink-0" />
+                      <div>
+                        <span className="font-display font-black text-base sm:text-lg uppercase text-[#065f46]">
+                          {xpResult && xpResult.xpChange === 0
+                            ? 'CORRECT REATTEMPT! (+0 XP — ALREADY EARNED)'
+                            : `CORRECT! +${xpResult?.xpChange ?? question.points} XP EARNED`}
+                        </span>
+                        {xpResult?.xpReason && (
+                          <div className="font-mono text-[10px] font-bold text-[#065f46]/80">
+                            {xpResult.xpReason}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldAlert className="w-6 h-6 text-[#991b1b] shrink-0" />
+                      <div>
+                        <span className="font-display font-black text-base sm:text-lg uppercase text-[#991b1b]">
+                          INCORRECT ATTEMPT • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP PENALTY
+                        </span>
+                        <div className="font-mono text-[10px] font-bold text-[#991b1b]/80">
+                          CORRECT ANSWER IS OPTION {authoritativeCorrectOption || question.correctOption}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
 
-              {/* Question-Specific Attempt Breakdown */}
-              <div className="flex items-center gap-2">
-                {questionAttemptStats && (
-                  <div className="flex items-center gap-1.5 font-mono text-[10px] font-black uppercase bg-white px-2.5 py-1 border-2 border-black rounded-lg shadow-[1.5px_1.5px_0_#000000]">
-                    <span>ATTEMPTS: {questionAttemptStats.totalAttempts}</span>
-                    <span>•</span>
-                    <span className="text-[#059669]">CORRECT: {questionAttemptStats.correctCount}</span>
-                    <span>•</span>
-                    <span className="text-[#dc2626]">INCORRECT: {questionAttemptStats.incorrectCount}</span>
+                {/* Question-Specific Attempt Breakdown */}
+                <div className="flex items-center gap-2">
+                  {questionAttemptStats && (
+                    <div className="flex items-center gap-1.5 font-mono text-[10px] font-black uppercase bg-white px-2.5 py-1 border-2 border-black rounded-lg shadow-[1.5px_1.5px_0_#000000]">
+                      <span>ATTEMPTS: {questionAttemptStats.totalAttempts}</span>
+                      <span>•</span>
+                      <span className="text-[#059669]">CORRECT: {questionAttemptStats.correctCount}</span>
+                      <span>•</span>
+                      <span className="text-[#dc2626]">INCORRECT: {questionAttemptStats.incorrectCount}</span>
+                    </div>
+                  )}
+                  <div className="font-mono text-xs font-black text-black">
+                    SOLVE TIME: {formatTimer(timeSpent)}
                   </div>
-                )}
-                <div className="font-mono text-xs font-black text-black">
-                  SOLVE TIME: {formatTimer(timeSpent)}
                 </div>
               </div>
-            </div>
 
-            <div className="p-4 bg-white border-2 border-black rounded-xl font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
-              <div className="font-display font-black text-xs uppercase text-black mb-1.5">
-                STEP-BY-STEP MATHEMATICAL SOLUTION:
+              <div className="p-4 bg-white border-2 border-black rounded-xl font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
+                <div className="font-display font-black text-xs uppercase text-black mb-1.5">
+                  STEP-BY-STEP MATHEMATICAL SOLUTION:
+                </div>
+                <div className="whitespace-pre-line">{authoritativeExplanation || question.explanation}</div>
+
+                {question.formulaOrRule && (
+                  <div className="mt-3 p-3 bg-[#fffde7] border-2 border-black rounded-lg font-mono text-xs font-bold text-black flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-[#ffd43b] shrink-0" />
+                    <span>FORMULA / KEY PRINCIPLE: {question.formulaOrRule}</span>
+                  </div>
+                )}
               </div>
-              <div className="whitespace-pre-line">{authoritativeExplanation || question.explanation}</div>
 
-              {question.formulaOrRule && (
-                <div className="mt-3 p-3 bg-[#fffde7] border-2 border-black rounded-lg font-mono text-xs font-bold text-black flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#ffd43b] shrink-0" />
-                  <span>FORMULA / KEY PRINCIPLE: {question.formulaOrRule}</span>
+              {/* Question Tags */}
+              {question.tags && question.tags.length > 0 && (
+                <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-black/60" />
+                  {question.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 bg-white border border-black rounded-md font-mono text-[10px] font-bold text-black/80"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
-
-            {/* Question Tags */}
-            {question.tags && question.tags.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-black/60" />
-                {question.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-0.5 bg-white border border-black rounded-md font-mono text-[10px] font-bold text-black/80"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </AppLayout>
   )
