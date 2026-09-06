@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { validateUsername, normalizeUsername } from '../utils/validation'
+import type { AppRole } from '../types/roles'
 
 export interface UserProfile {
   id: string
@@ -7,6 +8,7 @@ export interface UserProfile {
   display_name: string | null
   avatar_url: string | null
   bio: string | null
+  role?: AppRole
   username_changed_at: string | null
   created_at?: string
   updated_at?: string
@@ -198,6 +200,7 @@ export class ProfileService {
             display_name: fallbackData.display_name || fallbackData.username || null,
             avatar_url: null,
             bio: null,
+            role: 'user',
             username_changed_at: null,
             created_at: undefined,
             updated_at: undefined,
@@ -212,6 +215,7 @@ export class ProfileService {
           display_name: data.display_name || data.username || null,
           avatar_url: data.avatar_url || null,
           bio: data.bio ?? null,
+          role: (data.role as AppRole) || 'user',
           username_changed_at: data.username_changed_at ?? null,
           created_at: data.created_at,
           updated_at: data.updated_at,
@@ -436,5 +440,29 @@ export class ProfileService {
       }
       reader.readAsDataURL(file)
     })
+  }
+
+  /**
+   * Set a user's role (Admin-only RPC)
+   */
+  static async adminSetUserRole(
+    targetUserId: string,
+    newRole: AppRole
+  ): Promise<{ success: boolean; error?: string; message?: string }> {
+    try {
+      const { data, error } = await supabase.rpc('admin_set_user_role', {
+        p_target_user_id: targetUserId,
+        p_new_role: newRole,
+      })
+
+      if (error) {
+        return { success: false, error: error.message }
+      }
+
+      return (data as { success: boolean; error?: string; message?: string }) || { success: true }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to update user role.'
+      return { success: false, error: message }
+    }
   }
 }

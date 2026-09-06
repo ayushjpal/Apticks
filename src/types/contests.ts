@@ -1,6 +1,8 @@
 export type ContestDifficulty = 'easy' | 'medium' | 'hard' | 'open' | 'master'
 
-export type ContestStatus = 'upcoming' | 'live' | 'completed' | 'cancelled'
+export type ContestStatus = 'draft' | 'upcoming' | 'live' | 'completed' | 'cancelled'
+
+export type ContestType = 'daily' | 'weekly' | 'custom' | 'special'
 
 export type ContestParticipantStatus =
   | 'registered'
@@ -21,6 +23,7 @@ export interface Contest {
   description: string | null
   category: string
   difficulty: ContestDifficulty
+  contestType?: ContestType
   status: ContestStatus
   startTime: string
   endTime: string
@@ -32,6 +35,7 @@ export interface Contest {
   xpPool: number
   rules: string | null
   syllabus: string | null
+  bannerUrl?: string | null
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -48,6 +52,7 @@ export interface DatabaseContest {
   description: string | null
   category: string
   difficulty: string
+  contest_type?: string
   status: string
   start_time: string
   end_time: string
@@ -59,6 +64,7 @@ export interface DatabaseContest {
   xp_pool: number
   rules: string | null
   syllabus: string | null
+  banner_url?: string | null
   is_active: boolean
   created_at: string
   updated_at: string
@@ -158,3 +164,70 @@ export interface UserContestStatus {
   timeRemainingSeconds?: number | null
   serverTime?: string
 }
+
+export interface StaffContestQuestion {
+  mapping_id: string
+  question_id: string
+  order_index: number
+  marks: number
+  negative_marks: number
+  title: string
+  prompt: string
+  category: string
+  topic: string
+  difficulty: string
+  options: ContestOption[]
+  correct_option: string
+  explanation: string
+  formula?: string | null
+  hints?: string[] | null
+  tags?: string[] | null
+  is_active: boolean
+}
+
+export interface StaffCreateContestPayload {
+  title: string
+  slug: string
+  description?: string | null
+  category?: string
+  difficulty?: ContestDifficulty
+  contest_type?: ContestType
+  start_time: string
+  end_time: string
+  duration_minutes: number
+  positive_marks?: number
+  negative_marks?: number
+  xp_pool?: number
+  rules?: string | null
+  syllabus?: string | null
+  banner_url?: string | null
+  status?: 'draft'
+}
+
+export interface StaffUpdateContestPayload {
+  title?: string
+  slug?: string
+  description?: string | null
+  category?: string
+  difficulty?: ContestDifficulty
+  contest_type?: ContestType
+  start_time?: string
+  end_time?: string
+  duration_minutes?: number
+  positive_marks?: number
+  negative_marks?: number
+  xp_pool?: number
+  rules?: string | null
+  syllabus?: string | null
+  banner_url?: string | null
+}
+
+export interface StaffContestStats {
+  all: number
+  draft: number
+  upcoming: number
+  live: number
+  completed: number
+  cancelled: number
+}
+

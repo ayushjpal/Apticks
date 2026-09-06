@@ -25,6 +25,7 @@ export class ContestService {
     const start = new Date(startTimeStr).getTime()
     const end = new Date(endTimeStr).getTime()
 
+    if (dbStatus === 'draft') return 'draft'
     if (dbStatus === 'cancelled') return 'cancelled'
     if (now >= end) return 'completed'
     if (now >= start && now < end) return 'live'
@@ -135,7 +136,13 @@ export class ContestService {
 
       // Sort with live first, then upcoming by start_time, then completed
       return contests.sort((a, b) => {
-        const order = { live: 0, upcoming: 1, completed: 2, cancelled: 3 }
+        const order: Record<ContestStatus, number> = {
+          live: 0,
+          upcoming: 1,
+          completed: 2,
+          cancelled: 3,
+          draft: 4,
+        }
         const rankDiff = order[a.status] - order[b.status]
         if (rankDiff !== 0) return rankDiff
         return new Date(a.startTime).getTime() - new Date(b.startTime).getTime()

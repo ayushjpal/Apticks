@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Flame, Zap } from 'lucide-react'
+import { Flame, Zap, Shield } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UserProfile } from '../../services/profileService'
 import { QuestionService } from '../../services/questionService'
@@ -110,6 +110,19 @@ export default function AppHeader() {
             <Zap className="w-3.5 h-3.5 fill-black shrink-0" />
             <span>{totalXP} XP</span>
           </div>
+
+          {/* Staff Control Center Button (Staff Only) */}
+          {(profile?.role === 'admin' || profile?.role === 'moderator') && (
+            <Link
+              to="/moderator"
+              className="flex items-center gap-1.5 bg-black text-[#ffd43b] hover:bg-[#ffd43b] hover:text-black border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black hover:-translate-y-0.5 transition-all shrink-0"
+              title="Enter Staff Control Center"
+            >
+              <Shield className="w-3.5 h-3.5 fill-current shrink-0" />
+              <span className="hidden md:inline">CONTROL CENTER</span>
+              <span className="md:hidden">STAFF</span>
+            </Link>
+          )}
 
           {/* Avatar Profile Trigger */}
           <button

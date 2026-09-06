@@ -25,6 +25,16 @@ import ContestResults from '../pages/contests/ContestResults'
 import Leaderboard from '../pages/leaderboard/Leaderboard'
 
 // -----------------------------
+// Staff Control Center Pages
+// -----------------------------
+import ProtectedRoute from '../components/auth/ProtectedRoute'
+import ModeratorDashboard from '../pages/moderator/ModeratorDashboard'
+import ModeratorQuestions from '../pages/moderator/ModeratorQuestions'
+import ModeratorContests from '../pages/moderator/ModeratorContests'
+import ModeratorModeration from '../pages/moderator/ModeratorModeration'
+import ModeratorUsers from '../pages/moderator/ModeratorUsers'
+
+// -----------------------------
 // 404 Not Found Page
 // -----------------------------
 function NotFoundPage() {
@@ -82,6 +92,48 @@ export default function AppRoutes() {
       <Route path="/contests/:id/results" element={<ContestResults />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/profile" element={<Profile />} />
+
+      {/* Staff Control Center Routes (Protected) */}
+      <Route
+        path="/moderator"
+        element={
+          <ProtectedRoute allowedRoles={['moderator', 'admin']}>
+            <ModeratorDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/moderator/questions"
+        element={
+          <ProtectedRoute allowedRoles={['moderator', 'admin']}>
+            <ModeratorQuestions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/moderator/contests"
+        element={
+          <ProtectedRoute allowedRoles={['moderator', 'admin']}>
+            <ModeratorContests />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/moderator/moderation"
+        element={
+          <ProtectedRoute allowedRoles={['moderator', 'admin']}>
+            <ModeratorModeration />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/moderator/users"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <ModeratorUsers />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Catch-all 404 */}
       <Route path="*" element={<NotFoundPage />} />
