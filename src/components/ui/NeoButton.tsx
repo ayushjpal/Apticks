@@ -2,8 +2,8 @@ import React from 'react'
 import { Loader2 } from 'lucide-react'
 
 export interface NeoButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost' | 'success'
-  size?: 'sm' | 'md' | 'lg'
+  variant?: 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost' | 'success' | 'dark'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   loading?: boolean
   icon?: React.ReactNode
   iconRight?: React.ReactNode
@@ -24,33 +24,35 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
 }) => {
   const variantStyles = {
     primary:
-      'bg-[#ffd43b] hover:bg-[#facc15] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
+      'bg-[#ffd43b] hover:bg-[#fcc828] text-[#0c1d2d] border border-[#0c1d2d]/20 shadow-xs active:translate-y-[1px]',
     secondary:
-      'bg-white hover:bg-[#f8fafc] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
+      'bg-white hover:bg-slate-50 text-[#0c1d2d] border border-[#0c1d2d]/15 shadow-xs active:translate-y-[1px]',
+    dark:
+      'bg-[#0c1d2d] hover:bg-[#162a3d] text-white border border-[#0c1d2d] shadow-xs active:translate-y-[1px]',
     accent:
-      'bg-[#38aef0] hover:bg-[#209be2] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
+      'bg-[#38aef0] hover:bg-[#209be2] text-white border border-[#38aef0] shadow-xs active:translate-y-[1px]',
     success:
-      'bg-[#32e875] hover:bg-[#22c55e] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
+      'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-600 shadow-xs active:translate-y-[1px]',
     danger:
-      'bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
+      'bg-rose-600 hover:bg-rose-700 text-white border border-rose-600 shadow-xs active:translate-y-[1px]',
     ghost:
-      'bg-transparent hover:bg-black/5 text-[#050505] border-2 border-transparent hover:border-black/20',
+      'bg-transparent hover:bg-slate-100 text-[#0c1d2d] border border-transparent shadow-none',
   }
 
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs font-black rounded-lg gap-1.5',
-    md: 'px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black rounded-xl gap-2',
-    lg: 'px-6 sm:px-7 py-3.5 sm:py-4 text-sm sm:text-base font-black rounded-xl gap-2.5',
+    xs: 'px-2 py-1 text-[11px] font-semibold rounded-md gap-1',
+    sm: 'px-3 py-1.5 text-xs font-semibold rounded-lg gap-1.5',
+    md: 'px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg gap-2',
+    lg: 'px-5 py-2.5 text-sm sm:text-base font-semibold rounded-lg gap-2.5',
   }
 
   return (
     <button
       disabled={disabled || loading}
       className={`
-        inline-flex items-center justify-center font-display uppercase tracking-wider
+        inline-flex items-center justify-center font-medium
         cursor-pointer transition-all duration-120 select-none
-        hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0_#0c1d2d]
+        disabled:opacity-50 disabled:cursor-not-allowed
         ${fullWidth ? 'w-full' : 'w-auto'}
         ${variantStyles[variant]}
         ${sizeStyles[size]}
@@ -59,7 +61,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
       {...props}
     >
       {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
       ) : (
         icon && <span className="shrink-0">{icon}</span>
       )}

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Trophy,
   Search,
@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import AppLayout from '../../components/layout/AppLayout'
+import { PageHeader, NeoBadge } from '../../components/ui'
 
 interface LeaderboardPlayer {
   rank: number
@@ -126,81 +127,72 @@ export default function Leaderboard() {
   })
 
   return (
-    <AppLayout>
+    <AppLayout maxWidth="narrow">
       <div className="space-y-4 sm:space-y-5 animate-entry">
         {/* ================================================= */}
         {/* TOP HERO HEADER                                   */}
         {/* ================================================= */}
-        <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="inline-flex items-center gap-1.5 bg-[#ffd43b] text-black border border-[#0c1d2d] rounded-full px-2.5 py-0.5 text-[9px] font-mono font-black tracking-widest uppercase shadow-[1px_1px_0_#0c1d2d] mb-1.5">
-              <Trophy className="w-3 h-3 text-black" />
-              <span>GLOBAL STANDINGS // SEASON 01 PREVIEW</span>
-            </div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black leading-tight">
-              ARENA LEADERBOARD
-            </h1>
-            <p className="mt-1 text-xs font-body font-semibold text-black/70 max-w-xl">
-              Track global and division rankings based on cumulative XP, solve speed, and accuracy consistency.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="bg-[#e9f6ff] border-1.5 border-[#0c1d2d] rounded-xl px-3 py-1.5 font-mono font-black text-[11px]">
-              SEASON 01 IN PROGRESS
+        <PageHeader
+          eyebrow="Global Standings"
+          eyebrowIcon={<Trophy className="w-3.5 h-3.5 text-amber-600" />}
+          title="Arena Leaderboard"
+          description="Track global and division rankings based on cumulative XP, solve speed, and accuracy consistency."
+          badge={
+            <span className="bg-slate-100 border border-slate-200 rounded-md px-2 py-0.5 font-mono font-semibold text-[11px] text-slate-700">
+              Season 01 In Progress
             </span>
-          </div>
-        </section>
+          }
+        />
 
         {/* ================================================= */}
-        {/* PODIUM DECK (TOP 3 ATHLETES)                      */}
+        {/* PODIUM DECK (COMPACT TOP 3)                       */}
         {/* ================================================= */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
           {/* #2 Silver Podium */}
           {topThree[1] && (
-            <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl p-3.5 sm:p-4 shadow-[4px_4px_0_#38aef0] flex flex-col items-center text-center order-2 md:order-1">
-              <div className="w-8 h-8 bg-[#38aef0] text-black border border-[#0c1d2d] rounded-full flex items-center justify-center font-display font-black text-xs shadow-[1.5px_1.5px_0_#0c1d2d] mb-2">
+            <div className="bg-white border border-[#0c1d2d]/12 rounded-xl p-4 shadow-xs flex flex-col items-center text-center order-2 md:order-1">
+              <div className="w-6 h-6 bg-slate-100 text-slate-700 border border-slate-300 rounded-full flex items-center justify-center font-mono font-bold text-xs mb-1.5">
                 #2
               </div>
-              <div className="w-12 h-12 rounded-full border-2 border-[#0c1d2d] bg-[#38aef0] shadow-[1.5px_1.5px_0_#0c1d2d] overflow-hidden mb-1.5">
+              <div className="w-10 h-10 rounded-full border border-slate-200 bg-sky-50 overflow-hidden mb-1.5">
                 {topThree[1].avatarUrl && (
                   <img src={topThree[1].avatarUrl} alt={topThree[1].username} className="w-full h-full" />
                 )}
               </div>
-              <h3 className="font-display font-black text-base uppercase text-black">
+              <h3 className="font-bold text-sm text-slate-900">
                 {topThree[1].displayName}
               </h3>
-              <span className="font-mono text-[11px] font-bold text-[#2563eb]">
+              <span className="font-mono text-[11px] text-slate-500">
                 @{topThree[1].username}
               </span>
-              <div className="mt-2.5 w-full py-1.5 bg-[#f8fafc] border-1.5 border-[#0c1d2d] rounded-xl font-mono font-black text-xs text-black">
+              <div className="mt-2.5 w-full py-1 bg-slate-50 border border-slate-200/70 rounded-lg font-mono font-bold text-xs text-slate-800">
                 {topThree[1].points} XP
               </div>
             </div>
           )}
 
-          {/* #1 Gold Podium (Dominant) */}
+          {/* #1 Gold Podium */}
           {topThree[0] && (
-            <div className="bg-[#ffd43b] border-2 sm:border-2 border-[#0c1d2d] rounded-xl p-4 sm:p-5 shadow-[3px_3px_0_#0c1d2d] flex flex-col items-center text-center order-1 md:order-2 md:-translate-y-1.5">
-              <div className="inline-flex items-center gap-1 bg-[#ff5b5b] text-white border border-[#0c1d2d] rounded-full px-2 py-0.2 font-display font-black text-[9px] uppercase shadow-[1px_1px_0_#0c1d2d] mb-1.5">
-                <Sparkles className="w-3 h-3" />
-                SEASON LEADER
+            <div className="bg-white border border-amber-300 ring-1 ring-amber-300/50 rounded-xl p-4 sm:p-4.5 shadow-sm flex flex-col items-center text-center order-1 md:order-2 md:-translate-y-1">
+              <div className="inline-flex items-center gap-1 bg-amber-50 text-amber-900 border border-amber-200/80 rounded-full px-2 py-0.5 font-mono font-bold text-[10px] mb-1.5">
+                <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                <span>Leader</span>
               </div>
-              <div className="w-9 h-9 bg-black text-[#ffd43b] border border-[#0c1d2d] rounded-full flex items-center justify-center font-display font-black text-sm shadow-[1.5px_1.5px_0_#0c1d2d] mb-2">
+              <div className="w-6 h-6 bg-amber-100 text-amber-900 border border-amber-300 rounded-full flex items-center justify-center font-mono font-bold text-xs mb-1.5">
                 #1
               </div>
-              <div className="w-14 h-14 rounded-full border-2 border-[#0c1d2d] bg-white shadow-[2px_2px_0_#0c1d2d] overflow-hidden mb-1.5">
+              <div className="w-11 h-11 rounded-full border border-amber-300 bg-amber-50 overflow-hidden mb-1.5">
                 {topThree[0].avatarUrl && (
                   <img src={topThree[0].avatarUrl} alt={topThree[0].username} className="w-full h-full" />
                 )}
               </div>
-              <h3 className="font-display font-black text-lg uppercase text-black">
+              <h3 className="font-bold text-base text-slate-900">
                 {topThree[0].displayName}
               </h3>
-              <span className="font-mono text-xs font-black text-black/80">
+              <span className="font-mono text-xs text-slate-500">
                 @{topThree[0].username}
               </span>
-              <div className="mt-3 w-full py-2 bg-white border-1.5 border-[#0c1d2d] rounded-xl font-mono font-black text-sm text-black shadow-[1.5px_1.5px_0_#0c1d2d]">
+              <div className="mt-2.5 w-full py-1 bg-amber-50/60 border border-amber-200/70 rounded-lg font-mono font-bold text-xs text-amber-950">
                 {topThree[0].points} XP
               </div>
             </div>
@@ -208,22 +200,22 @@ export default function Leaderboard() {
 
           {/* #3 Bronze Podium */}
           {topThree[2] && (
-            <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl p-3.5 sm:p-4 shadow-[4px_4px_0_#32e875] flex flex-col items-center text-center order-3">
-              <div className="w-8 h-8 bg-[#32e875] text-black border border-[#0c1d2d] rounded-full flex items-center justify-center font-display font-black text-xs shadow-[1.5px_1.5px_0_#0c1d2d] mb-2">
+            <div className="bg-white border border-[#0c1d2d]/12 rounded-xl p-4 shadow-xs flex flex-col items-center text-center order-3">
+              <div className="w-6 h-6 bg-amber-50 text-amber-800 border border-amber-200 rounded-full flex items-center justify-center font-mono font-bold text-xs mb-1.5">
                 #3
               </div>
-              <div className="w-12 h-12 rounded-full border-2 border-[#0c1d2d] bg-[#32e875] shadow-[1.5px_1.5px_0_#0c1d2d] overflow-hidden mb-1.5">
+              <div className="w-10 h-10 rounded-full border border-slate-200 bg-emerald-50 overflow-hidden mb-1.5">
                 {topThree[2].avatarUrl && (
                   <img src={topThree[2].avatarUrl} alt={topThree[2].username} className="w-full h-full" />
                 )}
               </div>
-              <h3 className="font-display font-black text-base uppercase text-black">
+              <h3 className="font-bold text-sm text-slate-900">
                 {topThree[2].displayName}
               </h3>
-              <span className="font-mono text-xs font-bold text-[#2563eb]">
+              <span className="font-mono text-[11px] text-slate-500">
                 @{topThree[2].username}
               </span>
-              <div className="mt-3 w-full py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl font-mono font-black text-sm text-black">
+              <div className="mt-2.5 w-full py-1 bg-slate-50 border border-slate-200/70 rounded-lg font-mono font-bold text-xs text-slate-800">
                 {topThree[2].points} XP
               </div>
             </div>
@@ -233,23 +225,23 @@ export default function Leaderboard() {
         {/* ================================================= */}
         {/* SEARCH & TIMEFRAME TABS                           */}
         {/* ================================================= */}
-        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+        <div className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-xs p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5">
             {[
-              { id: 'weekly', label: 'WEEKLY' },
-              { id: 'monthly', label: 'MONTHLY' },
-              { id: 'alltime', label: 'SEASON 01 ALL-TIME' },
+              { id: 'weekly', label: 'Weekly' },
+              { id: 'monthly', label: 'Monthly' },
+              { id: 'alltime', label: 'Season All-Time' },
             ].map((scope) => (
               <button
                 key={scope.id}
                 type="button"
                 onClick={() => setActiveScope(scope.id as 'weekly' | 'monthly' | 'alltime')}
                 className={`
-                  px-3.5 py-1.5 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase cursor-pointer transition-all
+                  px-3 py-1.5 border rounded-lg text-xs font-semibold cursor-pointer transition-colors
                   ${
                     activeScope === scope.id
-                      ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
-                      : 'bg-white text-black/70 hover:bg-slate-100'
+                      ? 'bg-[#ffd43b] text-[#0c1d2d] border-amber-400/80 font-bold shadow-xs'
+                      : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-slate-200'
                   }
                 `}
               >
@@ -258,16 +250,14 @@ export default function Leaderboard() {
             ))}
           </div>
 
-          <div className="flex-1 max-w-xs flex items-center bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] overflow-hidden">
-            <span className="px-2.5 text-black">
-              <Search className="w-3.5 h-3.5" />
-            </span>
+          <div className="flex-1 max-w-xs flex items-center bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
+            <Search className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0" />
             <input
               type="text"
-              placeholder="Search athlete or handle..."
+              placeholder="Search competitor or handle..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-2 px-1 outline-none font-display font-bold text-xs bg-transparent placeholder:text-black/35"
+              className="w-full outline-none font-medium text-xs bg-transparent text-slate-800 placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -275,41 +265,41 @@ export default function Leaderboard() {
         {/* ================================================= */}
         {/* RANKINGS TABLE                                    */}
         {/* ================================================= */}
-        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[8px_8px_0_#000000] overflow-hidden">
+        <div className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#0c1d2d] text-white border-b-2 border-[#0c1d2d] font-mono text-xs uppercase tracking-wider">
-                  <th className="py-3.5 px-4 text-center w-16">RANK</th>
-                  <th className="py-3.5 px-4">ATHLETE IDENTITY</th>
-                  <th className="py-3.5 px-4 text-center">DIVISION</th>
-                  <th className="py-3.5 px-4 text-center">SOLVED</th>
-                  <th className="py-3.5 px-4 text-center">ACCURACY</th>
-                  <th className="py-3.5 px-6 text-right">TOTAL XP</th>
+                <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-mono text-[11px] uppercase tracking-wider">
+                  <th className="py-2.5 px-4 text-center w-14">Rank</th>
+                  <th className="py-2.5 px-4">Competitor</th>
+                  <th className="py-2.5 px-4 text-center">Division</th>
+                  <th className="py-2.5 px-4 text-center">Solved</th>
+                  <th className="py-2.5 px-4 text-center">Accuracy</th>
+                  <th className="py-2.5 px-6 text-right">Total XP</th>
                 </tr>
               </thead>
-              <tbody className="divide-y-2 divide-black/15 font-body">
+              <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredRankings.map((p) => {
                   const isCurrentUser = p.username === currentUserHandle
 
                   return (
                     <tr
                       key={p.rank}
-                      className={`hover:bg-[#f8fafc] transition-colors ${
-                        isCurrentUser ? 'bg-[#fffde7] font-bold' : ''
+                      className={`hover:bg-slate-50 transition-colors ${
+                        isCurrentUser ? 'bg-amber-50/40 font-medium' : ''
                       }`}
                     >
                       {/* Rank */}
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-2.5 px-4 text-center">
                         <span
-                          className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border-2 border-[#0c1d2d] font-mono font-black text-xs ${
+                          className={`inline-flex items-center justify-center w-6 h-6 rounded-md font-mono font-bold text-[11px] ${
                             p.rank === 1
-                              ? 'bg-[#ffd43b] text-black'
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
                               : p.rank === 2
-                              ? 'bg-[#38aef0] text-black'
+                              ? 'bg-slate-200 text-slate-800 border border-slate-300'
                               : p.rank === 3
-                              ? 'bg-[#32e875] text-black'
-                              : 'bg-slate-100 text-black'
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                              : 'text-slate-600'
                           }`}
                         >
                           #{p.rank}
@@ -317,9 +307,9 @@ export default function Leaderboard() {
                       </td>
 
                       {/* Identity */}
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#f1f5f9] border-2 border-[#0c1d2d] overflow-hidden flex items-center justify-center font-display font-black text-xs shrink-0">
+                      <td className="py-2.5 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center font-bold text-[11px] text-slate-700 shrink-0">
                             {p.avatarUrl ? (
                               <img src={p.avatarUrl} alt={p.username} className="w-full h-full object-cover" />
                             ) : (
@@ -327,15 +317,15 @@ export default function Leaderboard() {
                             )}
                           </div>
                           <div>
-                            <div className="font-display font-black text-sm text-black uppercase">
-                              {p.displayName}
+                            <div className="font-semibold text-xs text-slate-900 flex items-center gap-1.5">
+                              <span>{p.displayName}</span>
                               {isCurrentUser && (
-                                <span className="ml-2 px-2 py-0.5 bg-[#ffd43b] text-black border border-[#0c1d2d] rounded text-[9px] font-mono font-black">
-                                  YOU
+                                <span className="px-1.5 py-0.2 bg-amber-100 text-amber-900 border border-amber-300 rounded text-[9px] font-mono font-bold">
+                                  You
                                 </span>
                               )}
                             </div>
-                            <div className="font-mono text-xs font-bold text-black/60">
+                            <div className="font-mono text-[10px] text-slate-400">
                               @{p.username}
                             </div>
                           </div>
@@ -343,24 +333,24 @@ export default function Leaderboard() {
                       </td>
 
                       {/* Division */}
-                      <td className="py-4 px-4 text-center">
-                        <span className="bg-[#f1f5f9] border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 text-[10px] font-mono font-black uppercase">
+                      <td className="py-2.5 px-4 text-center">
+                        <NeoBadge variant="outline" density="xs">
                           {p.division}
-                        </span>
+                        </NeoBadge>
                       </td>
 
                       {/* Solved */}
-                      <td className="py-4 px-4 text-center font-mono font-bold text-xs">
+                      <td className="py-2.5 px-4 text-center font-mono font-medium text-xs text-slate-700">
                         {p.solvedCount}
                       </td>
 
                       {/* Accuracy */}
-                      <td className="py-4 px-4 text-center font-mono font-bold text-xs">
+                      <td className="py-2.5 px-4 text-center font-mono font-medium text-xs text-slate-700">
                         {p.accuracy}%
                       </td>
 
                       {/* Total XP */}
-                      <td className="py-4 px-6 text-right font-mono font-black text-sm text-black">
+                      <td className="py-2.5 px-6 text-right font-mono font-bold text-xs text-slate-900">
                         {p.points} XP
                       </td>
                     </tr>
@@ -370,9 +360,9 @@ export default function Leaderboard() {
             </table>
           </div>
 
-          <div className="p-3 bg-[#faf9f6] border-t-2 border-[#0c1d2d] flex items-center justify-between text-xs font-mono font-bold text-black/60">
-            <span>SHOWING SEASON 01 PREVIEW FIXTURES</span>
-            <span>RANKINGS REFRESH AT 00:00 UTC</span>
+          <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-500">
+            <span>Showing Season 01 Preview Standings</span>
+            <span>Rankings refresh daily at 00:00 UTC</span>
           </div>
         </div>
       </div>

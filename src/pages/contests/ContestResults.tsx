@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   Trophy,
@@ -80,10 +80,10 @@ export default function ContestResults() {
     return (
       <AppLayout>
         <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="text-center font-display font-black">
-            <Loader2 className="w-10 h-10 animate-spin mx-auto text-black/40 mb-3" />
-            <p className="text-xs tracking-wider uppercase text-black/70">
-              CALCULATING ARENA RESULTS & STANDINGS...
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-slate-400 mb-2" />
+            <p className="text-xs font-mono text-slate-500">
+              Calculating tournament results & standings...
             </p>
           </div>
         </div>
@@ -94,17 +94,17 @@ export default function ContestResults() {
   if (!contest) {
     return (
       <AppLayout>
-        <div className="p-8 bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] text-center max-w-lg mx-auto mt-12">
-          <Trophy className="w-12 h-12 mx-auto text-black/30 mb-3" />
-          <h2 className="font-display font-black text-xl uppercase text-black">
-            CONTEST NOT FOUND
+        <div className="p-8 bg-white border border-slate-200 rounded-xl shadow-sm text-center max-w-md mx-auto mt-12">
+          <Trophy className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+          <h2 className="font-bold text-lg text-slate-900">
+            Tournament Not Found
           </h2>
           <Link
             to="/contests"
-            className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d]"
+            className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs shadow-xs transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>RETURN TO CONTESTS</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to Tournaments</span>
           </Link>
         </div>
       </AppLayout>
@@ -130,45 +130,45 @@ export default function ContestResults() {
   const unattemptedCount = userStatus?.unattemptedCount ?? 0
 
   return (
-    <AppLayout>
-      <div className="space-y-4 sm:space-y-6 animate-entry max-w-5xl mx-auto pb-12">
+    <AppLayout maxWidth="narrow">
+      <div className="space-y-4 sm:space-y-6 animate-entry pb-12">
         {/* Top Back Navigation */}
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={() => navigate('/contests')}
-            className="inline-flex items-center gap-1.5 font-display font-black text-xs uppercase text-black hover:text-[#38aef0] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>ALL TOURNAMENTS</span>
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+            <span>All Tournaments</span>
           </button>
 
-          <span className="font-mono text-xs font-bold text-black/60 uppercase">
-            CONTEST ARENA // TOURNAMENT REPORT
+          <span className="font-mono text-xs font-medium text-slate-400 uppercase">
+            Tournament Report
           </span>
         </div>
 
         {/* ================================================= */}
         {/* HERO RESULTS CARD                                 */}
         {/* ================================================= */}
-        <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-5 sm:p-7">
+        <section className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm p-6 sm:p-7">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <span className="bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase">
+                <span className="bg-slate-100 text-slate-700 border border-slate-200 rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold">
                   {contest.category}
                 </span>
-                <span className="bg-black text-white border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase flex items-center gap-1">
-                  <Flame className="w-3 h-3 fill-[#ffd43b] text-[#ffd43b]" />
-                  ARENA REPORT
+                <span className="bg-[#0c1d2d] text-white rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold flex items-center gap-1">
+                  <Flame className="w-3 h-3 text-[#ffd43b]" />
+                  <span>Arena Report</span>
                 </span>
               </div>
 
-              <h1 className="font-display font-black text-2xl sm:text-3xl uppercase text-black leading-tight">
+              <h1 className="font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">
                 {contest.title}
               </h1>
-              <p className="mt-1 text-xs sm:text-sm font-body font-semibold text-black/70">
-                Official tournament conclusion, verified server grading, and athlete standings.
+              <p className="mt-1 text-xs sm:text-sm text-slate-600 font-normal">
+                Official tournament conclusion, verified server grading, and competitor standings.
               </p>
             </div>
 
@@ -177,10 +177,10 @@ export default function ContestResults() {
               <button
                 type="button"
                 onClick={() => navigate(`/contests/${contest.id}/arena`)}
-                className="px-5 py-3 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] shrink-0 flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs uppercase tracking-wide shadow-xs shrink-0 flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <Flame className="w-4 h-4 fill-white" />
-                <span>RESUME ARENA SESSION →</span>
+                <Flame className="w-3.5 h-3.5 text-[#0c1d2d]" />
+                <span>Resume Arena Session</span>
               </button>
             )}
           </div>
@@ -191,94 +191,94 @@ export default function ContestResults() {
         {/* ================================================= */}
         {isUserCompleted && (
           <section className="space-y-3">
-            <div className="flex items-center gap-2 font-display font-black text-xs uppercase text-black">
-              <Award className="w-4 h-4 text-black" />
-              <span>YOUR VERIFIED PERFORMANCE</span>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <Award className="w-4 h-4 text-amber-600" />
+              <span>Your Verified Performance</span>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
               {/* Score */}
-              <div className="bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
-                <div className="font-mono text-[10px] font-black uppercase text-black/70">
-                  FINAL SCORE
+              <div className="bg-white border border-[#0c1d2d]/10 rounded-xl p-4 shadow-xs">
+                <div className="font-mono text-[10px] font-semibold uppercase text-slate-500 tracking-wider">
+                  Final Score
                 </div>
-                <div className="font-display font-black text-2xl sm:text-3xl text-black mt-1">
+                <div className="font-bold text-2xl sm:text-3xl text-slate-900 mt-1">
                   {userScore > 0 ? `+${userScore}` : userScore}
                 </div>
-                <div className="font-mono text-[10px] font-bold text-black/70 mt-0.5">
+                <div className="font-mono text-[11px] text-slate-500 mt-0.5">
                   out of {contest.totalMarks} marks
                 </div>
               </div>
 
               {/* Rank */}
-              <div className="bg-[#38aef0] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
-                <div className="font-mono text-[10px] font-black uppercase text-black/80">
-                  STANDINGS RANK
+              <div className="bg-white border border-[#0c1d2d]/10 rounded-xl p-4 shadow-xs">
+                <div className="font-mono text-[10px] font-semibold uppercase text-slate-500 tracking-wider">
+                  Standings Rank
                 </div>
-                <div className="font-display font-black text-2xl sm:text-3xl text-black mt-1">
-                  {userRank ? `#${userRank}` : 'UNRANKED'}
+                <div className="font-bold text-2xl sm:text-3xl text-slate-900 mt-1">
+                  {userRank ? `#${userRank}` : 'Unranked'}
                 </div>
-                <div className="font-mono text-[10px] font-bold text-black/80 mt-0.5">
-                  against registered solvers
+                <div className="font-mono text-[11px] text-slate-500 mt-0.5">
+                  against competitors
                 </div>
               </div>
 
               {/* Accuracy */}
-              <div className="bg-[#32e875] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
-                <div className="font-mono text-[10px] font-black uppercase text-black/80">
-                  ACCURACY RATE
+              <div className="bg-white border border-[#0c1d2d]/10 rounded-xl p-4 shadow-xs">
+                <div className="font-mono text-[10px] font-semibold uppercase text-slate-500 tracking-wider">
+                  Accuracy Rate
                 </div>
-                <div className="font-display font-black text-2xl sm:text-3xl text-black mt-1">
+                <div className="font-bold text-2xl sm:text-3xl text-slate-900 mt-1">
                   {userAccuracy}%
                 </div>
-                <div className="font-mono text-[10px] font-bold text-black/80 mt-0.5">
-                  {correctCount} correct • {wrongCount} incorrect
+                <div className="font-mono text-[11px] text-slate-500 mt-0.5">
+                  {correctCount} correct • {wrongCount} wrong
                 </div>
               </div>
 
               {/* Time Taken */}
-              <div className="bg-white border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
-                <div className="font-mono text-[10px] font-black uppercase text-black/60">
-                  TIME SPENT
+              <div className="bg-white border border-[#0c1d2d]/10 rounded-xl p-4 shadow-xs">
+                <div className="font-mono text-[10px] font-semibold uppercase text-slate-500 tracking-wider">
+                  Time Spent
                 </div>
-                <div className="font-display font-black text-2xl sm:text-3xl text-black mt-1">
+                <div className="font-bold text-2xl sm:text-3xl text-slate-900 mt-1">
                   {formatSeconds(userTime)}
                 </div>
-                <div className="font-mono text-[10px] font-bold text-black/60 mt-0.5">
+                <div className="font-mono text-[11px] text-slate-500 mt-0.5">
                   of {contest.durationMinutes}m limit
                 </div>
               </div>
 
               {/* XP Won */}
-              <div className="bg-black text-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d] col-span-2 lg:col-span-1">
-                <div className="font-mono text-[10px] font-black uppercase text-[#ffd43b]/80">
-                  XP WON
+              <div className="bg-white border border-amber-200/80 rounded-xl p-4 shadow-xs bg-gradient-to-b from-amber-50/30 to-white col-span-2 lg:col-span-1">
+                <div className="font-mono text-[10px] font-bold uppercase text-amber-900/80 tracking-wider">
+                  XP Won
                 </div>
-                <div className="font-display font-black text-2xl sm:text-3xl text-[#ffd43b] mt-1 flex items-center gap-1">
-                  <Zap className="w-5 h-5 fill-[#ffd43b]" />
+                <div className="font-bold text-2xl sm:text-3xl text-amber-600 mt-1 flex items-center gap-1">
+                  <Zap className="w-5 h-5 fill-amber-500 text-amber-500" />
                   <span>+{userXp}</span>
                 </div>
-                <div className="font-mono text-[10px] font-bold text-[#ffd43b]/70 mt-0.5">
-                  Competitive Tournament XP
+                <div className="font-mono text-[11px] text-slate-500 mt-0.5">
+                  Tournament XP
                 </div>
               </div>
             </div>
 
             {/* Answer Breakdown Strip */}
-            <div className="p-3 bg-[#faf9f6] border-2 border-[#0c1d2d] rounded-xl flex items-center justify-around text-center text-xs font-mono font-black">
+            <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-around text-center text-xs font-mono">
               <div>
-                <span className="text-black/60 uppercase text-[10px]">CORRECT</span>
-                <div className="text-[#166534] text-base">{correctCount}</div>
+                <span className="text-slate-500 uppercase text-[10px] font-semibold">Correct</span>
+                <div className="text-emerald-700 font-bold text-base mt-0.5">{correctCount}</div>
               </div>
-              <div className="h-6 w-0.5 bg-black/20" />
+              <div className="h-6 w-px bg-slate-200" />
               <div>
-                <span className="text-black/60 uppercase text-[10px]">WRONG</span>
-                <div className="text-[#991b1b] text-base">{wrongCount}</div>
+                <span className="text-slate-500 uppercase text-[10px] font-semibold">Wrong</span>
+                <div className="text-rose-700 font-bold text-base mt-0.5">{wrongCount}</div>
               </div>
-              <div className="h-6 w-0.5 bg-black/20" />
+              <div className="h-6 w-px bg-slate-200" />
               <div>
-                <span className="text-black/60 uppercase text-[10px]">UNATTEMPTED</span>
-                <div className="text-black/70 text-base">{unattemptedCount}</div>
+                <span className="text-slate-500 uppercase text-[10px] font-semibold">Unattempted</span>
+                <div className="text-slate-700 font-bold text-base mt-0.5">{unattemptedCount}</div>
               </div>
             </div>
           </section>
@@ -287,29 +287,29 @@ export default function ContestResults() {
         {/* ================================================= */}
         {/* TABS: LEADERBOARD VS ANSWER REVIEW                */}
         {/* ================================================= */}
-        <div className="flex items-center gap-2 border-b-2 border-[#0c1d2d] pb-2">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer transition-all ${
+            className={`px-3.5 py-1.5 border rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
               activeTab === 'overview'
-                ? 'bg-[#ffd43b] text-black -translate-y-0.5'
-                : 'bg-white text-black/80 hover:bg-[#e9f6ff]'
+                ? 'bg-[#ffd43b] text-[#0c1d2d] border-amber-400 font-bold shadow-xs'
+                : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-slate-200'
             }`}
           >
-            GLOBAL LEADERBOARD ({leaderboard.length})
+            Tournament Leaderboard ({leaderboard.length})
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('review')}
-            className={`px-4 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer transition-all ${
+            className={`px-3.5 py-1.5 border rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
               activeTab === 'review'
-                ? 'bg-[#ffd43b] text-black -translate-y-0.5'
-                : 'bg-white text-black/80 hover:bg-[#e9f6ff]'
+                ? 'bg-[#ffd43b] text-[#0c1d2d] border-amber-400 font-bold shadow-xs'
+                : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-slate-200'
             }`}
           >
-            SOLUTIONS & REVIEW ({reviewQuestions.length}Q)
+            Solutions & Review ({reviewQuestions.length}Q)
           </button>
         </div>
 
@@ -317,84 +317,84 @@ export default function ContestResults() {
         {/* TAB 1: GLOBAL LEADERBOARD                         */}
         {/* ================================================= */}
         {activeTab === 'overview' && (
-          <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
-            <div className="p-4 border-b-2 border-[#0c1d2d] flex items-center justify-between bg-[#faf9f6]">
+          <section className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-black" />
-                <h3 className="font-display font-black text-base uppercase text-black">
-                  ARENA LEADERBOARD & PODIUM
+                <Trophy className="w-4 h-4 text-amber-600" />
+                <h3 className="font-bold text-sm text-slate-900">
+                  Standings & Rankings
                 </h3>
               </div>
-              <span className="font-mono text-[10px] font-bold text-black/60 uppercase">
-                RANKED BY SCORE DESC • TIME ASC
+              <span className="font-mono text-[10px] font-semibold text-slate-500 uppercase">
+                Ranked by Score Desc • Time Asc
               </span>
             </div>
 
             {leaderboard.length === 0 ? (
-              <div className="p-8 text-center text-black/60">
-                <Users className="w-10 h-10 mx-auto text-black/30 mb-2" />
-                <p className="font-display font-black text-sm uppercase text-black">
-                  NO COMPLETED SUBMISSIONS YET
+              <div className="p-8 text-center text-slate-500">
+                <Users className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                <p className="font-bold text-sm text-slate-800">
+                  No Completed Submissions Yet
                 </p>
-                <p className="text-xs font-body font-semibold mt-1">
-                  Leaderboard standings populate immediately as athletes submit their arena answers.
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                  Leaderboard standings populate immediately as competitors submit their arena answers.
                 </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b-2 border-[#0c1d2d] bg-[#f1f5f9] font-mono text-[10px] font-black uppercase text-black">
-                      <th className="py-2.5 px-4">RANK</th>
-                      <th className="py-2.5 px-4">ATHLETE</th>
-                      <th className="py-2.5 px-4 text-right">SCORE</th>
-                      <th className="py-2.5 px-4 text-right">ACCURACY</th>
-                      <th className="py-2.5 px-4 text-right">TIME</th>
+                    <tr className="border-b border-slate-200 bg-slate-50/80 font-mono text-[11px] font-semibold uppercase text-slate-500">
+                      <th className="py-2.5 px-4">Rank</th>
+                      <th className="py-2.5 px-4">Competitor</th>
+                      <th className="py-2.5 px-4 text-right">Score</th>
+                      <th className="py-2.5 px-4 text-right">Accuracy</th>
+                      <th className="py-2.5 px-4 text-right">Time</th>
                       <th className="py-2.5 px-4 text-right">XP</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-slate-100">
                     {leaderboard.map((entry, i) => {
                       return (
                         <tr
                           key={entry.userId || i}
-                          className={`border-b border-[#0c1d2d]/10 font-body font-bold text-xs hover:bg-[#f8fafc] transition-colors ${
-                            entry.rank === 1 ? 'bg-[#fffde7]' : ''
+                          className={`text-xs hover:bg-slate-50 transition-colors ${
+                            entry.rank === 1 ? 'bg-amber-50/30' : ''
                           }`}
                         >
-                          <td className="py-3 px-4 font-mono font-black text-sm">
+                          <td className="py-3 px-4 font-mono font-bold text-sm">
                             <span
-                              className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border border-[#0c1d2d] font-mono font-black text-xs ${
+                              className={`inline-flex items-center justify-center w-6 h-6 rounded-md text-xs font-bold ${
                                 entry.rank === 1
-                                  ? 'bg-[#ffd43b] text-black'
+                                  ? 'bg-amber-100 text-amber-900 border border-amber-300'
                                   : entry.rank === 2
-                                  ? 'bg-slate-200 text-black'
+                                  ? 'bg-slate-200 text-slate-800 border border-slate-300'
                                   : entry.rank === 3
-                                  ? 'bg-[#fed7aa] text-black'
-                                  : 'bg-white text-black'
+                                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                  : 'text-slate-600'
                               }`}
                             >
                               {entry.rank}
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            <div className="font-display font-black text-xs sm:text-sm uppercase text-black">
+                            <div className="font-semibold text-xs sm:text-sm text-slate-900">
                               {entry.displayName || entry.username}
                             </div>
-                            <div className="font-mono text-[10px] font-bold text-black/50">
+                            <div className="font-mono text-[10px] text-slate-400">
                               @{entry.username}
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-right font-display font-black text-sm sm:text-base text-black">
+                          <td className="py-3 px-4 text-right font-bold text-xs sm:text-sm text-slate-900">
                             {entry.totalScore > 0 ? `+${entry.totalScore}` : entry.totalScore}
                           </td>
-                          <td className="py-3 px-4 text-right font-mono font-bold text-xs text-black/80">
+                          <td className="py-3 px-4 text-right font-mono text-xs text-slate-600">
                             {entry.accuracyPercentage}%
                           </td>
-                          <td className="py-3 px-4 text-right font-mono font-bold text-xs text-black/70">
+                          <td className="py-3 px-4 text-right font-mono text-xs text-slate-500">
                             {formatSeconds(entry.timeTakenSeconds)}
                           </td>
-                          <td className="py-3 px-4 text-right font-mono font-black text-xs text-[#2563eb]">
+                          <td className="py-3 px-4 text-right font-mono font-bold text-xs text-sky-600">
                             +{entry.xpAwarded}
                           </td>
                         </tr>
@@ -411,14 +411,14 @@ export default function ContestResults() {
         {/* TAB 2: SOLUTIONS & DETAILED REVIEW                */}
         {/* ================================================= */}
         {activeTab === 'review' && (
-          <section className="space-y-4">
+          <section className="space-y-3">
             {reviewQuestions.length === 0 ? (
-              <div className="p-8 bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] text-center">
-                <HelpCircle className="w-10 h-10 mx-auto text-black/30 mb-2" />
-                <h3 className="font-display font-black text-base uppercase text-black">
-                  REVIEW CURRENTLY LOCKED
+              <div className="p-8 bg-white border border-slate-200 rounded-xl shadow-sm text-center">
+                <HelpCircle className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                <h3 className="font-bold text-base text-slate-900">
+                  Review Currently Locked
                 </h3>
-                <p className="text-xs font-body font-semibold text-black/60 mt-1">
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                   Answer reviews unlock immediately upon submission or after the contest officially concludes.
                 </p>
               </div>
@@ -430,7 +430,7 @@ export default function ContestResults() {
                 return (
                   <div
                     key={q.questionId}
-                    className="bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden"
+                    className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm overflow-hidden"
                   >
                     {/* Collapsible Accordion Header */}
                     <button
@@ -438,54 +438,54 @@ export default function ContestResults() {
                       onClick={() =>
                         setExpandedQuestionId(isExpanded ? null : q.questionId)
                       }
-                      className="w-full p-4 sm:p-5 flex items-center justify-between gap-3 text-left hover:bg-[#f8fafc] cursor-pointer transition-colors"
+                      className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-slate-50/70 cursor-pointer transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="w-8 h-8 rounded-lg border-2 border-[#0c1d2d] flex items-center justify-center font-mono font-black text-xs bg-[#ffd43b] text-black shadow-[1.5px_1.5px_0_#0c1d2d] shrink-0">
+                        <span className="w-7 h-7 rounded-md border border-slate-200 flex items-center justify-center font-mono font-bold text-xs bg-slate-50 text-slate-700 shrink-0">
                           {idx + 1}
                         </span>
                         <div>
-                          <div className="font-display font-black text-sm uppercase text-black">
+                          <div className="font-semibold text-sm text-slate-900">
                             {q.title}
                           </div>
-                          <div className="font-mono text-[10px] font-bold text-black/50">
+                          <div className="font-mono text-[10px] text-slate-400">
                             {q.topic} • {q.difficulty.toUpperCase()}
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-2.5 shrink-0">
                         {isAttempted ? (
                           q.isCorrect ? (
-                            <span className="bg-[#dcfce7] text-[#166534] border border-[#0c1d2d] rounded-lg px-2 py-0.5 font-mono text-[10px] font-black uppercase flex items-center gap-1">
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>CORRECT (+{q.marksAwarded})</span>
+                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md px-2 py-0.5 font-mono text-[10px] font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Correct (+{q.marksAwarded})</span>
                             </span>
                           ) : (
-                            <span className="bg-[#fee2e2] text-[#991b1b] border border-[#0c1d2d] rounded-lg px-2 py-0.5 font-mono text-[10px] font-black uppercase flex items-center gap-1">
-                              <XCircle className="w-3.5 h-3.5" />
-                              <span>INCORRECT ({q.marksAwarded})</span>
+                            <span className="bg-rose-50 text-rose-800 border border-rose-200 rounded-md px-2 py-0.5 font-mono text-[10px] font-semibold flex items-center gap-1">
+                              <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                              <span>Incorrect ({q.marksAwarded})</span>
                             </span>
                           )
                         ) : (
-                          <span className="bg-slate-100 text-black/60 border border-[#0c1d2d] rounded-lg px-2 py-0.5 font-mono text-[10px] font-bold uppercase">
-                            UNATTEMPTED (0)
+                          <span className="bg-slate-100 text-slate-600 border border-slate-200 rounded-md px-2 py-0.5 font-mono text-[10px] font-medium">
+                            Unattempted (0)
                           </span>
                         )}
 
                         {isExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-black" />
+                          <ChevronUp className="w-4 h-4 text-slate-400" />
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-black" />
+                          <ChevronDown className="w-4 h-4 text-slate-400" />
                         )}
                       </div>
                     </button>
 
                     {/* Collapsible Accordion Body */}
                     {isExpanded && (
-                      <div className="p-4 sm:p-6 border-t-2 border-[#0c1d2d] bg-[#faf9f6] space-y-4">
+                      <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/40 space-y-3.5">
                         {/* Prompt */}
-                        <div className="p-4 bg-white border-2 border-[#0c1d2d] rounded-xl text-sm font-body font-semibold text-black whitespace-pre-line leading-relaxed">
+                        <div className="p-4 bg-white border border-slate-200 rounded-lg text-sm text-slate-800 font-normal whitespace-pre-line leading-relaxed">
                           {q.prompt}
                         </div>
 
@@ -495,32 +495,32 @@ export default function ContestResults() {
                             const isUserPick = q.selectedOption === opt.id
                             const isCorrectOpt = q.correctOption === opt.id
 
-                            let style = 'bg-white border-[#0c1d2d]'
+                            let style = 'bg-white border-slate-200 text-slate-800'
                             if (isCorrectOpt) {
-                              style = 'bg-[#dcfce7] border-[#166534] text-[#166534] font-black'
+                              style = 'bg-emerald-50 border-emerald-300 text-emerald-950 font-semibold'
                             } else if (isUserPick && !q.isCorrect) {
-                              style = 'bg-[#fee2e2] border-[#991b1b] text-[#991b1b]'
+                              style = 'bg-rose-50 border-rose-300 text-rose-950'
                             }
 
                             return (
                               <div
                                 key={opt.id}
-                                className={`p-3 rounded-xl border-2 font-body text-xs sm:text-sm flex items-start gap-2.5 ${style}`}
+                                className={`p-3 rounded-lg border text-xs sm:text-sm flex items-start gap-2.5 ${style}`}
                               >
-                                <span className="w-6 h-6 rounded border border-[#0c1d2d] flex items-center justify-center font-mono font-black text-xs shrink-0 bg-white text-black">
+                                <span className="w-6 h-6 rounded border border-slate-200 flex items-center justify-center font-mono font-bold text-xs shrink-0 bg-white text-slate-700">
                                   {opt.id}
                                 </span>
                                 <div className="flex-1 mt-0.5 leading-snug">
                                   <span>{opt.text}</span>
                                 </div>
                                 {isCorrectOpt && (
-                                  <span className="font-mono text-[10px] font-black uppercase text-[#166534]">
-                                    [CORRECT]
+                                  <span className="font-mono text-[10px] font-bold uppercase text-emerald-700">
+                                    [Correct]
                                   </span>
                                 )}
                                 {isUserPick && !isCorrectOpt && (
-                                  <span className="font-mono text-[10px] font-black uppercase text-[#991b1b]">
-                                    [YOUR ANSWER]
+                                  <span className="font-mono text-[10px] font-bold uppercase text-rose-700">
+                                    [Your Choice]
                                   </span>
                                 )}
                               </div>
@@ -529,16 +529,16 @@ export default function ContestResults() {
                         </div>
 
                         {/* Explanation */}
-                        <div className="p-4 bg-white border-2 border-[#0c1d2d] rounded-xl space-y-2">
-                          <div className="flex items-center gap-1.5 font-display font-black text-xs uppercase text-black">
-                            <BookOpen className="w-4 h-4 text-black" />
-                            <span>OFFICIAL EXPLANATION & DERIVATION</span>
+                        <div className="p-4 bg-white border border-slate-200 rounded-lg space-y-1.5">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800 uppercase tracking-wider">
+                            <BookOpen className="w-4 h-4 text-slate-500" />
+                            <span>Official Solution & Derivation</span>
                           </div>
-                          <p className="text-xs font-body font-semibold text-black/80 leading-relaxed">
+                          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
                             {q.explanation}
                           </p>
                           {q.formulaOrRule && (
-                            <div className="mt-2 p-2.5 bg-[#f1f5f9] border border-[#0c1d2d] rounded-lg font-mono text-[11px] font-bold text-black/80">
+                            <div className="mt-2 p-2 bg-amber-50/60 border border-amber-200/60 rounded-md font-mono text-xs text-amber-900">
                               Formula / Core Rule: {q.formulaOrRule}
                             </div>
                           )}

@@ -2,8 +2,9 @@ import React from 'react'
 
 export interface NeoBadgeProps {
   children: React.ReactNode
-  variant?: 'yellow' | 'blue' | 'green' | 'red' | 'purple' | 'neutral' | 'dark'
-  size?: 'sm' | 'md'
+  variant?: 'yellow' | 'blue' | 'green' | 'red' | 'purple' | 'neutral' | 'dark' | 'outline'
+  size?: 'xs' | 'sm' | 'md'
+  density?: 'xs' | 'sm' | 'md'
   icon?: React.ReactNode
   className?: string
 }
@@ -12,31 +13,35 @@ export const NeoBadge: React.FC<NeoBadgeProps> = ({
   children,
   variant = 'neutral',
   size = 'sm',
+  density,
   icon,
   className = '',
 }) => {
+  const effectiveSize = density || size
   const variantStyles = {
-    yellow: 'bg-[#ffd43b] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
-    blue: 'bg-[#38aef0] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
-    green: 'bg-[#32e875] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
-    red: 'bg-[#ff5b5b] text-white border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
-    purple: 'bg-[#c084fc] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
-    neutral: 'bg-[#f1f5f9] text-[#050505] border-[#0c1d2d]/60 shadow-[1.5px_1.5px_0_#0c1d2d]',
-    dark: 'bg-[#071a2b] text-white border-[#0c1d2d] shadow-[1.5px_1.5px_0_#ffd43b]',
+    yellow: 'bg-amber-50 text-amber-900 border border-amber-200',
+    blue: 'bg-sky-50 text-sky-800 border border-sky-200',
+    green: 'bg-emerald-50 text-emerald-800 border border-emerald-200',
+    red: 'bg-rose-50 text-rose-800 border border-rose-200',
+    purple: 'bg-purple-50 text-purple-800 border border-purple-200',
+    neutral: 'bg-slate-100 text-slate-700 border border-slate-200',
+    dark: 'bg-[#0c1d2d] text-white border border-[#0c1d2d]',
+    outline: 'bg-transparent text-slate-700 border border-slate-200',
   }
 
   const sizeStyles = {
-    sm: 'px-2.5 py-0.5 text-[10px] gap-1',
-    md: 'px-3 py-1 text-xs gap-1.5',
+    xs: 'px-1.5 py-0.5 text-[9px] sm:text-[10px] gap-1',
+    sm: 'px-2 py-0.5 text-[10px] sm:text-[11px] gap-1',
+    md: 'px-2.5 py-1 text-xs gap-1.5',
   }
 
   return (
     <span
       className={`
-        inline-flex items-center font-display font-black uppercase tracking-wider
-        rounded-full border-[1.5px] select-none
+        inline-flex items-center font-mono font-medium
+        rounded-md select-none
         ${variantStyles[variant]}
-        ${sizeStyles[size]}
+        ${sizeStyles[effectiveSize]}
         ${className}
       `}
     >

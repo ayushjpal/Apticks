@@ -12,6 +12,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import AppLayout from '../../components/layout/AppLayout'
+import { PageHeader, StatusBadge } from '../../components/ui'
 import { ContestService } from '../../services/contestService'
 import type { Contest } from '../../types/contests'
 import { supabase } from '../../lib/supabase'
@@ -114,12 +115,12 @@ export default function Contests() {
   })
 
   return (
-    <AppLayout>
-      <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-5 animate-entry relative">
+    <AppLayout maxWidth="narrow">
+      <div className="space-y-4 sm:space-y-5 animate-entry relative">
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] p-3.5 rounded-xl shadow-[3px_3px_0_#0c1d2d] font-display font-black text-xs uppercase flex items-center gap-2 animate-bounce">
-            <Zap className="w-4 h-4 fill-black" />
+          <div className="fixed bottom-6 right-6 z-50 bg-[#0c1d2d] text-white border border-slate-700 p-3.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 animate-bounce">
+            <Zap className="w-4 h-4 text-[#ffd43b] fill-[#ffd43b]" />
             <span>{toastMessage}</span>
           </div>
         )}
@@ -127,59 +128,47 @@ export default function Contests() {
         {/* ================================================= */}
         {/* TOP CONTEST ARENA HERO                            */}
         {/* ================================================= */}
-        <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-5 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="inline-flex items-center gap-1.5 bg-[#ffd43b] text-black border border-[#0c1d2d] rounded-full px-2.5 py-0.5 text-[9px] font-mono font-black tracking-widest uppercase shadow-[1px_1px_0_#0c1d2d] mb-1.5">
-              <Trophy className="w-3 h-3 text-black" />
-              <span>ARENA CONTESTS // SPEED TOURNAMENTS</span>
-            </div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black leading-tight">
-              SPEED TOURNAMENTS
-            </h1>
-            <p className="mt-1 text-xs font-body font-semibold text-black/70 max-w-xl">
-              Compete synchronously against top aptitude solvers in scheduled timed clashes. Win XP and Division rankings.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="bg-[#f1f5f9] border-1.5 border-[#0c1d2d] rounded-xl px-3 py-1.5 font-mono font-black text-[11px]">
-              SEASON 01 ACTIVE
+        <PageHeader
+          eyebrow="Contest Arena"
+          eyebrowIcon={<Trophy className="w-3.5 h-3.5 text-amber-600" />}
+          title="Speed Tournaments"
+          description="Compete synchronously against top aptitude solvers in scheduled timed clashes. Win XP and Division rankings."
+          badge={
+            <span className="bg-slate-100 border border-slate-200 rounded-md px-2 py-0.5 font-mono font-semibold text-[11px] text-slate-700">
+              Season 01 Active
             </span>
-          </div>
-        </section>
+          }
+        />
 
         {/* ================================================= */}
         {/* LIVE CLASH ARENA BANNER (IF ACTIVE)               */}
         {/* ================================================= */}
         {liveContest && (
-          <section className="bg-[#ffd43b] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-5 lg:p-6 relative overflow-hidden">
+          <section className="bg-gradient-to-br from-[#0c1d2d] to-[#142d45] text-white border border-slate-700/60 rounded-xl shadow-sm p-5 sm:p-6 relative overflow-hidden">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="bg-[#ff5b5b] text-white border border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-display font-black text-[9px] uppercase shadow-[1px_1px_0_#0c1d2d] flex items-center gap-1 animate-pulse">
-                    <Flame className="w-3 h-3 fill-white" />
-                    LIVE TOURNAMENT ROUND
-                  </span>
-                  <span className="bg-white border border-[#0c1d2d] rounded-full px-2 py-0.5 font-mono text-[9px] font-black uppercase">
-                    [ SPEED CLASH ]
+                  <StatusBadge status="live" density="xs" />
+                  <span className="bg-white/10 border border-white/15 text-slate-200 rounded px-2 py-0.5 font-mono text-[10px] font-semibold">
+                    Speed Clash
                   </span>
                 </div>
 
-                <h2 className="font-display font-black text-xl sm:text-2xl uppercase tracking-tight text-black">
+                <h2 className="font-bold text-xl sm:text-2xl text-white tracking-tight">
                   {liveContest.title}
                 </h2>
-                <p className="text-xs font-body font-semibold text-black/80 max-w-lg">
+                <p className="text-xs text-slate-300 max-w-lg">
                   {liveContest.category} • {liveContest.totalQuestions} questions in {liveContest.durationMinutes} minutes. Real-time scoring and penalty deductions.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px] font-black">
-                  <span className="bg-white border-1.5 border-[#0c1d2d] rounded-lg px-2 py-0.5 flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    {liveContest.participantsCount || 0} SOLVERS
+                <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-xs">
+                  <span className="bg-white/10 border border-white/15 rounded-md px-2.5 py-0.5 flex items-center gap-1.5 text-slate-200">
+                    <Users className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{liveContest.participantsCount || 0} Solvers</span>
                   </span>
-                  <span className="bg-black text-white border-1.5 border-[#0c1d2d] rounded-lg px-2 py-0.5 flex items-center gap-1">
-                    <Zap className="w-3 h-3 fill-[#ffd43b] text-[#ffd43b]" />
-                    {liveContest.xpPool} XP PRIZE POOL
+                  <span className="bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-md px-2.5 py-0.5 flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                    <span>{liveContest.xpPool} XP Prize Pool</span>
                   </span>
                 </div>
               </div>
@@ -188,10 +177,11 @@ export default function Contests() {
                 <button
                   type="button"
                   onClick={() => navigate(`/contests/${liveContest.id}`)}
-                  className="px-6 py-2.5 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] font-display font-black text-xs uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-1.5"
+                  className="px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg shadow-xs font-bold text-xs uppercase tracking-wide transition-all active:scale-[0.99] cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  <Flame className="w-3.5 h-3.5 fill-white" />
-                  <span>ENTER LIVE ARENA →</span>
+                  <Flame className="w-3.5 h-3.5 text-[#0c1d2d]" />
+                  <span>Enter Live Arena</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#0c1d2d]" />
                 </button>
               </div>
             </div>
@@ -203,21 +193,21 @@ export default function Contests() {
         {/* ================================================= */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
           {[
-            { id: 'all', label: 'ALL TOURNAMENTS' },
-            { id: 'live', label: 'LIVE NOW' },
-            { id: 'upcoming', label: 'UPCOMING FIXTURES' },
-            { id: 'completed', label: 'PAST ARCHIVES' },
+            { id: 'all', label: 'All Fixtures' },
+            { id: 'live', label: 'Live Now' },
+            { id: 'upcoming', label: 'Upcoming' },
+            { id: 'completed', label: 'Completed' },
           ].map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as 'all' | 'live' | 'upcoming' | 'completed')}
               className={`
-                px-3 py-1.5 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all
+                px-3 py-1.5 border rounded-lg text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors
                 ${
                   activeTab === tab.id
-                    ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
-                    : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#0c1d2d]'
+                    ? 'bg-[#ffd43b] text-[#0c1d2d] border-amber-400/80 shadow-xs'
+                    : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-slate-200/80'
                 }
               `}
             >
@@ -231,90 +221,74 @@ export default function Contests() {
         {/* ================================================= */}
         {loading ? (
           <div className="py-16 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-black/40 mb-2" />
-            <p className="font-mono text-xs font-bold text-black/60 uppercase">
-              SYNCING ARENA CONTESTS...
+            <Loader2 className="w-7 h-7 animate-spin mx-auto text-slate-400 mb-2" />
+            <p className="font-mono text-xs text-slate-500">
+              Syncing tournaments...
             </p>
           </div>
         ) : filteredContests.length === 0 ? (
-          <div className="p-8 bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] text-center">
-            <Trophy className="w-10 h-10 mx-auto text-black/30 mb-2" />
-            <h3 className="font-display font-black text-lg uppercase text-black">
-              NO CONTESTS IN THIS CATEGORY
+          <div className="p-8 bg-white border border-slate-200 rounded-xl shadow-sm text-center">
+            <Trophy className="w-9 h-9 mx-auto text-slate-300 mb-2" />
+            <h3 className="font-bold text-base text-slate-900">
+              No Tournaments Found
             </h3>
-            <p className="text-xs font-body font-semibold text-black/60 mt-1">
+            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
               Check other tabs or come back soon for newly scheduled tournament fixtures.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             {filteredContests.map((c) => (
               <div
                 key={c.id}
-                className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-5 sm:p-6 flex flex-col justify-between"
+                className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm p-5 sm:p-5.5 flex flex-col justify-between hover:border-slate-300 transition-colors"
               >
                 <div>
                   {/* Top badges */}
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      {c.status === 'live' && (
-                        <span className="bg-[#ff5b5b] text-white border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 text-[9px] font-display font-black uppercase">
-                          LIVE NOW
-                        </span>
-                      )}
-                      {c.status === 'upcoming' && (
-                        <span className="bg-[#38aef0] text-black border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 text-[9px] font-display font-black uppercase">
-                          SCHEDULED
-                        </span>
-                      )}
-                      {c.status === 'completed' && (
-                        <span className="bg-slate-200 text-black border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 text-[9px] font-display font-black uppercase">
-                          ARCHIVED
-                        </span>
-                      )}
-                      <span className="bg-[#f8fafc] border border-[#0c1d2d] rounded-full px-2 py-0.5 font-mono text-[9px] font-bold text-black/70 uppercase">
-                        [{c.difficulty}]
-                      </span>
+                    <div className="flex items-center gap-1.5">
+                      <StatusBadge status={c.status} density="xs" />
+                      <StatusBadge status={c.difficulty} density="xs" />
                     </div>
 
-                    <span className="font-mono text-xs font-black text-black">
+                    <span className="font-mono text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">
                       +{c.xpPool} XP
                     </span>
                   </div>
 
                   <h3
                     onClick={() => navigate(`/contests/${c.id}`)}
-                    className="font-display font-black text-lg sm:text-xl uppercase text-black leading-tight cursor-pointer hover:underline"
+                    className="font-bold text-lg text-slate-900 leading-snug cursor-pointer hover:text-sky-600 transition-colors"
                   >
                     {c.title}
                   </h3>
-                  <p className="mt-1 text-xs font-body font-semibold text-black/65">
+                  <p className="mt-1 text-xs text-slate-500 font-medium">
                     {c.category}
                   </p>
 
                   {/* Specs */}
-                  <div className="mt-4 grid grid-cols-3 gap-2 p-3 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-center">
+                  <div className="mt-3.5 grid grid-cols-3 gap-2 p-2.5 bg-slate-50 border border-slate-200/70 rounded-lg text-center">
                     <div>
-                      <div className="font-mono text-[10px] font-bold text-black/60 uppercase">
-                        START
+                      <div className="font-mono text-[10px] font-semibold text-slate-500 uppercase">
+                        Start
                       </div>
-                      <div className="font-display font-black text-xs text-black mt-0.5 truncate">
+                      <div className="font-semibold text-xs text-slate-900 mt-0.5 truncate">
                         {formatStartTime(c.startTime, c.status)}
                       </div>
                     </div>
                     <div>
-                      <div className="font-mono text-[10px] font-bold text-black/60 uppercase">
-                        LENGTH
+                      <div className="font-mono text-[10px] font-semibold text-slate-500 uppercase">
+                        Format
                       </div>
-                      <div className="font-display font-black text-xs text-black mt-0.5">
+                      <div className="font-semibold text-xs text-slate-900 mt-0.5">
                         {c.durationMinutes}m • {c.totalQuestions}Q
                       </div>
                     </div>
                     <div>
-                      <div className="font-mono text-[10px] font-bold text-black/60 uppercase">
-                        SOLVERS
+                      <div className="font-mono text-[10px] font-semibold text-slate-500 uppercase">
+                        Solvers
                       </div>
-                      <div className="font-display font-black text-xs text-black mt-0.5">
+                      <div className="font-semibold text-xs text-slate-900 mt-0.5">
                         {c.participantsCount || 0}
                       </div>
                     </div>
@@ -322,46 +296,46 @@ export default function Contests() {
                 </div>
 
                 {/* Action */}
-                <div className="mt-5 pt-4 border-t-2 border-[#0c1d2d] flex items-center justify-between gap-3">
+                <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2.5">
                   {c.status === 'live' ? (
                     <button
                       type="button"
                       onClick={() => navigate(`/contests/${c.id}`)}
-                      className="w-full py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full py-2 px-4 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                     >
-                      <span>ENTER TOURNAMENT</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <span>Enter Tournament</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#0c1d2d]" />
                     </button>
                   ) : c.status === 'upcoming' ? (
                     <div className="w-full flex gap-2">
                       <button
                         type="button"
                         onClick={() => navigate(`/contests/${c.id}`)}
-                        className="py-2.5 px-3 bg-white hover:bg-slate-100 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center cursor-pointer"
+                        className="py-2 px-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg font-semibold text-xs text-slate-700 shadow-xs flex items-center justify-center cursor-pointer transition-colors"
                       >
-                        DETAILS
+                        Details
                       </button>
                       <button
                         type="button"
                         disabled={registeringId === c.id}
                         onClick={() => handleRegister(c.id)}
-                        className={`flex-1 py-2.5 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                        className={`flex-1 py-2 border rounded-lg font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
                           c.isRegistered
-                            ? 'bg-[#32e875] text-black'
-                            : 'bg-[#38aef0] hover:bg-[#209be2] text-black'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                            : 'bg-[#0c1d2d] hover:bg-[#15324d] text-white border-[#0c1d2d]'
                         }`}
                       >
                         {registeringId === c.id ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         ) : c.isRegistered ? (
                           <>
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>REGISTERED [✓]</span>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Registered</span>
                           </>
                         ) : (
                           <>
                             <Calendar className="w-3.5 h-3.5" />
-                            <span>REGISTER FOR CLASH</span>
+                            <span>Register</span>
                           </>
                         )}
                       </button>
@@ -370,10 +344,10 @@ export default function Contests() {
                     <button
                       type="button"
                       onClick={() => navigate(`/contests/${c.id}/results`)}
-                      className="w-full py-2.5 bg-white hover:bg-slate-100 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full py-2 px-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg font-semibold text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                     >
-                      <Award className="w-3.5 h-3.5" />
-                      <span>VIEW RESULTS & STANDINGS</span>
+                      <Award className="w-3.5 h-3.5 text-slate-500" />
+                      <span>View Standings & Solutions</span>
                     </button>
                   )}
                 </div>

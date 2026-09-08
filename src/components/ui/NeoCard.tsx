@@ -19,31 +19,31 @@ export const NeoCard: React.FC<NeoCardProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    white: 'bg-white text-[#050505] border-[#0c1d2d]',
-    paper: 'bg-[#faf9f6] text-[#050505] border-[#0c1d2d]',
-    yellow: 'bg-[#ffd43b] text-[#050505] border-[#0c1d2d]',
-    blue: 'bg-[#38aef0] text-[#050505] border-[#0c1d2d]',
-    green: 'bg-[#32e875] text-[#050505] border-[#0c1d2d]',
-    red: 'bg-[#ff5b5b] text-white border-[#0c1d2d]',
-    purple: 'bg-[#c084fc] text-[#050505] border-[#0c1d2d]',
-    navy: 'bg-[#071a2b] text-white border-[#0c1d2d]',
+    white: 'bg-white text-[#050505] border-[#0c1d2d]/12',
+    paper: 'bg-[#f8fafc] text-[#050505] border-[#0c1d2d]/10',
+    yellow: 'bg-amber-50 text-amber-950 border-amber-200',
+    blue: 'bg-sky-50 text-sky-950 border-sky-200',
+    green: 'bg-emerald-50 text-emerald-950 border-emerald-200',
+    red: 'bg-rose-50 text-rose-950 border-rose-200',
+    purple: 'bg-purple-50 text-purple-950 border-purple-200',
+    navy: 'bg-[#0c1d2d] text-white border-white/10',
   }
 
   const radiusStyles = {
-    sm: 'rounded-lg border-[1.5px] p-3 sm:p-4',
-    md: 'rounded-xl border-2 p-4 sm:p-6',
-    lg: 'rounded-2xl border-2 p-6 sm:p-8',
+    sm: 'rounded-lg border p-3 sm:p-4',
+    md: 'rounded-xl border p-4 sm:p-5',
+    lg: 'rounded-xl border p-5 sm:p-6',
   }
 
   const shadowStyles = {
-    black: size === 'lg' ? 'shadow-[4px_4px_0_#0c1d2d]' : size === 'sm' ? 'shadow-[2px_2px_0_#0c1d2d]' : 'shadow-[3px_3px_0_#0c1d2d]',
-    yellow: size === 'lg' ? 'shadow-[4px_4px_0_#ffd43b]' : 'shadow-[3px_3px_0_#ffd43b]',
-    blue: size === 'lg' ? 'shadow-[4px_4px_0_#38aef0]' : 'shadow-[3px_3px_0_#38aef0]',
+    black: 'shadow-xs',
+    yellow: 'shadow-xs',
+    blue: 'shadow-xs',
     none: 'shadow-none',
   }
 
   const hoverClass = hoverEffect
-    ? 'transition-transform duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer'
+    ? 'transition-all duration-150 hover:shadow-sm cursor-pointer'
     : ''
 
   return (

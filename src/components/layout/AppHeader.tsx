@@ -27,8 +27,8 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'HOME', path: '/dashboard', icon: Home },
-  { id: 'contests', label: 'CONTESTS', path: '/contests', icon: Trophy },
   { id: 'practice', label: 'PRACTICE', path: '/questions', icon: BookOpen },
+  { id: 'contests', label: 'CONTESTS', path: '/contests', icon: Trophy },
   { id: 'rank', label: 'RANK', path: '/leaderboard', icon: BarChart2 },
   { id: 'profile', label: 'PROFILE', path: '/profile', icon: User },
 ]
@@ -163,29 +163,29 @@ export default function AppHeader() {
 
         {/* Right Section: HUD Metrics, Staff & Profile */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Streak pill (hidden on very narrow screens, visible on >= 400px) */}
+          {/* Streak pill */}
           {(streakData?.currentStreak ?? 0) > 0 ? (
             <div
               className={`hidden min-[400px]:flex items-center gap-1.5 ${
-                streakData?.isActiveToday ? 'bg-[#ff5b5b]' : 'bg-[#ff7b7b]'
-              } text-white border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 py-1 text-[11px] font-display font-black`}
+                streakData?.isActiveToday ? 'bg-[#ff5b5b]' : 'bg-[#e05252]'
+              } text-white border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 py-0.5 text-[11px] font-display font-black`}
+              title={`${streakData?.currentStreak} Day Streak`}
             >
-              <Flame
-                className={`w-3.5 h-3.5 fill-white shrink-0 ${
-                  streakData?.isActiveToday ? 'animate-pulse' : ''
-                }`}
-              />
+              <Flame className="w-3.5 h-3.5 fill-white shrink-0" />
               <span>{streakData?.currentStreak}D</span>
             </div>
           ) : (
-            <div className="hidden min-[400px]:flex items-center gap-1.5 bg-white/10 text-white/60 border-[1.5px] border-white/20 rounded-full px-2.5 py-1 text-[11px] font-display font-black">
-              <Flame className="w-3.5 h-3.5 text-white/40 shrink-0" />
+            <div
+              className="hidden min-[400px]:flex items-center gap-1.5 bg-white/10 text-white/50 border-[1.5px] border-white/20 rounded-full px-2 py-0.5 text-[10px] font-display font-bold"
+              title="0 Day Streak - Solve today to start streak"
+            >
+              <Flame className="w-3 h-3 text-white/40 shrink-0" />
               <span>0D</span>
             </div>
           )}
 
           {/* XP pill */}
-          <div className="flex items-center gap-1.5 bg-[#ffd43b] text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black">
+          <div className="flex items-center gap-1.5 bg-[#ffd43b] text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-0.5 text-[11px] sm:text-xs font-display font-black">
             <Zap className="w-3.5 h-3.5 fill-[#0c1d2d] shrink-0" />
             <span>{totalXP} XP</span>
           </div>
@@ -194,7 +194,7 @@ export default function AppHeader() {
           {(profile?.role === 'admin' || profile?.role === 'moderator') && (
             <Link
               to="/moderator"
-              className="flex items-center gap-1.5 bg-[#0c1d2d] text-[#ffd43b] hover:bg-[#ffd43b] hover:text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black hover:-translate-y-0.5 transition-all shrink-0"
+              className="flex items-center gap-1.5 bg-[#0c1d2d] text-[#ffd43b] hover:bg-[#ffd43b] hover:text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-0.5 text-[11px] sm:text-xs font-display font-black hover:-translate-y-0.5 transition-all shrink-0"
               title="Enter Staff Control Center"
             >
               <Shield className="w-3.5 h-3.5 fill-current shrink-0" />
@@ -206,7 +206,7 @@ export default function AppHeader() {
           <button
             type="button"
             onClick={() => navigate('/profile')}
-            aria-label="Open Athlete Profile"
+            aria-label="Open Profile"
             className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#38aef0] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] flex items-center justify-center overflow-hidden transition-transform hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer shrink-0"
           >
             {profile?.avatar_url ? (

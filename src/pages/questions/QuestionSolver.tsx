@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -22,6 +22,7 @@ import { QuestionService } from '../../services/questionService'
 import { ChallengeService } from '../../services/challengeService'
 import type { Question, UserQuestionProgress } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
+import { StatusBadge, NeoBadge } from '../../components/ui'
 
 export default function QuestionSolver() {
   const { id } = useParams<{ id: string }>()
@@ -344,9 +345,9 @@ export default function QuestionSolver() {
     return (
       <AppLayout>
         <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-          <div className="w-12 h-12 border-2 border-[#0c1d2d] border-t-[#ffd43b] rounded-full animate-spin mb-4" />
-          <div className="font-display font-black text-xl uppercase tracking-wider text-black">
-            LOADING ARENA QUESTION...
+          <div className="w-8 h-8 border-2 border-slate-200 border-t-[#0c1d2d] rounded-full animate-spin mb-3" />
+          <div className="text-sm font-semibold text-slate-600">
+            Loading problem...
           </div>
         </div>
       </AppLayout>
@@ -354,29 +355,29 @@ export default function QuestionSolver() {
   }
 
   return (
-    <AppLayout>
-      <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 py-6 sm:py-8 space-y-6">
+    <AppLayout maxWidth="wide">
+      <div className="space-y-4 sm:space-y-5 animate-entry">
         {/* ================================================= */}
         {/* TOP BAR / NAVIGATION                              */}
         {/* ================================================= */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-[#0c1d2d]">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#0c1d2d]/10">
           <Link
             to="/questions"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] transition-transform hover:-translate-x-0.5"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-slate-50 border border-[#0c1d2d]/15 rounded-lg text-xs font-semibold text-slate-700 shadow-sm transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>BACK TO QUESTION BANK</span>
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+            <span>Back to Problem Directory</span>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2.5">
             {/* Stopwatch HUD */}
             <div
               className={`
-                px-3 py-1.5 border-2 border-[#0c1d2d] rounded-xl font-mono font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-[2px_2px_0_#0c1d2d]
-                ${timerActive && !isSubmitted ? 'bg-[#ffd43b] animate-pulse' : 'bg-white'}
+                px-3 py-1.5 border rounded-lg font-mono font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm
+                ${timerActive && !isSubmitted ? 'bg-amber-50 border-amber-300 text-amber-900' : 'bg-white border-[#0c1d2d]/15 text-slate-700'}
               `}
             >
-              <Timer className="w-4 h-4" />
+              <Timer className="w-3.5 h-3.5 text-slate-500" />
               <span>{formatTimer(timeSpent)}</span>
             </div>
 
@@ -386,12 +387,12 @@ export default function QuestionSolver() {
               onClick={handleToggleBookmark}
               aria-label={isBookmarked ? 'Remove Bookmark' : 'Bookmark Question'}
               className={`
-                p-2 border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] transition-transform hover:-translate-y-0.5 cursor-pointer
-                ${isBookmarked ? 'bg-[#ffd43b]' : 'bg-white hover:bg-slate-100'}
+                p-2 border rounded-lg shadow-sm transition-colors cursor-pointer
+                ${isBookmarked ? 'bg-amber-50 border-amber-300 text-amber-600' : 'bg-white hover:bg-slate-50 border-[#0c1d2d]/15 text-slate-600'}
               `}
             >
               <Bookmark
-                className={`w-4 h-4 ${isBookmarked ? 'fill-black text-black' : 'text-black'}`}
+                className={`w-4 h-4 ${isBookmarked ? 'fill-amber-500 text-amber-500' : 'text-slate-600'}`}
               />
             </button>
           </div>
@@ -401,22 +402,22 @@ export default function QuestionSolver() {
         {/* DAILY CHALLENGE BANNER                            */}
         {/* ================================================= */}
         {isChallengeMode && (
-          <div className="bg-[#ffd43b] border-2 sm:border-2 border-[#0c1d2d] rounded-xl p-4 sm:p-5 shadow-[3px_3px_0_#0c1d2d] flex flex-wrap items-center justify-between gap-3 animate-entry">
+          <div className="bg-gradient-to-r from-amber-50 via-amber-50/60 to-white border border-amber-200/80 rounded-xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 animate-entry">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center shrink-0">
-                <Flame className="w-6 h-6 text-[#ffd43b] fill-[#ffd43b]" />
+              <div className="w-9 h-9 rounded-lg bg-[#0c1d2d] flex items-center justify-center shrink-0">
+                <Flame className="w-5 h-5 text-[#ffd43b] fill-[#ffd43b]" />
               </div>
               <div>
-                <div className="font-display font-black text-base uppercase text-black leading-tight">
-                  DAILY CHALLENGE ARENA
+                <div className="font-bold text-sm text-slate-900 leading-tight">
+                  Daily Challenge Arena
                 </div>
-                <div className="font-mono text-xs font-bold text-black/80 mt-0.5">
-                  Authoritative daily problem. First correct solve unlocks +50 BONUS XP & extends streak!
+                <div className="text-xs text-slate-600 mt-0.5">
+                  Authoritative daily problem. First correct solve unlocks +50 Bonus XP & extends your streak.
                 </div>
               </div>
             </div>
-            <div className="bg-[#ff5b5b] text-white border-2 border-[#0c1d2d] rounded-full px-3 py-1 font-mono text-xs font-black uppercase shadow-[2px_2px_0_#0c1d2d]">
-              +50 BONUS XP
+            <div className="bg-rose-50 text-rose-700 border border-rose-200 rounded-md px-2.5 py-1 font-mono text-xs font-bold shadow-xs">
+              +50 Bonus XP
             </div>
           </div>
         )}
@@ -424,45 +425,32 @@ export default function QuestionSolver() {
         {/* ================================================= */}
         {/* TWO-COLUMN QUESTION + OPTIONS ARENA               */}
         {/* ================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* =============================================== */}
           {/* 1. LEFT COLUMN: QUESTION CARD (~60% width)      */}
           {/* =============================================== */}
           <div className="order-1 lg:order-1 lg:col-span-7 flex flex-col">
-            <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
-                <span className="px-2.5 py-1 bg-[#0c1d2d] text-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg font-mono font-black text-[10px] uppercase">
+            <div className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm p-6 sm:p-7">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <NeoBadge variant="dark" density="xs">
                   {question.category}
-                </span>
-                <span className="px-2.5 py-1 bg-[#e9f6ff] text-black border-2 border-[#0c1d2d] rounded-lg font-mono font-bold text-[10px] uppercase">
+                </NeoBadge>
+                <NeoBadge variant="outline" density="xs">
                   {question.topic}
-                </span>
-                <span
-                  className={`
-                    px-2.5 py-1 border-2 border-[#0c1d2d] rounded-lg font-mono font-black text-[10px] uppercase
-                    ${
-                      question.difficulty === 'easy'
-                        ? 'bg-[#32e875] text-black'
-                        : question.difficulty === 'medium'
-                          ? 'bg-[#ffd43b] text-black'
-                          : 'bg-[#ff5b5b] text-white'
-                    }
-                  `}
-                >
-                  {question.difficulty}
-                </span>
+                </NeoBadge>
+                <StatusBadge status={question.difficulty} density="xs" />
 
-                <div className="ml-auto flex items-center gap-1.5 px-3 py-1 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs text-black shadow-[1.5px_1.5px_0_#0c1d2d]">
-                  <Award className="w-3.5 h-3.5" />
+                <div className="ml-auto flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200/70 rounded-md font-mono font-bold text-xs text-amber-900">
+                  <Award className="w-3.5 h-3.5 text-amber-600" />
                   <span>{question.points} XP</span>
                 </div>
               </div>
 
-              <h1 className="font-display font-black text-xl sm:text-2xl text-black uppercase tracking-tight leading-tight">
+              <h1 className="font-bold text-xl sm:text-2xl text-slate-900 tracking-tight leading-tight">
                 {question.title}
               </h1>
 
-              <div className="mt-4 pt-4 border-t-2 border-dashed border-[#0c1d2d]/20 font-body font-bold text-base sm:text-lg text-black/90 leading-relaxed whitespace-pre-line break-words">
+              <div className="mt-4 pt-4 border-t border-slate-100 font-normal text-base text-slate-800 leading-relaxed whitespace-pre-line break-words">
                 {question.prompt}
               </div>
             </div>
@@ -473,32 +461,31 @@ export default function QuestionSolver() {
           {/* =============================================== */}
           <section
             aria-label="Options"
-            className="order-2 lg:order-2 lg:col-span-5 bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8 flex flex-col justify-between"
+            className="order-2 lg:order-2 lg:col-span-5 bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm p-6 sm:p-7 flex flex-col justify-between"
           >
             <div>
-              <div className="font-mono text-xs font-black text-black/60 uppercase mb-4 tracking-wider">
-                CHOOSE THE CORRECT RESPONSE:
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3.5">
+                Select Your Answer:
               </div>
 
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 gap-2.5">
                 {question.options.map((opt) => {
                   const isSelected = selectedOption === opt.id
                   const effectiveCorrect = authoritativeCorrectOption || question.correctOption
                   const isCorrectOption = opt.id === effectiveCorrect
 
-                  let cardBg = 'bg-white hover:bg-slate-50'
-                  const borderColor = 'border-[#0c1d2d]'
+                  let cardStyle = 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
 
                   if (isSubmitted) {
                     if (isCorrectOption) {
-                      cardBg = 'bg-[#32e875] text-black'
+                      cardStyle = 'bg-emerald-50/90 border-emerald-300 text-emerald-950'
                     } else if (isSelected && !isCorrectOption) {
-                      cardBg = 'bg-[#ff5b5b] text-white'
+                      cardStyle = 'bg-rose-50/90 border-rose-300 text-rose-950'
                     } else {
-                      cardBg = 'bg-slate-100 opacity-60'
+                      cardStyle = 'bg-slate-50/60 border-slate-200 opacity-60'
                     }
                   } else if (isSelected) {
-                    cardBg = 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#0c1d2d]'
+                    cardStyle = 'bg-amber-50/70 border-amber-400 ring-1 ring-amber-400/60 text-slate-900'
                   }
 
                   return (
@@ -509,30 +496,29 @@ export default function QuestionSolver() {
                       aria-pressed={isSelected}
                       onClick={() => setSelectedOption(opt.id)}
                       className={`
-                        p-3.5 sm:p-4 rounded-xl border-2 sm:border-2 ${borderColor} ${cardBg}
-                        flex items-center justify-between text-left transition-all cursor-pointer
-                        ${!isSubmitted ? 'hover:-translate-y-0.5 active:translate-y-0 shadow-[2px_2px_0_#0c1d2d]' : ''}
+                        p-3 sm:p-3.5 rounded-xl border ${cardStyle}
+                        flex items-center justify-between text-left transition-colors cursor-pointer
                       `}
                     >
-                      <div className="flex items-center gap-3 sm:gap-3.5">
+                      <div className="flex items-center gap-3">
                         <span
                           className={`
-                            w-8 h-8 rounded-lg border-2 border-[#0c1d2d] flex items-center justify-center font-display font-black text-sm shrink-0
-                            ${isSelected ? 'bg-black text-white' : 'bg-[#e9f6ff] text-black'}
+                            w-7 h-7 rounded-md border flex items-center justify-center font-mono font-bold text-xs shrink-0
+                            ${isSelected ? 'bg-[#0c1d2d] text-white border-[#0c1d2d]' : 'bg-slate-100 text-slate-700 border-slate-200'}
                           `}
                         >
                           {opt.id}
                         </span>
-                        <span className="font-body font-bold text-sm sm:text-base leading-snug">
+                        <span className="font-medium text-sm text-slate-900 leading-snug">
                           {opt.text}
                         </span>
                       </div>
 
                       {isSubmitted && isCorrectOption && (
-                        <CheckCircle2 className="w-5 h-5 text-[#059669] shrink-0" />
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                       )}
                       {isSubmitted && isSelected && !isCorrectOption && (
-                        <XCircle className="w-5 h-5 text-[#dc2626] shrink-0" />
+                        <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
                       )}
                     </button>
                   )
@@ -550,34 +536,34 @@ export default function QuestionSolver() {
               <button
                 type="button"
                 onClick={() => setShowHint(!showHint)}
-                className={`px-3.5 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
-                  showHint ? 'bg-[#ffd43b]' : 'bg-white hover:bg-slate-100'
+                className={`px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs ${
+                  showHint ? 'bg-amber-50 border-amber-300 text-amber-900' : 'bg-white hover:bg-slate-50 border-[#0c1d2d]/15 text-slate-700'
                 }`}
               >
-                <HelpCircle className="w-4 h-4" />
-                <span>{showHint ? 'HIDE HINT' : 'NEED HINT?'}</span>
+                <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                <span>{showHint ? 'Hide Hint' : 'Need a Hint?'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowScratchpad(!showScratchpad)}
-                className={`px-3.5 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
-                  showScratchpad ? 'bg-[#38aef0] text-white' : 'bg-white hover:bg-slate-100 text-black'
+                className={`px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs ${
+                  showScratchpad ? 'bg-sky-50 border-sky-300 text-sky-900' : 'bg-white hover:bg-slate-50 border-[#0c1d2d]/15 text-slate-700'
                 }`}
               >
-                <Edit3 className="w-4 h-4" />
-                <span>SCRATCHPAD</span>
+                <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                <span>Scratchpad</span>
               </button>
             </div>
 
             {/* Hint Drawer */}
             {showHint && question.hints && question.hints.length > 0 && (
-              <div className="p-5 bg-[#fffde7] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] animate-entry">
-                <div className="flex items-center gap-2 font-display font-black text-xs uppercase text-[#926002] mb-2">
-                  <Sparkles className="w-4 h-4" />
-                  <span>ARENA COACH HINTS:</span>
+              <div className="p-4 bg-amber-50/60 border border-amber-200/80 rounded-xl shadow-xs animate-entry">
+                <div className="flex items-center gap-2 font-bold text-xs text-amber-900 mb-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  <span>Problem Hints:</span>
                 </div>
-                <ul className="space-y-1.5 list-disc list-inside font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
+                <ul className="space-y-1 list-disc list-inside font-normal text-xs sm:text-sm text-slate-800 leading-relaxed">
                   {question.hints.map((hintText, idx) => (
                     <li key={idx}>{hintText}</li>
                   ))}
@@ -587,13 +573,13 @@ export default function QuestionSolver() {
 
             {/* Scratchpad Drawer */}
             {showScratchpad && (
-              <div className="p-5 bg-[#e9f6ff] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] animate-entry">
-                <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-[#0c1d2d]">
-                  <span className="font-display font-black text-xs uppercase text-[#071a2b]">
-                    DIGITAL CALCULATION SCRATCHPAD
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl shadow-xs animate-entry">
+                <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-200">
+                  <span className="font-semibold text-xs text-slate-800">
+                    Rough Calculation Scratchpad
                   </span>
-                  <span className="font-mono text-[10px] font-bold text-black/60">
-                    Notes stay in this session
+                  <span className="font-mono text-[10px] text-slate-500">
+                    Persisted in current session only
                   </span>
                 </div>
                 <textarea
@@ -601,7 +587,7 @@ export default function QuestionSolver() {
                   onChange={(e) => setScratchpadNotes(e.target.value)}
                   placeholder="Jot down rough calculations, formulas, or step-by-step logic here..."
                   rows={4}
-                  className="w-full p-3 bg-white border-2 border-[#0c1d2d] rounded-xl font-mono text-xs font-bold outline-none focus:shadow-[2px_2px_0_#38aef0]"
+                  className="w-full p-3 bg-white border border-slate-200 rounded-lg font-mono text-xs text-slate-800 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
                 />
               </div>
             )}
@@ -617,13 +603,13 @@ export default function QuestionSolver() {
                 type="button"
                 onClick={handleSubmitAnswer}
                 disabled={!selectedOption || isSubmitting}
-                className="w-full py-3.5 px-6 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 px-6 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-xl shadow-xs font-bold text-sm tracking-wide transition-all active:scale-[0.99] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                <span>{isSubmitting ? 'PROCESSING...' : 'LOCK & SUBMIT ANSWER'}</span>
+                <span>{isSubmitting ? 'Verifying Solution...' : 'Submit Answer'}</span>
                 <CheckCircle2 className="w-4 h-4" />
               </button>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -632,28 +618,28 @@ export default function QuestionSolver() {
                     setSelectedOption(null)
                     setTimerActive(true)
                   }}
-                  className="px-4 py-3 bg-white hover:bg-slate-100 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 cursor-pointer shrink-0"
+                  className="px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>RE-ATTEMPT</span>
+                  <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Re-attempt</span>
                 </button>
 
                 {isChallengeMode ? (
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="flex-1 py-3 px-5 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                    className="flex-1 py-2.5 px-4 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
                   >
-                    <span>RETURN TO DASHBOARD</span>
+                    <span>Return to Dashboard</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={handleNextQuestion}
-                    className="flex-1 py-3 px-5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                    className="flex-1 py-2.5 px-4 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
                   >
-                    <span>NEXT PROBLEM</span>
+                    <span>Next Problem</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 )}
@@ -668,23 +654,23 @@ export default function QuestionSolver() {
           {isSubmitted && (
             <div
               className={`
-                order-5 lg:order-5 lg:col-span-12 p-6 border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] animate-entry
-                ${isCorrect ? 'bg-[#d1fae5]' : 'bg-[#fee2e2]'}
+                order-5 lg:order-5 lg:col-span-12 p-5 sm:p-6 border rounded-xl shadow-sm animate-entry
+                ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'}
               `}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b-2 border-[#0c1d2d]">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3.5 border-b border-slate-200">
                 <div className="flex items-center gap-2.5">
                   {isCorrect ? (
                     <>
-                      <CheckCircle2 className="w-6 h-6 text-[#065f46] shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                       <div>
-                        <span className="font-display font-black text-base sm:text-lg uppercase text-[#065f46]">
+                        <span className="font-bold text-base text-emerald-950">
                           {xpResult && xpResult.xpChange === 0
-                            ? 'CORRECT REATTEMPT! (+0 XP â€” ALREADY EARNED)'
-                            : `CORRECT! +${xpResult?.xpChange ?? question.points} XP EARNED`}
+                            ? 'Correct Reattempt! (+0 XP — Already Earned)'
+                            : `Correct Solution! +${xpResult?.xpChange ?? question.points} XP Earned`}
                         </span>
                         {xpResult?.xpReason && (
-                          <div className="font-mono text-[10px] font-bold text-[#065f46]/80">
+                          <div className="font-mono text-xs text-emerald-800">
                             {xpResult.xpReason}
                           </div>
                         )}
@@ -692,13 +678,13 @@ export default function QuestionSolver() {
                     </>
                   ) : (
                     <>
-                      <ShieldAlert className="w-6 h-6 text-[#991b1b] shrink-0" />
+                      <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
                       <div>
-                        <span className="font-display font-black text-base sm:text-lg uppercase text-[#991b1b]">
-                          INCORRECT ATTEMPT â€¢ {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP PENALTY
+                        <span className="font-bold text-base text-rose-950">
+                          Incorrect Attempt • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP Penalty
                         </span>
-                        <div className="font-mono text-[10px] font-bold text-[#991b1b]/80">
-                          CORRECT ANSWER IS OPTION {authoritativeCorrectOption || question.correctOption}
+                        <div className="font-mono text-xs text-rose-800">
+                          Correct Answer is Option {authoritativeCorrectOption || question.correctOption}
                         </div>
                       </div>
                     </>
@@ -706,44 +692,44 @@ export default function QuestionSolver() {
                 </div>
 
                 {/* Question-Specific Attempt Breakdown */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {questionAttemptStats && (
-                    <div className="flex items-center gap-1.5 font-mono text-[10px] font-black uppercase bg-white px-2.5 py-1 border-2 border-[#0c1d2d] rounded-lg shadow-[1.5px_1.5px_0_#0c1d2d]">
-                      <span>ATTEMPTS: {questionAttemptStats.totalAttempts}</span>
-                      <span>â€¢</span>
-                      <span className="text-[#059669]">CORRECT: {questionAttemptStats.correctCount}</span>
-                      <span>â€¢</span>
-                      <span className="text-[#dc2626]">INCORRECT: {questionAttemptStats.incorrectCount}</span>
+                    <div className="flex items-center gap-2 font-mono text-xs bg-white px-2.5 py-1 border border-slate-200 rounded-md shadow-xs">
+                      <span className="text-slate-600">Attempts: {questionAttemptStats.totalAttempts}</span>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-emerald-600 font-semibold">Correct: {questionAttemptStats.correctCount}</span>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-rose-600 font-semibold">Incorrect: {questionAttemptStats.incorrectCount}</span>
                     </div>
                   )}
-                  <div className="font-mono text-xs font-black text-black">
-                    SOLVE TIME: {formatTimer(timeSpent)}
+                  <div className="font-mono text-xs font-semibold text-slate-600">
+                    Solve Time: {formatTimer(timeSpent)}
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 bg-white border-2 border-[#0c1d2d] rounded-xl font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
-                <div className="font-display font-black text-xs uppercase text-black mb-1.5">
-                  STEP-BY-STEP MATHEMATICAL SOLUTION:
+              <div className="p-4 bg-white border border-slate-200/80 rounded-xl font-normal text-xs sm:text-sm text-slate-800 leading-relaxed">
+                <div className="font-bold text-xs uppercase tracking-wider text-slate-700 mb-1.5">
+                  Step-by-Step Mathematical Solution:
                 </div>
                 <div className="whitespace-pre-line">{authoritativeExplanation || question.explanation}</div>
 
                 {question.formulaOrRule && (
-                  <div className="mt-3 p-3 bg-[#fffde7] border-2 border-[#0c1d2d] rounded-lg font-mono text-xs font-bold text-black flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-[#ffd43b] shrink-0" />
-                    <span>FORMULA / KEY PRINCIPLE: {question.formulaOrRule}</span>
+                  <div className="mt-3 p-2.5 bg-amber-50/60 border border-amber-200/60 rounded-md font-mono text-xs font-medium text-amber-950 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Formula / Key Principle: {question.formulaOrRule}</span>
                   </div>
                 )}
               </div>
 
               {/* Question Tags */}
               {question.tags && question.tags.length > 0 && (
-                <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-black/60" />
+                <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-slate-400" />
                   {question.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 bg-white border border-[#0c1d2d] rounded-md font-mono text-[10px] font-bold text-black/80"
+                      className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono text-[11px]"
                     >
                       #{tag}
                     </span>
