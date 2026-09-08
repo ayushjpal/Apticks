@@ -1,6 +1,8 @@
 import { supabase } from '../lib/supabase'
 import { INITIAL_QUESTIONS } from '../data/questionsData'
 import { StreakService } from './streakService'
+import { LeaderboardService } from './leaderboardService'
+import type { UserGlobalRankResult } from '../types/leaderboard'
 import type {
   Question,
   Category,
@@ -327,11 +329,17 @@ export class QuestionService {
     questions: Question[]
     progressMap: Record<string, UserQuestionProgress>
     challengeBonusXp: number
+    contestXp: number
+    authoritativeTotalXp?: number
   }> {
-    const [rawQuestions, progressMap, challengeBonusXp] = await Promise.all([
+    const [rawQuestions, progressMap, challengeBonusXp, contestXp, rankRes] = await Promise.all([
       this.getQuestions(filters),
       userId ? this.getUserProgress(userId) : Promise.resolve({}),
       userId ? this.getUserChallengeBonusXp(userId) : Promise.resolve(0),
+      userId ? this.getUserContestXp(userId) : Promise.resolve(0),
+      userId
+        ? LeaderboardService.getUserGlobalRank(userId)
+        : Promise.resolve<UserGlobalRankResult>({ found: false }),
     ])
 
     // Intelligently sort questions: Unsolved first, Solved last
@@ -339,7 +347,13 @@ export class QuestionService {
       ? this.sortQuestionsForUser(rawQuestions, progressMap)
       : rawQuestions
 
-    return { questions, progressMap, challengeBonusXp }
+    return {
+      questions,
+      progressMap,
+      challengeBonusXp,
+      contestXp,
+      authoritativeTotalXp: rankRes.found ? rankRes.totalXp : undefined,
+    }
   }
 
   /**
@@ -359,6 +373,28 @@ export class QuestionService {
       }
     } catch (err) {
       console.warn('Supabase fetch challenge bonus XP note:', err)
+    }
+    return 0
+  }
+
+  /**
+   * Fetch total tournament Contest XP awarded to the user from public.contest_participants.
+   * Authoritative, persistent, and read-only.
+   */
+  static async getUserContestXp(userId: string): Promise<number> {
+    if (!userId) return 0
+    try {
+      const { data, error } = await supabase
+        .from('contest_participants')
+        .select('xp_awarded')
+        .eq('user_id', userId)
+        .eq('status', 'completed')
+
+      if (!error && data && data.length > 0) {
+        return data.reduce((sum, row) => sum + (Number(row.xp_awarded) || 0), 0)
+      }
+    } catch (err) {
+      console.warn('Supabase fetch contest XP note:', err)
     }
     return 0
   }
@@ -733,7 +769,9 @@ export class QuestionService {
     questions: Question[],
     progressMap: Record<string, UserQuestionProgress>,
     attemptsList: UserQuestionAttempt[] = [],
-    challengeBonusXp = 0
+    challengeBonusXp = 0,
+    contestXp = 0,
+    authoritativeTotalXp?: number
   ): QuestionBankStats {
     let solvedCount = 0
     let easySolved = 0
@@ -810,10 +848,16 @@ export class QuestionService {
       incorrectAttempts = Math.max(0, totalAttempts - correctAttempts)
     }
 
-    // Add authoritative Daily Challenge bonus XP to total XP earned
+    // Add authoritative Daily Challenge bonus XP and Contest Tournament XP to total XP earned
     xpEarned += Math.max(0, challengeBonusXp)
+    xpEarned += Math.max(0, contestXp)
 
-    const netXp = Math.max(0, xpEarned - xpLost)
+    // Authoritative Unified XP: Prefer the server-authoritative unified rank value if provided,
+    // otherwise fallback to calculated MAX(0, xpEarned - xpLost)
+    const netXp = typeof authoritativeTotalXp === 'number'
+      ? Math.max(0, authoritativeTotalXp)
+      : Math.max(0, xpEarned - xpLost)
+
     const accuracyRate =
       totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0
 
@@ -836,6 +880,8 @@ export class QuestionService {
       xpLost,
       netXp,
       challengeBonusXp,
+      contestXp,
+      authoritativeTotalXp: typeof authoritativeTotalXp === 'number' ? authoritativeTotalXp : netXp,
     }
   }
 }

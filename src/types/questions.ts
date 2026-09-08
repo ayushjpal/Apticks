@@ -74,6 +74,8 @@ export interface QuestionBankStats {
   xpLost: number
   netXp: number
   challengeBonusXp?: number
+  contestXp?: number
+  authoritativeTotalXp?: number
 }
 
 export interface QuestionFilters {

@@ -59,6 +59,8 @@ export default function QuestionBank() {
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
   const [challengeBonusXp, setChallengeBonusXp] = useState(0)
+  const [contestXp, setContestXp] = useState(0)
+  const [authoritativeTotalXp, setAuthoritativeTotalXp] = useState<number | undefined>(undefined)
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all')
@@ -93,13 +95,20 @@ export default function QuestionBank() {
           setUserId(activeUser.id)
         }
 
-        const { questions: fetchedQuestions, progressMap: fetchedMap, challengeBonusXp: fetchedBonus } =
-          await QuestionService.getQuestionsWithProgress(activeUser.id)
+        const {
+          questions: fetchedQuestions,
+          progressMap: fetchedMap,
+          challengeBonusXp: fetchedBonus,
+          contestXp: fetchedContest,
+          authoritativeTotalXp: fetchedAuthXp,
+        } = await QuestionService.getQuestionsWithProgress(activeUser.id)
 
         if (isMounted) {
           setQuestions(fetchedQuestions)
           setProgressMap(fetchedMap)
           setChallengeBonusXp(fetchedBonus)
+          setContestXp(fetchedContest)
+          setAuthoritativeTotalXp(fetchedAuthXp)
         }
       } catch (err) {
         console.error('Error loading question bank data:', err)
@@ -226,8 +235,8 @@ export default function QuestionBank() {
 
   // Progress Statistics
   const stats = useMemo(() => {
-    return QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp)
-  }, [questions, progressMap, challengeBonusXp])
+    return QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp, contestXp, authoritativeTotalXp)
+  }, [questions, progressMap, challengeBonusXp, contestXp, authoritativeTotalXp])
 
   const hasActiveFilters =
     selectedCategory !== 'all' ||

@@ -16,6 +16,7 @@ import { supabase } from '../../lib/supabase'
 import { ProfileService, type UserProfile } from '../../services/profileService'
 import { QuestionService } from '../../services/questionService'
 import { StreakService } from '../../services/streakService'
+import { LeaderboardService } from '../../services/leaderboardService'
 import type { UserStreak } from '../../types/questions'
 
 interface NavItem {
@@ -69,17 +70,26 @@ export default function AppHeader() {
           setProfile(p)
         }
 
-        // Fetch Live Streak & XP concurrently
+        // Fetch Live Streak & Authoritative Unified XP concurrently
         try {
-          const [userStreak, { questions, progressMap, challengeBonusXp }] = await Promise.all([
+          const [userStreak, rankRes] = await Promise.all([
             StreakService.getUserStreak(user.id),
-            QuestionService.getQuestionsWithProgress(user.id),
+            LeaderboardService.getUserGlobalRank(user.id),
           ])
 
           if (isMounted) {
             setStreakData(userStreak)
-            const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp)
-            setTotalXP(stats.totalPoints)
+            if (rankRes.found && typeof rankRes.totalXp === 'number') {
+              setTotalXP(rankRes.totalXp)
+            } else {
+              // Fallback calculation if rank RPC not found
+              const { questions, progressMap, challengeBonusXp, contestXp } =
+                await QuestionService.getQuestionsWithProgress(user.id)
+              if (isMounted) {
+                const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp, contestXp)
+                setTotalXP(stats.totalPoints)
+              }
+            }
           }
         } catch (e) {
           console.warn('Header stats/streak fetch note:', e)

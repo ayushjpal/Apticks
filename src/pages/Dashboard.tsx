@@ -18,6 +18,7 @@ import { QuestionService } from '../services/questionService'
 import { StreakService } from '../services/streakService'
 import { ChallengeService } from '../services/challengeService'
 import { ContestService } from '../services/contestService'
+import { LeaderboardService } from '../services/leaderboardService'
 import type { UserStreak, DailyChallenge } from '../types/questions'
 import type { Contest } from '../types/contests'
 import AppLayout from '../components/layout/AppLayout'
@@ -87,20 +88,29 @@ export default function Dashboard() {
           const [
             userStreak,
             challenge,
-            { questions, progressMap, challengeBonusXp },
+            { questions, progressMap, challengeBonusXp, contestXp },
             contestList,
+            rankRes,
           ] = await Promise.all([
             StreakService.getUserStreak(user.id),
             ChallengeService.getDailyChallenge(),
             QuestionService.getQuestionsWithProgress(user.id),
             ContestService.getContests(),
+            LeaderboardService.getUserGlobalRank(user.id),
           ])
 
           if (isMounted) {
             setStreakData(userStreak)
             setDailyChallenge(challenge)
             setContests(contestList)
-            const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp)
+            const stats = QuestionService.calculateStats(
+              questions,
+              progressMap,
+              [],
+              challengeBonusXp,
+              contestXp,
+              rankRes.found ? rankRes.totalXp : undefined
+            )
             setQuestionStats(stats)
           }
         } catch (qErr) {

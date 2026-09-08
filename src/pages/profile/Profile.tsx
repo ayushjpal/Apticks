@@ -30,6 +30,7 @@ import {
 import { normalizeUsername } from '../../utils/validation'
 import { QuestionService } from '../../services/questionService'
 import { StreakService } from '../../services/streakService'
+import { LeaderboardService } from '../../services/leaderboardService'
 import type { QuestionBankStats, UserQuestionAttempt, UserStreak } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
 
@@ -198,12 +199,25 @@ export default function Profile() {
         }
 
         try {
-          const [{ questions, progressMap, challengeBonusXp }, attempts, streak] = await Promise.all([
+          const [
+            { questions, progressMap, challengeBonusXp, contestXp },
+            attempts,
+            streak,
+            rankRes,
+          ] = await Promise.all([
             QuestionService.getQuestionsWithProgress(user.id),
             QuestionService.getUserAttempts(user.id, 20),
             StreakService.getUserStreak(user.id),
+            LeaderboardService.getUserGlobalRank(user.id),
           ])
-          const stats = QuestionService.calculateStats(questions, progressMap, attempts, challengeBonusXp)
+          const stats = QuestionService.calculateStats(
+            questions,
+            progressMap,
+            attempts,
+            challengeBonusXp,
+            contestXp,
+            rankRes.found ? rankRes.totalXp : undefined
+          )
           if (isMounted) {
             setQuestionStats(stats)
             setUserAttempts(attempts)
