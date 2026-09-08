@@ -1,4 +1,4 @@
-/* =========================================================
+﻿/* =========================================================
    APTICKS — NEO BRUTALIST LOGIN
    ========================================================= */
 
@@ -85,7 +85,7 @@
 
   background: #ffffff;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   box-shadow:
     10px 10px 0 #ffffff;
@@ -154,7 +154,7 @@
 
   background: #ffd43b;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   box-shadow:
     4px 4px 0 #050505;
@@ -262,7 +262,7 @@
 
   background: #ff5c60;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   transform: rotate(13deg);
 
@@ -288,7 +288,7 @@
 
   background: #ffd43b;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 }
 
 
@@ -310,7 +310,7 @@
   grid-template-columns:
     repeat(3, 1fr);
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   z-index: 6;
 }
@@ -498,7 +498,7 @@
   padding:
     0 13px 0 34px;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   border-radius: 0;
 
@@ -770,7 +770,7 @@
 
   height: 47px;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   border-radius: 0;
 
@@ -867,7 +867,7 @@
 
   margin-bottom: 11px;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   border-radius: 0;
 
@@ -948,7 +948,7 @@
 
   gap: 15px;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   background: #f5f2e9;
 
@@ -991,7 +991,7 @@
 
   color: #ffffff;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   box-shadow:
     3px 3px 0 #38a8f2;
@@ -1041,7 +1041,7 @@
   align-items: center;
   justify-content: center;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   font-size: 15px;
 
@@ -1202,7 +1202,7 @@
 
   background: #ffffff;
 
-  border: 3px solid #050505;
+  border: 2px solid #050505;
 
   box-shadow:
     5px 5px 0 #38a8f2;
@@ -1304,7 +1304,7 @@
 
     border-right: none;
 
-    border-bottom: 3px solid #050505;
+    border-bottom: 2px solid #050505;
   }
 
 

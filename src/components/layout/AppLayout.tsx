@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import AppHeader from './AppHeader'
-import BottomNavbar from './BottomNavbar'
 import { initSmoothScroll, scrollToTop, animatePageEntrance } from '../../lib/motion'
 
 export interface AppLayoutProps {
@@ -12,7 +11,6 @@ export interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
   children,
-  hideBottomNav = false,
   hideHeader = false,
 }) => {
   const location = useLocation()
@@ -42,16 +40,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* Main Page Content */}
       <main
         ref={contentRef}
-        className={`
-          flex-1 w-full max-w-7xl mx-auto px-3 sm:px-5 lg:px-7 py-3 sm:py-5 lg:py-6
-          ${!hideBottomNav ? 'pb-16 sm:pb-20' : 'pb-8'}
-        `}
+        className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-5 lg:px-7 py-3 sm:py-5 lg:py-6 pb-6 sm:pb-8"
       >
         {children}
       </main>
-
-      {/* Floating Bottom Navigation */}
-      {!hideBottomNav && <BottomNavbar />}
     </div>
   )
 }

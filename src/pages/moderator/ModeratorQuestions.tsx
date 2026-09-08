@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+﻿import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   BookOpen,
@@ -440,7 +440,7 @@ export default function ModeratorQuestions() {
       <div className="space-y-6">
         {/* Success Toast */}
         {successToast && (
-          <div className="fixed top-20 right-6 z-50 bg-[#10b981] text-white border-3 border-black shadow-[4px_4px_0_#000000] px-4 py-3 rounded-xl flex items-center gap-3 animate-slide-in">
+          <div className="fixed top-20 right-6 z-50 bg-[#10b981] text-white border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] px-4 py-3 rounded-xl flex items-center gap-3 animate-slide-in">
             <CheckCircle className="w-5 h-5 shrink-0" />
             <span className="font-display font-black text-xs uppercase tracking-wider">
               {successToast}
@@ -468,7 +468,7 @@ export default function ModeratorQuestions() {
               <h1 className="font-display font-black text-2xl sm:text-3xl uppercase text-white tracking-tight">
                 QUESTION BANK CONTROL
               </h1>
-              <span className="px-2.5 py-0.5 bg-[#ffd43b] text-black border-2 border-black rounded-full font-mono text-[10px] font-black uppercase">
+              <span className="px-2.5 py-0.5 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-full font-mono text-[10px] font-black uppercase">
                 {role.toUpperCase()}
               </span>
             </div>
@@ -478,7 +478,7 @@ export default function ModeratorQuestions() {
             <button
               onClick={refreshQuestions}
               disabled={refreshing || loading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white text-black hover:bg-black hover:text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0_#000000] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white text-black hover:bg-black hover:text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0_#0c1d2d] disabled:opacity-50"
               title="Refresh questions from database"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
@@ -487,7 +487,7 @@ export default function ModeratorQuestions() {
 
             <button
               onClick={handleOpenCreate}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#ffd43b] text-black hover:bg-black hover:text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[3px_3px_0_#000000] hover:shadow-[4px_4px_0_#000000]"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#ffd43b] text-black hover:bg-black hover:text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3px_3px_0_#0c1d2d]"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>ADD QUESTION</span>
@@ -497,7 +497,7 @@ export default function ModeratorQuestions() {
 
         {/* Inventory Metrics Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-white border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="text-[10px] font-mono font-bold uppercase text-black/60">
               TOTAL INVENTORY
             </div>
@@ -509,7 +509,7 @@ export default function ModeratorQuestions() {
             </div>
           </div>
 
-          <div className="bg-white border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="text-[10px] font-mono font-bold uppercase text-black/60">
               ACTIVE IN PRACTICE
             </div>
@@ -522,7 +522,7 @@ export default function ModeratorQuestions() {
             </div>
           </div>
 
-          <div className="bg-white border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="text-[10px] font-mono font-bold uppercase text-black/60">
               INACTIVE / STAGED
             </div>
@@ -534,7 +534,7 @@ export default function ModeratorQuestions() {
             </div>
           </div>
 
-          <div className="bg-white border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="text-[10px] font-mono font-bold uppercase text-black/60">
               CONTEST QUESTIONS
             </div>
@@ -549,7 +549,7 @@ export default function ModeratorQuestions() {
         </div>
 
         {/* Filter & Search Toolbar */}
-        <div className="bg-white border-3 border-black p-4 sm:p-5 rounded-2xl shadow-[5px_5px_0_#000000] space-y-4">
+        <div className="bg-white border-2 border-[#0c1d2d] p-4 sm:p-5 rounded-xl shadow-[3px_3px_0_#0c1d2d] space-y-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative flex-1">
@@ -562,7 +562,7 @@ export default function ModeratorQuestions() {
                   setSearchQuery(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="w-full pl-10 pr-10 py-2.5 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-semibold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:ring-2 focus:ring-black"
+                className="w-full pl-10 pr-10 py-2.5 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-semibold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:ring-2 focus:ring-black"
               />
               {searchQuery && (
                 <button
@@ -583,7 +583,7 @@ export default function ModeratorQuestions() {
                   setSelectedCategory(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-display font-bold uppercase text-black focus:outline-none focus:bg-white"
+                className="px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-display font-bold uppercase text-black focus:outline-none focus:bg-white"
               >
                 <option value="all">ALL CATEGORIES</option>
                 {CATEGORIES.map((cat) => (
@@ -600,7 +600,7 @@ export default function ModeratorQuestions() {
                   setSelectedDifficulty(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-display font-bold uppercase text-black focus:outline-none focus:bg-white"
+                className="px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-display font-bold uppercase text-black focus:outline-none focus:bg-white"
               >
                 <option value="all">ALL DIFFICULTIES</option>
                 <option value="easy">EASY</option>
@@ -615,7 +615,7 @@ export default function ModeratorQuestions() {
                   setSelectedStatus(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-display font-bold uppercase text-black focus:outline-none focus:bg-white"
+                className="px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-display font-bold uppercase text-black focus:outline-none focus:bg-white"
               >
                 <option value="all">ALL STATUSES</option>
                 <option value="active">ACTIVE ONLY</option>
@@ -632,7 +632,7 @@ export default function ModeratorQuestions() {
                     setSelectedStatus('all')
                     setCurrentPage(1)
                   }}
-                  className="px-3 py-2 bg-black/5 hover:bg-black/10 text-black border-2 border-black/20 rounded-xl text-xs font-display font-bold uppercase transition-colors"
+                  className="px-3 py-2 bg-black/5 hover:bg-black/10 text-black border-2 border-[#0c1d2d]/20 rounded-xl text-xs font-display font-bold uppercase transition-colors"
                 >
                   RESET
                 </button>
@@ -640,7 +640,7 @@ export default function ModeratorQuestions() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs font-mono text-black/60 pt-2 border-t border-black/10">
+          <div className="flex items-center justify-between text-xs font-mono text-black/60 pt-2 border-t border-[#0c1d2d]/10">
             <span>
               Showing {filteredQuestions.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} -{' '}
               {Math.min(currentPage * pageSize, filteredQuestions.length)} of {filteredQuestions.length} questions
@@ -651,7 +651,7 @@ export default function ModeratorQuestions() {
 
         {/* Error Notification */}
         {errorMessage && (
-          <div className="bg-[#fee2e2] border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000] flex items-center justify-between gap-3 text-black">
+          <div className="bg-[#fee2e2] border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center justify-between gap-3 text-black">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-[#ef4444] shrink-0" />
               <span className="text-xs font-body font-bold">{errorMessage}</span>
@@ -666,17 +666,17 @@ export default function ModeratorQuestions() {
         )}
 
         {/* Questions Table */}
-        <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] overflow-hidden">
+        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
           {loading ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-8 h-8 border-4 border-black border-t-[#ffd43b] rounded-full animate-spin mx-auto" />
+              <div className="w-8 h-8 border-2 border-[#0c1d2d] border-t-[#ffd43b] rounded-full animate-spin mx-auto" />
               <div className="text-xs font-display font-black uppercase text-black/60">
                 LOADING QUESTION INVENTORY...
               </div>
             </div>
           ) : filteredQuestions.length === 0 ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 bg-black/5 rounded-2xl flex items-center justify-center mx-auto text-black/40">
+              <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center mx-auto text-black/40">
                 <BookOpen className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-display font-black uppercase text-black">
@@ -693,7 +693,7 @@ export default function ModeratorQuestions() {
             >
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 z-10 shadow-[0_2px_0_#000000]">
-                  <tr className="bg-[#f8fafc] border-b-3 border-black text-[11px] font-display font-black uppercase text-black tracking-wider">
+                  <tr className="bg-[#f8fafc] border-b-2 border-[#0c1d2d] text-[11px] font-display font-black uppercase text-black tracking-wider">
                     <th className="py-3 px-4 w-28">ID</th>
                     <th className="py-3 px-4 min-w-[280px]">TITLE & PROBLEM</th>
                     <th className="py-3 px-4 w-44">CATEGORY & TOPIC</th>
@@ -719,7 +719,7 @@ export default function ModeratorQuestions() {
                       >
                         {/* ID */}
                         <td className="py-3.5 px-4 align-top">
-                          <div className="font-mono text-xs font-bold text-black bg-black/5 px-2 py-1 rounded border border-black/20 inline-block">
+                          <div className="font-mono text-xs font-bold text-black bg-black/5 px-2 py-1 rounded border border-[#0c1d2d]/20 inline-block">
                             {q.id}
                           </div>
                           {q.isContestQuestion && (
@@ -756,7 +756,7 @@ export default function ModeratorQuestions() {
                         {/* Difficulty */}
                         <td className="py-3.5 px-4 align-top text-center">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-display font-black uppercase border border-black/20 ${diffColor}`}
+                            className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-display font-black uppercase border border-[#0c1d2d]/20 ${diffColor}`}
                           >
                             {q.difficulty}
                           </span>
@@ -777,7 +777,7 @@ export default function ModeratorQuestions() {
                               ACTIVE
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-black/5 text-black/60 border border-black/20 rounded-full text-[10px] font-display font-black uppercase">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-black/5 text-black/60 border border-[#0c1d2d]/20 rounded-full text-[10px] font-display font-black uppercase">
                               INACTIVE
                             </span>
                           )}
@@ -790,7 +790,7 @@ export default function ModeratorQuestions() {
                             <button
                               onClick={() => setPreviewQuestion(q)}
                               aria-label={`Preview ${q.id}`}
-                              className="p-1.5 hover:bg-black/5 border border-black/20 rounded-lg text-black hover:text-[#2563eb] transition-colors"
+                              className="p-1.5 hover:bg-black/5 border border-[#0c1d2d]/20 rounded-lg text-black hover:text-[#2563eb] transition-colors"
                               title="Preview question and answer key"
                             >
                               <Eye className="w-3.5 h-3.5" />
@@ -800,7 +800,7 @@ export default function ModeratorQuestions() {
                             <button
                               onClick={() => handleOpenEdit(q)}
                               aria-label={`Edit ${q.id}`}
-                              className="p-1.5 hover:bg-[#ffd43b]/40 border border-black/20 rounded-lg text-black hover:text-black transition-colors"
+                              className="p-1.5 hover:bg-[#ffd43b]/40 border border-[#0c1d2d]/20 rounded-lg text-black hover:text-black transition-colors"
                               title="Edit question fields"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -810,7 +810,7 @@ export default function ModeratorQuestions() {
                             <button
                               onClick={() => setConfirmToggleQuestion(q)}
                               aria-label={q.is_active ? `Deactivate ${q.id}` : `Activate ${q.id}`}
-                              className={`p-1.5 border border-black/20 rounded-lg transition-colors ${
+                              className={`p-1.5 border border-[#0c1d2d]/20 rounded-lg transition-colors ${
                                 q.is_active
                                   ? 'hover:bg-[#fee2e2] text-black hover:text-[#b91c1c]'
                                   : 'hover:bg-[#dcfce7] text-black hover:text-[#15803d]'
@@ -835,11 +835,11 @@ export default function ModeratorQuestions() {
 
           {/* Pagination Footer */}
           {totalPages > 1 && (
-            <div className="p-4 border-t-3 border-black bg-[#f8fafc] flex items-center justify-between">
+            <div className="p-4 border-t-3 border-[#0c1d2d] bg-[#f8fafc] flex items-center justify-between">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-black rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>PREV</span>
@@ -857,9 +857,9 @@ export default function ModeratorQuestions() {
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`w-8 h-8 rounded-lg border-2 border-black font-display font-black text-xs transition-colors ${
+                      className={`w-8 h-8 rounded-lg border-2 border-[#0c1d2d] font-display font-black text-xs transition-colors ${
                         currentPage === pageNum
-                          ? 'bg-[#ffd43b] text-black shadow-[1px_1px_0_#000000]'
+                          ? 'bg-[#ffd43b] text-black shadow-[1px_1px_0_#0c1d2d]'
                           : 'bg-white hover:bg-black/5 text-black'
                       }`}
                     >
@@ -872,7 +872,7 @@ export default function ModeratorQuestions() {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-black rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
               >
                 <span>NEXT</span>
                 <ChevronRight className="w-4 h-4" />
@@ -891,15 +891,15 @@ export default function ModeratorQuestions() {
           data-lenis-prevent
         >
           <div
-            className="bg-white border-3 sm:border-4 border-black rounded-2xl max-w-2xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative data-lenis-prevent"
+            className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-2xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative data-lenis-prevent"
             data-lenis-prevent
           >
             {/* Header info */}
-            <div className="p-4 sm:p-6 border-b-2 sm:border-b-3 border-black shrink-0 flex-none relative pr-12 bg-white">
+            <div className="p-4 sm:p-6 border-b-2 sm:border-b-2 border-[#0c1d2d] shrink-0 flex-none relative pr-12 bg-white">
               <button
                 onClick={() => setPreviewQuestion(null)}
                 aria-label="Close preview modal"
-                className="absolute top-4 right-4 p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-xl border border-transparent hover:border-black/20 transition-all"
+                className="absolute top-4 right-4 p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-xl border border-transparent hover:border-[#0c1d2d]/20 transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -909,7 +909,7 @@ export default function ModeratorQuestions() {
                   <span className="font-mono text-xs font-black px-2 py-0.5 bg-black text-white rounded">
                     {previewQuestion.id}
                   </span>
-                  <span className="text-xs font-display font-bold px-2 py-0.5 bg-black/5 rounded border border-black/20">
+                  <span className="text-xs font-display font-bold px-2 py-0.5 bg-black/5 rounded border border-[#0c1d2d]/20">
                     {previewQuestion.category}
                   </span>
                   <span className="text-xs font-body font-bold text-black/60">
@@ -940,7 +940,7 @@ export default function ModeratorQuestions() {
               data-lenis-prevent
             >
               {/* Prompt */}
-              <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl text-sm font-body font-semibold text-black/80 leading-relaxed whitespace-pre-wrap break-words">
+              <div className="p-4 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-sm font-body font-semibold text-black/80 leading-relaxed whitespace-pre-wrap break-words">
                 {previewQuestion.prompt}
               </div>
 
@@ -958,14 +958,14 @@ export default function ModeratorQuestions() {
                         className={`p-3 rounded-xl border-2 flex items-start gap-2.5 ${
                           isCorrect
                             ? 'bg-[#dcfce7] border-[#16a34a] text-[#166534] shadow-[2px_2px_0_#16a34a]'
-                            : 'bg-white border-black/20 text-black/80'
+                            : 'bg-white border-[#0c1d2d]/20 text-black/80'
                         }`}
                       >
                         <span
                           className={`w-6 h-6 rounded-lg flex items-center justify-center font-display font-black text-xs shrink-0 ${
                             isCorrect
                               ? 'bg-[#16a34a] text-white'
-                              : 'bg-black/5 text-black border border-black/20'
+                              : 'bg-black/5 text-black border border-[#0c1d2d]/20'
                           }`}
                         >
                           {opt.id}
@@ -983,7 +983,7 @@ export default function ModeratorQuestions() {
               </div>
 
               {/* Solution & Explanation */}
-              <div className="p-4 bg-[#fef9c3] border-2 border-black rounded-xl space-y-1.5">
+              <div className="p-4 bg-[#fef9c3] border-2 border-[#0c1d2d] rounded-xl space-y-1.5">
                 <div className="text-xs font-display font-black uppercase text-black flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#b45309]" />
                   <span>EXPLANATION & SOLUTION</span>
@@ -992,7 +992,7 @@ export default function ModeratorQuestions() {
                   {previewQuestion.explanation}
                 </p>
                 {previewQuestion.formula_or_rule && (
-                  <div className="mt-2 pt-2 border-t border-black/10 text-[11px] font-mono font-bold text-black/70 break-words">
+                  <div className="mt-2 pt-2 border-t border-[#0c1d2d]/10 text-[11px] font-mono font-bold text-black/70 break-words">
                     <span className="text-black">Formula / Rule:</span> {previewQuestion.formula_or_rule}
                   </div>
                 )}
@@ -1001,7 +1001,7 @@ export default function ModeratorQuestions() {
               {/* Hints & Tags */}
               {((previewQuestion.hints && previewQuestion.hints.length > 0) ||
                 (previewQuestion.tags && previewQuestion.tags.length > 0)) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t-2 border-black/10 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t-2 border-[#0c1d2d]/10 text-xs">
                   {previewQuestion.hints && previewQuestion.hints.length > 0 && (
                     <div>
                       <div className="font-display font-black uppercase text-black/60 mb-1">
@@ -1023,7 +1023,7 @@ export default function ModeratorQuestions() {
                         {previewQuestion.tags.map((t, i) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 bg-black/5 text-black border border-black/20 rounded text-[10px] font-mono font-bold break-words"
+                            className="px-2 py-0.5 bg-black/5 text-black border border-[#0c1d2d]/20 rounded text-[10px] font-mono font-bold break-words"
                           >
                             #{t}
                           </span>
@@ -1036,19 +1036,19 @@ export default function ModeratorQuestions() {
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="p-4 border-t-2 sm:border-t-3 border-black bg-[#f8fafc] shrink-0 flex-none flex items-center justify-between">
+            <div className="p-4 border-t-2 sm:border-t-3 border-[#0c1d2d] bg-[#f8fafc] shrink-0 flex-none flex items-center justify-between">
               <button
                 onClick={() => {
                   setPreviewQuestion(null)
                   handleOpenEdit(previewQuestion)
                 }}
-                className="px-4 py-2 bg-[#ffd43b] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0_#000000]"
+                className="px-4 py-2 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0_#0c1d2d]"
               >
                 EDIT THIS QUESTION →
               </button>
               <button
                 onClick={() => setPreviewQuestion(null)}
-                className="px-4 py-2 bg-black/5 hover:bg-black/10 text-black border-2 border-black/20 rounded-xl font-display font-black text-xs uppercase transition-colors"
+                className="px-4 py-2 bg-black/5 hover:bg-black/10 text-black border-2 border-[#0c1d2d]/20 rounded-xl font-display font-black text-xs uppercase transition-colors"
               >
                 CLOSE
               </button>
@@ -1066,21 +1066,21 @@ export default function ModeratorQuestions() {
           data-lenis-prevent
         >
           <div
-            className="bg-white border-3 sm:border-4 border-black rounded-2xl max-w-3xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative data-lenis-prevent"
+            className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-3xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative data-lenis-prevent"
             data-lenis-prevent
           >
             {/* Fixed Header */}
-            <div className="p-4 sm:p-6 border-b-2 sm:border-b-3 border-black shrink-0 flex-none relative pr-12 bg-white">
+            <div className="p-4 sm:p-6 border-b-2 sm:border-b-2 border-[#0c1d2d] shrink-0 flex-none relative pr-12 bg-white">
               <button
                 onClick={() => setIsCreateModalOpen(false)}
                 aria-label="Close authoring modal"
-                className="absolute top-4 right-4 p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-xl border border-transparent hover:border-black/20 transition-all"
+                className="absolute top-4 right-4 p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-xl border border-transparent hover:border-[#0c1d2d]/20 transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#ffd43b] text-black border-2 border-black rounded-full text-[10px] font-display font-black uppercase mb-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-full text-[10px] font-display font-black uppercase mb-1">
                   {editingQuestion ? 'UPDATE QUESTION' : 'NEW QUESTION AUTHORING'}
                 </div>
                 <h2 className="font-display font-black text-xl sm:text-2xl uppercase text-black">
@@ -1099,7 +1099,7 @@ export default function ModeratorQuestions() {
                 data-lenis-prevent
               >
                 {formError && (
-                  <div className="bg-[#fee2e2] border-2 border-black p-3 rounded-xl flex items-center gap-2 text-xs font-body font-bold text-black">
+                  <div className="bg-[#fee2e2] border-2 border-[#0c1d2d] p-3 rounded-xl flex items-center gap-2 text-xs font-body font-bold text-black">
                     <AlertTriangle className="w-4 h-4 text-[#ef4444] shrink-0" />
                     <span>{formError}</span>
                   </div>
@@ -1115,7 +1115,7 @@ export default function ModeratorQuestions() {
                     <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value as Category)}
-                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-bold text-black focus:outline-none focus:bg-white"
+                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black focus:outline-none focus:bg-white"
                     >
                       {CATEGORIES.map((cat) => (
                         <option key={cat} value={cat}>
@@ -1135,7 +1135,7 @@ export default function ModeratorQuestions() {
                       placeholder="e.g. Percentages"
                       value={formTopic}
                       onChange={(e) => setFormTopic(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-semibold text-black focus:outline-none focus:bg-white"
+                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-semibold text-black focus:outline-none focus:bg-white"
                     />
                   </div>
 
@@ -1147,7 +1147,7 @@ export default function ModeratorQuestions() {
                     <select
                       value={formDifficulty}
                       onChange={(e) => setFormDifficulty(e.target.value as Difficulty)}
-                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-display font-black uppercase text-black focus:outline-none focus:bg-white"
+                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-display font-black uppercase text-black focus:outline-none focus:bg-white"
                     >
                       {DIFFICULTIES.map((d) => (
                         <option key={d} value={d}>
@@ -1159,7 +1159,7 @@ export default function ModeratorQuestions() {
                 </div>
 
                 {/* Row 2: Sequential ID generation preview & Points */}
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 bg-[#f8fafc] border-2 border-black rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl">
                   <div className="sm:col-span-3">
                     <div className="text-[10px] font-mono font-bold uppercase text-black/60">
                       ID ALLOCATION (SERVER AUTOMATIC)
@@ -1195,7 +1195,7 @@ export default function ModeratorQuestions() {
                             placeholder="e.g. quant-081"
                             value={formCustomId}
                             onChange={(e) => setFormCustomId(e.target.value)}
-                            className="w-48 px-2.5 py-1 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none"
+                            className="w-48 px-2.5 py-1 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none"
                           />
                         )}
                       </div>
@@ -1217,7 +1217,7 @@ export default function ModeratorQuestions() {
                       max={100}
                       value={formPoints}
                       onChange={(e) => setFormPoints(parseInt(e.target.value) || 10)}
-                      className="w-full px-3 py-1.5 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none"
+                      className="w-full px-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1232,7 +1232,7 @@ export default function ModeratorQuestions() {
                     placeholder="Short, descriptive problem title..."
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-bold text-black focus:outline-none focus:bg-white"
+                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black focus:outline-none focus:bg-white"
                   />
                 </div>
 
@@ -1246,7 +1246,7 @@ export default function ModeratorQuestions() {
                     placeholder="Full problem statement with givens, conditions, and what is asked..."
                     value={formPrompt}
                     onChange={(e) => setFormPrompt(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-semibold text-black focus:outline-none focus:bg-white resize-y"
+                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-semibold text-black focus:outline-none focus:bg-white resize-y"
                   />
                 </div>
 
@@ -1270,7 +1270,7 @@ export default function ModeratorQuestions() {
                           className={`p-2.5 rounded-xl border-2 flex items-center gap-3 transition-colors ${
                             isSelected
                               ? 'bg-[#dcfce7]/60 border-[#16a34a]'
-                              : 'bg-[#f8fafc] border-black/30'
+                              : 'bg-[#f8fafc] border-[#0c1d2d]/30'
                           }`}
                         >
                           <label className="flex items-center gap-2 cursor-pointer shrink-0">
@@ -1301,7 +1301,7 @@ export default function ModeratorQuestions() {
                               updated[idx] = { ...updated[idx], text: e.target.value }
                               setFormOptions(updated)
                             }}
-                            className="flex-1 px-3 py-1.5 bg-white border border-black/20 rounded-lg text-xs font-body font-semibold text-black focus:outline-none focus:border-black"
+                            className="flex-1 px-3 py-1.5 bg-white border border-[#0c1d2d]/20 rounded-lg text-xs font-body font-semibold text-black focus:outline-none focus:border-[#0c1d2d]"
                           />
                         </div>
                       )
@@ -1319,7 +1319,7 @@ export default function ModeratorQuestions() {
                     placeholder="Step-by-step mathematical or logical derivation..."
                     value={formExplanation}
                     onChange={(e) => setFormExplanation(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-medium text-black focus:outline-none focus:bg-white resize-y"
+                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-medium text-black focus:outline-none focus:bg-white resize-y"
                   />
                 </div>
 
@@ -1335,7 +1335,7 @@ export default function ModeratorQuestions() {
                       placeholder="e.g. Net Change = a + b + (ab)/100"
                       value={formFormula}
                       onChange={(e) => setFormFormula(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-mono font-medium text-black focus:outline-none focus:bg-white"
+                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-mono font-medium text-black focus:outline-none focus:bg-white"
                     />
                   </div>
 
@@ -1349,7 +1349,7 @@ export default function ModeratorQuestions() {
                       placeholder="e.g. Percentages, Arithmetic, Speed"
                       value={formTagsText}
                       onChange={(e) => setFormTagsText(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-medium text-black focus:outline-none focus:bg-white"
+                      className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-medium text-black focus:outline-none focus:bg-white"
                     />
                   </div>
                 </div>
@@ -1364,7 +1364,7 @@ export default function ModeratorQuestions() {
                     placeholder="Hint 1: Assume starting amount is 100&#10;Hint 2: Apply second change on updated value"
                     value={formHintsText}
                     onChange={(e) => setFormHintsText(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-medium text-black focus:outline-none focus:bg-white resize-y"
+                    className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-medium text-black focus:outline-none focus:bg-white resize-y"
                   />
                 </div>
 
@@ -1387,19 +1387,19 @@ export default function ModeratorQuestions() {
               </div>
 
               {/* Fixed Footer Actions */}
-              <div className="p-4 border-t-2 sm:border-t-3 border-black bg-[#f8fafc] shrink-0 flex-none flex items-center justify-end gap-3">
+              <div className="p-4 border-t-2 sm:border-t-3 border-[#0c1d2d] bg-[#f8fafc] shrink-0 flex-none flex items-center justify-end gap-3">
                 <button
                   type="button"
                   disabled={actionLoading}
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2.5 bg-black/5 hover:bg-black/10 text-black border-2 border-black/20 rounded-xl font-display font-black text-xs uppercase transition-colors"
+                  className="px-4 py-2.5 bg-black/5 hover:bg-black/10 text-black border-2 border-[#0c1d2d]/20 rounded-xl font-display font-black text-xs uppercase transition-colors"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-6 py-2.5 bg-[#ffd43b] text-black hover:bg-black hover:text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[3px_3px_0_#000000] disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-2.5 bg-[#ffd43b] text-black hover:bg-black hover:text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[3px_3px_0_#0c1d2d] disabled:opacity-50 flex items-center gap-2"
                 >
                   {actionLoading && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                   <span>{editingQuestion ? 'SAVE CHANGES' : 'CREATE QUESTION'}</span>
@@ -1419,12 +1419,12 @@ export default function ModeratorQuestions() {
           data-lenis-prevent
         >
           <div
-            className="bg-white border-3 sm:border-4 border-black rounded-2xl max-w-md w-full p-6 shadow-[8px_8px_0_#000000] relative space-y-4 data-lenis-prevent"
+            className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-md w-full p-6 shadow-[8px_8px_0_#000000] relative space-y-4 data-lenis-prevent"
             data-lenis-prevent
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-xl border-2 border-black flex items-center justify-center text-white ${
+                className={`w-10 h-10 rounded-xl border-2 border-[#0c1d2d] flex items-center justify-center text-white ${
                   confirmToggleQuestion.is_active ? 'bg-[#ef4444]' : 'bg-[#10b981]'
                 }`}
               >
@@ -1459,18 +1459,18 @@ export default function ModeratorQuestions() {
               </div>
             )}
 
-            <div className="pt-3 border-t-2 border-black/10 flex items-center justify-end gap-2">
+            <div className="pt-3 border-t-2 border-[#0c1d2d]/10 flex items-center justify-end gap-2">
               <button
                 disabled={actionLoading}
                 onClick={() => setConfirmToggleQuestion(null)}
-                className="px-4 py-2 bg-black/5 hover:bg-black/10 text-black border-2 border-black/20 rounded-xl font-display font-black text-xs uppercase"
+                className="px-4 py-2 bg-black/5 hover:bg-black/10 text-black border-2 border-[#0c1d2d]/20 rounded-xl font-display font-black text-xs uppercase"
               >
                 CANCEL
               </button>
               <button
                 disabled={actionLoading}
                 onClick={handleExecuteToggleActive}
-                className={`px-5 py-2 text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0_#000000] flex items-center gap-1.5 ${
+                className={`px-5 py-2 text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 ${
                   confirmToggleQuestion.is_active
                     ? 'bg-[#ef4444] hover:bg-black'
                     : 'bg-[#10b981] hover:bg-black'

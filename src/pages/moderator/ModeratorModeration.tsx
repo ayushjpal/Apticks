@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -267,9 +267,9 @@ export default function ModeratorModeration() {
       case 'resolved':
         return 'bg-[#dcfce7] text-[#15803d] border-[#86efac]'
       case 'dismissed':
-        return 'bg-black/5 text-black/60 border-black/20'
+        return 'bg-black/5 text-black/60 border-[#0c1d2d]/20'
       default:
-        return 'bg-black/5 text-black border-black/20'
+        return 'bg-black/5 text-black border-[#0c1d2d]/20'
     }
   }
 
@@ -319,7 +319,7 @@ export default function ModeratorModeration() {
                 setMetricsLoading(true)
                 setRefreshTrigger((v) => v + 1)
               }}
-              className="px-3.5 py-2 bg-white text-black hover:bg-[#ffd43b] border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0_#000000] flex items-center gap-1.5"
+              className="px-3.5 py-2 bg-white text-black hover:bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>REFRESH QUEUE</span>
@@ -368,7 +368,7 @@ export default function ModeratorModeration() {
         </div>
 
         {/* Controls & Filter Toolbar */}
-        <div className="bg-white border-3 sm:border-4 border-black p-4 sm:p-5 rounded-2xl shadow-[6px_6px_0_#000000] space-y-4">
+        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] p-4 sm:p-5 rounded-xl shadow-[3px_3px_0_#0c1d2d] space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             {/* Status Navigation Chips */}
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
@@ -391,7 +391,7 @@ export default function ModeratorModeration() {
                       setSelectedStatus(st)
                       setCurrentPage(1)
                     }}
-                    className={`px-3 py-1.5 rounded-xl border-2 border-black font-display font-black text-xs uppercase whitespace-nowrap transition-all shadow-[1.5px_1.5px_0_#000000] flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl border-2 border-[#0c1d2d] font-display font-black text-xs uppercase whitespace-nowrap transition-all shadow-[1.5px_1.5px_0_#0c1d2d] flex items-center gap-1.5 ${
                       selectedStatus === st
                         ? 'bg-[#ffd43b] text-black'
                         : 'bg-white text-black/70 hover:bg-black/5 hover:text-black'
@@ -415,7 +415,7 @@ export default function ModeratorModeration() {
                   setSearchQuery('')
                   setCurrentPage(1)
                 }}
-                className="px-3 py-1.5 bg-black/5 hover:bg-black/10 text-black border-2 border-black/20 rounded-xl text-xs font-display font-bold uppercase transition-colors inline-flex items-center gap-1 shrink-0"
+                className="px-3 py-1.5 bg-black/5 hover:bg-black/10 text-black border-2 border-[#0c1d2d]/20 rounded-xl text-xs font-display font-bold uppercase transition-colors inline-flex items-center gap-1 shrink-0"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>RESET FILTERS</span>
@@ -424,7 +424,7 @@ export default function ModeratorModeration() {
           </div>
 
           {/* Secondary Filters: Reason Category & Live Search */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-black/10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#0c1d2d]/10">
             {/* Reason Selector */}
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-black/40 shrink-0 hidden sm:block" />
@@ -434,7 +434,7 @@ export default function ModeratorModeration() {
                   setSelectedReason(e.target.value as ReportReason | 'all')
                   setCurrentPage(1)
                 }}
-                className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-bold text-black focus:outline-none focus:bg-white focus:border-black shadow-[2px_2px_0_#000000]"
+                className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black focus:outline-none focus:bg-white focus:border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]"
               >
                 {REASON_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -455,7 +455,7 @@ export default function ModeratorModeration() {
                   setCurrentPage(1)
                 }}
                 placeholder="Search by report ID, target ID, reporter, or description..."
-                className="w-full pl-9 pr-8 py-2 bg-[#f8fafc] border-2 border-black rounded-xl text-xs font-body font-bold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:border-black shadow-[2px_2px_0_#000000]"
+                className="w-full pl-9 pr-8 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]"
               />
               {searchQuery && (
                 <button
@@ -471,7 +471,7 @@ export default function ModeratorModeration() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs font-mono text-black/60 pt-1 border-t border-black/10">
+          <div className="flex items-center justify-between text-xs font-mono text-black/60 pt-1 border-t border-[#0c1d2d]/10">
             <span>
               Showing {totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1} -{' '}
               {Math.min(currentPage * pageSize, totalCount)} of {totalCount} incidents
@@ -484,7 +484,7 @@ export default function ModeratorModeration() {
 
         {/* Error banner */}
         {errorMessage && (
-          <div className="bg-[#fee2e2] border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000] flex items-center justify-between gap-3 text-black">
+          <div className="bg-[#fee2e2] border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center justify-between gap-3 text-black">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-[#ef4444] shrink-0" />
               <span className="text-xs font-body font-bold">{errorMessage}</span>
@@ -496,17 +496,17 @@ export default function ModeratorModeration() {
         )}
 
         {/* Incidents Table / Card Container */}
-        <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] overflow-hidden">
+        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
           {loading ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-8 h-8 border-4 border-black border-t-[#ffd43b] rounded-full animate-spin mx-auto" />
+              <div className="w-8 h-8 border-2 border-[#0c1d2d] border-t-[#ffd43b] rounded-full animate-spin mx-auto" />
               <div className="text-xs font-display font-black uppercase text-black/60">
                 LOADING INCIDENT QUEUE...
               </div>
             </div>
           ) : incidents.length === 0 ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 bg-black/5 rounded-2xl flex items-center justify-center mx-auto text-black/40">
+              <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center mx-auto text-black/40">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <h3 className="font-display font-black text-base uppercase text-black">
@@ -527,7 +527,7 @@ export default function ModeratorModeration() {
               >
                 <table className="w-full text-left border-collapse">
                   <thead className="sticky top-0 z-10 shadow-[0_2px_0_#000000]">
-                    <tr className="bg-[#f8fafc] border-b-3 border-black text-[11px] font-display font-black uppercase text-black tracking-wider">
+                    <tr className="bg-[#f8fafc] border-b-2 border-[#0c1d2d] text-[11px] font-display font-black uppercase text-black tracking-wider">
                       <th className="py-3 px-4 w-28">REPORT ID</th>
                       <th className="py-3 px-4 w-44">TARGET ENTITY</th>
                       <th className="py-3 px-4 w-40">REASON</th>
@@ -546,7 +546,7 @@ export default function ModeratorModeration() {
                       >
                         {/* Report ID */}
                         <td className="py-3.5 px-4 align-top">
-                          <span className="font-mono text-[11px] font-bold text-black bg-black/5 px-2 py-0.5 rounded border border-black/20">
+                          <span className="font-mono text-[11px] font-bold text-black bg-black/5 px-2 py-0.5 rounded border border-[#0c1d2d]/20">
                             {rep.id.slice(0, 8)}
                           </span>
                           <div className="text-[10px] font-mono text-black/50 mt-1">
@@ -567,7 +567,7 @@ export default function ModeratorModeration() {
 
                         {/* Reason */}
                         <td className="py-3.5 px-4 align-top">
-                          <span className="inline-block px-2 py-0.5 bg-black/5 text-black border border-black/20 rounded text-[10px] font-display font-bold">
+                          <span className="inline-block px-2 py-0.5 bg-black/5 text-black border border-[#0c1d2d]/20 rounded text-[10px] font-display font-bold">
                             {REASON_LABELS[rep.reason] || rep.reason}
                           </span>
                         </td>
@@ -610,7 +610,7 @@ export default function ModeratorModeration() {
                         <td className="py-3.5 px-4 align-top text-right" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleOpenDetail(rep)}
-                            className="px-3 py-1 bg-white hover:bg-[#ffd43b] text-black border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#000000] transition-colors"
+                            className="px-3 py-1 bg-white hover:bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#0c1d2d] transition-colors"
                           >
                             REVIEW
                           </button>
@@ -634,7 +634,7 @@ export default function ModeratorModeration() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] font-bold bg-black/5 px-2 py-0.5 rounded border border-black/20">
+                        <span className="font-mono text-[10px] font-bold bg-black/5 px-2 py-0.5 rounded border border-[#0c1d2d]/20">
                           {rep.id.slice(0, 8)}
                         </span>
                         <div className="flex items-center gap-1 text-[11px] font-display font-bold text-black">
@@ -661,14 +661,14 @@ export default function ModeratorModeration() {
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1 border-t border-black/5 text-xs font-mono text-black/60">
+                    <div className="flex items-center justify-between pt-1 border-t border-[#0c1d2d]/5 text-xs font-mono text-black/60">
                       <span>Target: {rep.target_id}</span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           handleOpenDetail(rep)
                         }}
-                        className="px-2.5 py-1 bg-white hover:bg-[#ffd43b] text-black border-2 border-black rounded-lg font-display font-black text-[11px] uppercase shadow-[1.5px_1.5px_0_#000000]"
+                        className="px-2.5 py-1 bg-white hover:bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-lg font-display font-black text-[11px] uppercase shadow-[1.5px_1.5px_0_#0c1d2d]"
                       >
                         REVIEW →
                       </button>
@@ -681,11 +681,11 @@ export default function ModeratorModeration() {
 
           {/* Pagination Footer */}
           {totalPages > 1 && (
-            <div className="p-4 border-t-3 border-black bg-[#f8fafc] flex items-center justify-between">
+            <div className="p-4 border-t-3 border-[#0c1d2d] bg-[#f8fafc] flex items-center justify-between">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-black rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>PREV</span>
@@ -698,7 +698,7 @@ export default function ModeratorModeration() {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-black rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
               >
                 <span>NEXT</span>
                 <ChevronRight className="w-4 h-4" />
@@ -721,15 +721,15 @@ export default function ModeratorModeration() {
         >
           <div
             data-lenis-prevent
-            className="bg-white border-3 sm:border-4 border-black rounded-2xl max-w-2xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative"
+            className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-2xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Pinned Modal Header (Never scrolls) */}
-            <div className="p-4 sm:p-5 border-b-2 sm:border-b-3 border-black shrink-0 flex-none relative pr-12 bg-white">
+            <div className="p-4 sm:p-5 border-b-2 sm:border-b-2 border-[#0c1d2d] shrink-0 flex-none relative pr-12 bg-white">
               <button
                 onClick={() => setSelectedIncident(null)}
                 aria-label="Close review modal"
-                className="absolute top-4 right-4 p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-xl border border-transparent hover:border-black/20 transition-all"
+                className="absolute top-4 right-4 p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-xl border border-transparent hover:border-[#0c1d2d]/20 transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -762,14 +762,14 @@ export default function ModeratorModeration() {
               className="question-list-scroll flex-1 min-h-0 h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-5 overscroll-contain"
             >
               {actionError && (
-                <div className="p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-xs font-body font-bold text-black flex items-center gap-2">
+                <div className="p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-[#b91c1c] shrink-0" />
                   <span>{actionError}</span>
                 </div>
               )}
 
               {/* Target Entity Summary Card */}
-              <div className="bg-[#f8fafc] border-2 border-black p-4 rounded-xl space-y-2">
+              <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-4 rounded-xl space-y-2">
                 <div className="flex items-center justify-between text-xs font-display font-black uppercase text-black/60">
                   <div className="flex items-center gap-1.5">
                     {getTargetIcon(selectedIncident.target_type)}
@@ -801,7 +801,7 @@ export default function ModeratorModeration() {
                           {selectedIncident.target_context.is_active ? 'YES' : 'NO'}
                         </div>
                         {selectedIncident.target_context.prompt && (
-                          <div className="p-2.5 bg-white border border-black/20 rounded-lg text-black/80 font-mono text-[11px] max-h-24 overflow-y-auto whitespace-pre-wrap mt-1">
+                          <div className="p-2.5 bg-white border border-[#0c1d2d]/20 rounded-lg text-black/80 font-mono text-[11px] max-h-24 overflow-y-auto whitespace-pre-wrap mt-1">
                             {selectedIncident.target_context.prompt}
                           </div>
                         )}
@@ -843,7 +843,7 @@ export default function ModeratorModeration() {
                     REPORTER: @{selectedIncident.reporter?.username || 'player'}
                   </span>
                 </div>
-                <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl text-xs sm:text-sm font-body font-semibold text-black/90 leading-relaxed whitespace-pre-wrap break-words">
+                <div className="p-4 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs sm:text-sm font-body font-semibold text-black/90 leading-relaxed whitespace-pre-wrap break-words">
                   {selectedIncident.description}
                 </div>
               </div>
@@ -875,7 +875,7 @@ export default function ModeratorModeration() {
                       STAFF AUDIT & TRIAGE NOTES
                     </label>
                     {(selectedIncident.status === 'resolved' || selectedIncident.status === 'dismissed') && (
-                      <span className="text-[10px] font-mono font-bold bg-black/10 text-black/70 px-2 py-0.5 rounded border border-black/20 uppercase">
+                      <span className="text-[10px] font-mono font-bold bg-black/10 text-black/70 px-2 py-0.5 rounded border border-[#0c1d2d]/20 uppercase">
                         LOCKED — TERMINAL INCIDENT
                       </span>
                     )}
@@ -897,10 +897,10 @@ export default function ModeratorModeration() {
                       ? 'No notes logged for this terminal incident.'
                       : 'Document triage observations, verification findings, errata corrections, or reasons for resolution...'
                   }
-                  className={`w-full p-3 border-2 border-black rounded-xl text-xs font-body font-bold text-black placeholder:text-black/40 shadow-[2px_2px_0_#000000] focus:outline-none ${
+                  className={`w-full p-3 border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black placeholder:text-black/40 shadow-[2px_2px_0_#0c1d2d] focus:outline-none ${
                     selectedIncident.status === 'resolved' || selectedIncident.status === 'dismissed'
                       ? 'bg-black/5 cursor-not-allowed opacity-80'
-                      : 'bg-[#f8fafc] focus:bg-white focus:border-black'
+                      : 'bg-[#f8fafc] focus:bg-white focus:border-[#0c1d2d]'
                   }`}
                 />
                 {selectedIncident.status !== 'resolved' && selectedIncident.status !== 'dismissed' && (
@@ -909,7 +909,7 @@ export default function ModeratorModeration() {
                       type="button"
                       onClick={handleSaveNotes}
                       disabled={notesSaving}
-                      className="px-3.5 py-1.5 bg-black text-white hover:bg-[#ffd43b] hover:text-black border-2 border-black rounded-lg font-display font-black text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 bg-black text-white hover:bg-[#ffd43b] hover:text-black border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5"
                     >
                       {notesSaving && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                       <span>SAVE NOTES</span>
@@ -920,11 +920,11 @@ export default function ModeratorModeration() {
             </div>
 
             {/* Pinned Action Footer (Never scrolls) */}
-            <div className="p-3 sm:p-4 border-t-2 sm:border-t-3 border-black bg-[#f8fafc] shrink-0 flex-none flex items-center justify-between gap-3 flex-wrap">
+            <div className="p-3 sm:p-4 border-t-2 sm:border-t-3 border-[#0c1d2d] bg-[#f8fafc] shrink-0 flex-none flex items-center justify-between gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={() => setSelectedIncident(null)}
-                className="px-4 py-2 bg-white text-black hover:bg-black/5 border-2 border-black rounded-xl font-display font-black text-xs uppercase transition-colors"
+                className="px-4 py-2 bg-white text-black hover:bg-black/5 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-colors"
               >
                 CLOSE
               </button>
@@ -936,7 +936,7 @@ export default function ModeratorModeration() {
                     type="button"
                     disabled={actionLoading}
                     onClick={() => handleExecuteStatusTransition('reviewing')}
-                    className="px-4 py-2 bg-[#eff6ff] text-[#1d4ed8] hover:bg-[#1d4ed8] hover:text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#000000]"
+                    className="px-4 py-2 bg-[#eff6ff] text-[#1d4ed8] hover:bg-[#1d4ed8] hover:text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#0c1d2d]"
                   >
                     {actionLoading ? 'UPDATING...' : 'MARK IN REVIEW'}
                   </button>
@@ -953,7 +953,7 @@ export default function ModeratorModeration() {
                         incident: selectedIncident,
                       })
                     }
-                    className="px-4 py-2 bg-white hover:bg-[#fee2e2] text-black hover:text-[#b91c1c] border-2 border-black rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#000000]"
+                    className="px-4 py-2 bg-white hover:bg-[#fee2e2] text-black hover:text-[#b91c1c] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#0c1d2d]"
                   >
                     DISMISS REPORT
                   </button>
@@ -970,7 +970,7 @@ export default function ModeratorModeration() {
                         incident: selectedIncident,
                       })
                     }
-                    className="px-4 py-2 bg-[#ffd43b] hover:bg-[#15803d] text-black hover:text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#000000]"
+                    className="px-4 py-2 bg-[#ffd43b] hover:bg-[#15803d] text-black hover:text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#0c1d2d]"
                   >
                     MARK RESOLVED →
                   </button>
@@ -998,11 +998,11 @@ export default function ModeratorModeration() {
         >
           <div
             data-lenis-prevent
-            className="bg-white border-3 sm:border-4 border-black rounded-2xl max-w-md w-full p-6 shadow-[8px_8px_0_#000000] relative space-y-4"
+            className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-md w-full p-6 shadow-[8px_8px_0_#000000] relative space-y-4"
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-xl border-2 border-black flex items-center justify-center text-white ${
+                className={`w-10 h-10 rounded-xl border-2 border-[#0c1d2d] flex items-center justify-center text-white ${
                   confirmAction.type === 'resolve' ? 'bg-[#10b981]' : 'bg-[#64748b]'
                 }`}
               >
@@ -1033,7 +1033,7 @@ export default function ModeratorModeration() {
                 type="button"
                 disabled={actionLoading}
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 bg-white text-black hover:bg-black/5 border-2 border-black rounded-xl font-display font-black text-xs uppercase"
+                className="px-4 py-2 bg-white text-black hover:bg-black/5 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase"
               >
                 CANCEL
               </button>
@@ -1046,7 +1046,7 @@ export default function ModeratorModeration() {
                     confirmAction.type === 'resolve' ? 'resolved' : 'dismissed'
                   )
                 }
-                className={`px-5 py-2 text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] ${
+                className={`px-5 py-2 text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] ${
                   confirmAction.type === 'resolve'
                     ? 'bg-[#10b981] text-white hover:bg-[#059669]'
                     : 'bg-[#ffd43b] hover:bg-black hover:text-white'

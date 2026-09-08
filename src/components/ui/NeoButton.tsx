@@ -24,15 +24,15 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
 }) => {
   const variantStyles = {
     primary:
-      'bg-[#ffd43b] hover:bg-[#facc15] text-[#050505] border-2 sm:border-3 border-black shadow-[3px_3px_0_#000000] hover:shadow-[4px_4px_0_#000000] active:shadow-[1px_1px_0_#000000]',
+      'bg-[#ffd43b] hover:bg-[#facc15] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
     secondary:
-      'bg-white hover:bg-[#f8fafc] text-[#050505] border-2 sm:border-3 border-black shadow-[3px_3px_0_#000000] hover:shadow-[4px_4px_0_#000000] active:shadow-[1px_1px_0_#000000]',
+      'bg-white hover:bg-[#f8fafc] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
     accent:
-      'bg-[#38aef0] hover:bg-[#209be2] text-[#050505] border-2 sm:border-3 border-black shadow-[3px_3px_0_#000000] hover:shadow-[4px_4px_0_#000000] active:shadow-[1px_1px_0_#000000]',
+      'bg-[#38aef0] hover:bg-[#209be2] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
     success:
-      'bg-[#32e875] hover:bg-[#22c55e] text-[#050505] border-2 sm:border-3 border-black shadow-[3px_3px_0_#000000] hover:shadow-[4px_4px_0_#000000] active:shadow-[1px_1px_0_#000000]',
+      'bg-[#32e875] hover:bg-[#22c55e] text-[#050505] border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
     danger:
-      'bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 sm:border-3 border-black shadow-[3px_3px_0_#000000] hover:shadow-[4px_4px_0_#000000] active:shadow-[1px_1px_0_#000000]',
+      'bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] hover:shadow-[3.5px_3.5px_0_#0c1d2d] active:shadow-[1px_1px_0_#0c1d2d]',
     ghost:
       'bg-transparent hover:bg-black/5 text-[#050505] border-2 border-transparent hover:border-black/20',
   }
@@ -50,7 +50,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
         inline-flex items-center justify-center font-display uppercase tracking-wider
         cursor-pointer transition-all duration-120 select-none
         hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0_#000000]
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[3px_3px_0_#0c1d2d]
         ${fullWidth ? 'w-full' : 'w-auto'}
         ${variantStyles[variant]}
         ${sizeStyles[size]}

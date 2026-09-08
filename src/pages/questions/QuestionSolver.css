@@ -1,11 +1,11 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    APTICKS — NEO BRUTALIST QUESTION SOLVER ARENA
    ========================================================= */
 
 .qs-page {
   min-height: 100vh;
   background-color: #061a2d;
-  color: #000000;
+  color: #0c1d2d;
   position: relative;
   overflow-x: hidden;
   font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
@@ -41,8 +41,8 @@
 /* Top Nav Header */
 .qs-header {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #ffd43b;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #ffd43b;
   padding: 16px 20px;
   display: flex;
   flex-wrap: wrap;
@@ -58,8 +58,8 @@
   gap: 8px;
   padding: 8px 16px;
   background-color: #e9f6ff;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 13px;
   cursor: pointer;
@@ -68,7 +68,7 @@
 
 .qs-back-btn:hover {
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   background-color: #d1ecff;
 }
 
@@ -80,8 +80,8 @@
   padding: 8px 16px;
   background-color: #071a2b;
   color: #ffffff;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #38aef0;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #38aef0;
   font-weight: 900;
   font-size: 14px;
 }
@@ -89,8 +89,8 @@
 /* Main Problem Box */
 .qs-problem-card {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 8px 8px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 28px;
   margin-bottom: 24px;
 }
@@ -105,7 +105,7 @@
   display: inline-block;
   padding: 4px 10px;
   background-color: #e9f6ff;
-  border: 2px solid #000000;
+  border: 2px solid #0c1d2d;
   font-weight: 900;
   font-size: 11px;
   text-transform: uppercase;
@@ -141,8 +141,8 @@
   gap: 14px;
   padding: 16px 20px;
   background-color: #f8fafc;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
@@ -151,19 +151,19 @@
 
 .qs-option-tile:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 #38aef0;
+  box-shadow: 2px 2px 0 #38aef0;
   background-color: #ffffff;
 }
 
 .qs-option-tile.selected {
   background-color: #ffd43b;
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 .qs-option-tile.correct {
   background-color: #32e875 !important;
-  color: #000000;
+  color: #0c1d2d;
 }
 
 .qs-option-tile.incorrect {
@@ -176,7 +176,7 @@
   height: 32px;
   background-color: #071a2b;
   color: #ffffff;
-  border: 2px solid #000000;
+  border: 2px solid #0c1d2d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,7 +186,7 @@
 }
 
 .qs-option-tile.selected .qs-option-letter {
-  background-color: #000000;
+  background-color: #0c1d2d;
   color: #ffd43b;
 }
 
@@ -204,14 +204,14 @@
   justify-content: space-between;
   gap: 14px;
   padding-top: 20px;
-  border-top: 3px solid #000000;
+  border-top: 2px solid #0c1d2d;
 }
 
 .qs-submit-btn {
   padding: 12px 28px;
   background-color: #ffd43b;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 15px;
   cursor: pointer;
@@ -221,7 +221,7 @@
 
 .qs-submit-btn:hover:not(:disabled) {
   transform: translate(1px, 1px);
-  box-shadow: 3px 3px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   background-color: #ffde6a;
 }
 
@@ -233,8 +233,8 @@
 .qs-secondary-btn {
   padding: 10px 18px;
   background-color: #ffffff;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 13px;
   cursor: pointer;
@@ -247,14 +247,14 @@
 .qs-secondary-btn:hover {
   background-color: #f1f5f9;
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 /* Feedback Banners */
 .qs-banner-correct {
   background-color: #32e875;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 20px 24px;
   margin-top: 24px;
   display: flex;
@@ -266,8 +266,8 @@
 .qs-banner-incorrect {
   background-color: #ff5b5b;
   color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 20px 24px;
   margin-top: 24px;
   display: flex;
@@ -279,15 +279,15 @@
 /* Explanation Drawer */
 .qs-explanation-card {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #38aef0;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #38aef0;
   padding: 28px;
   margin-top: 24px;
 }
 
 .qs-formula-box {
   background-color: #fff9db;
-  border: 3px solid #000000;
+  border: 2px solid #0c1d2d;
   padding: 14px 18px;
   margin: 16px 0;
   font-family: monospace;
@@ -298,8 +298,8 @@
 /* Scratchpad Container */
 .qs-scratchpad-card {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #ff5b5b;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #ff5b5b;
   padding: 20px;
   margin-top: 24px;
 }
@@ -307,7 +307,7 @@
 .qs-scratchpad-textarea {
   width: 100%;
   height: 150px;
-  border: 3px solid #000000;
+  border: 2px solid #0c1d2d;
   padding: 12px;
   font-family: monospace;
   font-size: 14px;

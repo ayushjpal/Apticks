@@ -1,4 +1,4 @@
-/* =========================================================
+﻿/* =========================================================
    LINK EMAIL PAGE - NEO-BRUTALIST STYLING
    ========================================================= */
 
@@ -14,7 +14,7 @@
 
 .link-email-header {
   height: 60px;
-  border-bottom: 4px solid #050505;
+  border-bottom: 2px solid #050505;
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -32,11 +32,11 @@
 
 .link-email-badge {
   background: #ff90e8;
-  border: 3px solid #050505;
+  border: 2px solid #050505;
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 900;
-  box-shadow: 3px 3px 0 #050505;
+  box-shadow: 2px 2px 0 #050505;
 }
 
 .link-email-main {
@@ -51,8 +51,8 @@
   width: 100%;
   max-width: 440px;
   background: #ffffff;
-  border: 4px solid #050505;
-  box-shadow: 7px 7px 0 #050505;
+  border: 2px solid #050505;
+  box-shadow: 2px 2px 0 #050505;
   padding: 28px 24px;
 }
 
@@ -93,13 +93,13 @@
   display: flex;
   align-items: center;
   background: #ffffff;
-  border: 3px solid #050505;
-  box-shadow: 4px 4px 0 #050505;
+  border: 2px solid #050505;
+  box-shadow: 2px 2px 0 #050505;
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .link-email-input-wrapper:focus-within {
-  box-shadow: 6px 6px 0 #38aef0;
+  box-shadow: 2px 2px 0 #38aef0;
   transform: translate(-1px, -1px);
 }
 
@@ -134,13 +134,13 @@
   width: 100%;
   background: #ffd43b;
   color: #050505;
-  border: 3px solid #050505;
+  border: 2px solid #050505;
   padding: 12px;
   font-size: 13px;
   font-weight: 950;
   letter-spacing: 0.5px;
   cursor: pointer;
-  box-shadow: 4px 4px 0 #050505;
+  box-shadow: 2px 2px 0 #050505;
   transition: transform 0.1s, box-shadow 0.1s;
   display: flex;
   align-items: center;
@@ -151,7 +151,7 @@
 
 .link-email-submit-btn:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 #050505;
+  box-shadow: 2px 2px 0 #050505;
 }
 
 .link-email-submit-btn:active:not(:disabled) {
@@ -166,20 +166,20 @@
 
 .link-email-error {
   background: #fee2e2;
-  border: 3px solid #050505;
+  border: 2px solid #050505;
   color: #991b1b;
   padding: 10px 12px;
   font-size: 12px;
   font-weight: 800;
   margin-bottom: 16px;
-  box-shadow: 3px 3px 0 #050505;
+  box-shadow: 2px 2px 0 #050505;
 }
 
 .link-email-pending-box {
   background: #ecfdf5;
-  border: 3px solid #050505;
+  border: 2px solid #050505;
   padding: 16px;
-  box-shadow: 4px 4px 0 #050505;
+  box-shadow: 2px 2px 0 #050505;
   margin-bottom: 18px;
 }
 
@@ -220,20 +220,20 @@
   width: 100%;
   background: #38aef0;
   color: #050505;
-  border: 3px solid #050505;
+  border: 2px solid #050505;
   padding: 12px;
   font-size: 12px;
   font-weight: 950;
   text-align: center;
   text-decoration: none;
-  box-shadow: 4px 4px 0 #050505;
+  box-shadow: 2px 2px 0 #050505;
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .link-email-dashboard-btn:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 #050505;
+  box-shadow: 2px 2px 0 #050505;
 }
 
 .link-email-resend-btn {

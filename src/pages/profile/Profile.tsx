@@ -522,10 +522,10 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#0c1d2d] flex items-center justify-center text-white">
         <div className="text-center font-display font-black">
-          <div className="w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
-          <p className="tracking-wider">LOADING ATHLETE IDENTITY...</p>
+          <div className="w-12 h-12 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
+          <p className="tracking-wider">LOADING PROFILE...</p>
         </div>
       </div>
     )
@@ -535,7 +535,7 @@ export default function Profile() {
     displayName.trim() ||
     originalProfile?.display_name ||
     originalProfile?.username ||
-    'Aptitude Athlete'
+    'Player'
 
   const effectiveUsername =
     usernameInput.trim() ||
@@ -546,10 +546,10 @@ export default function Profile() {
 
   return (
     <AppLayout>
-      <div className="space-y-4 sm:space-y-5 animate-entry">
+      <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-5 animate-entry">
         {/* Success Alert */}
         {saveSuccess && (
-          <div className="p-3.5 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] shadow-[2.5px_2.5px_0_#000000] flex items-center justify-between gap-3">
+          <div className="p-3.5 bg-[#d1fae5] border-2 border-[#0c1d2d] rounded-xl text-[#065f46] shadow-[2px_2px_0_#0c1d2d] flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 font-display font-black text-xs sm:text-sm uppercase">
               <CheckCircle2 className="w-4 h-4 shrink-0 text-[#065f46]" />
               <span>PROFILE CHANGES SAVED SUCCESSFULLY</span>
@@ -565,7 +565,7 @@ export default function Profile() {
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="p-3.5 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] shadow-[2.5px_2.5px_0_#000000] flex items-center justify-between gap-3">
+          <div className="p-3.5 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl text-[#991b1b] shadow-[2px_2px_0_#0c1d2d] flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 font-display font-black text-xs sm:text-sm uppercase">
               <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
               <span>{errorMessage}</span>
@@ -587,27 +587,27 @@ export default function Profile() {
             type="button"
             onClick={() => setActiveTab('overview')}
             className={`
-              px-3.5 py-2 rounded-xl border-2 border-black font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
+              px-3.5 py-2 rounded-xl border-2 border-[#0c1d2d] font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
               ${
                 activeTab === 'overview'
-                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
-                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
+                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#0c1d2d]'
               }
             `}
           >
             <User className="w-3.5 h-3.5" />
-            <span>ATHLETE IDENTITY</span>
+            <span>OVERVIEW</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('edit')}
             className={`
-              px-3.5 py-2 rounded-xl border-2 border-black font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
+              px-3.5 py-2 rounded-xl border-2 border-[#0c1d2d] font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
               ${
                 activeTab === 'edit'
-                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
-                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
+                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#0c1d2d]'
               }
             `}
           >
@@ -619,39 +619,39 @@ export default function Profile() {
             type="button"
             onClick={() => setActiveTab('settings')}
             className={`
-              px-3.5 py-2 rounded-xl border-2 border-black font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
+              px-3.5 py-2 rounded-xl border-2 border-[#0c1d2d] font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5
               ${
                 activeTab === 'settings'
-                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#000000] -translate-y-0.5'
-                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
+                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
+                  : 'bg-white text-black/80 hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#0c1d2d]'
               }
             `}
           >
             <Settings className="w-3.5 h-3.5" />
-            <span>SETTINGS & SECURITY</span>
+            <span>SETTINGS</span>
           </button>
         </div>
 
         {/* ================================================= */}
-        {/* TAB 1: ATHLETE IDENTITY & PERFORMANCE OVERVIEW    */}
+        {/* TAB 1: PROFILE OVERVIEW & PERFORMANCE             */}
         {/* ================================================= */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6">
-            {/* Athlete Public Card */}
-            <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#38aef0] overflow-hidden">
-              <div className="bg-[#071a2b] text-white p-5 border-b-3 border-black flex items-center justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-5 items-start">
+            {/* Primary Profile Identity Card */}
+            <div className="bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden self-start">
+              <div className="bg-[#0c1d2d] text-white p-3.5 sm:p-4 border-b-2 border-[#0c1d2d] flex items-center justify-between">
                 <span className="font-mono text-[10px] font-black tracking-widest text-[#38aef0] uppercase">
                   APTICKS ID: #{userId?.slice(0, 6).toUpperCase()}
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-[#32e875] text-black border-2 border-black rounded-full px-2.5 py-0.5 font-display font-black text-[9px] uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-                  ACTIVE ATHLETE
+                <span className="inline-flex items-center gap-1.5 bg-[#32e875] text-[#0c1d2d] border border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-display font-black text-[9px] uppercase shadow-[1px_1px_0_#0c1d2d]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0c1d2d] animate-pulse" />
+                  ONLINE
                 </span>
               </div>
 
-              <div className="p-6 sm:p-8">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#ffd43b] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] flex items-center justify-center font-display font-black text-3xl sm:text-4xl text-black overflow-hidden shrink-0">
+              <div className="p-4 sm:p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-4">
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center font-display font-black text-2xl sm:text-3xl text-black overflow-hidden shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -660,72 +660,73 @@ export default function Profile() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="inline-block bg-[#e9f6ff] text-black border-2 border-black rounded-full px-2.5 py-0.5 text-[9px] font-mono font-black uppercase mb-1.5">
-                      DIVISION 1 ATHLETE
+                    <div className="inline-block bg-[#e9f6ff] text-[#0c1d2d] border border-[#0c1d2d] rounded-full px-2 py-0.2 text-[9px] font-mono font-black uppercase mb-1">
+                      DIVISION 1
                     </div>
-                    <h2 className="font-display font-black text-2xl sm:text-3xl text-black uppercase tracking-tight truncate leading-none">
+                    <h2 className="font-display font-black text-xl sm:text-2xl text-[#0c1d2d] uppercase tracking-tight truncate leading-none">
                       {effectiveDisplayName}
                     </h2>
-                    <div className="font-mono text-sm sm:text-base font-black text-[#2563eb] mt-1">
+                    <div className="font-mono text-xs sm:text-sm font-black text-[#2563eb] mt-1">
                       @{effectiveUsername}
                     </div>
                   </div>
                 </div>
 
-                {/* Statement Quote */}
-                <div className="mt-6 p-4 bg-[#fffde7] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000]">
-                  <div className="font-mono text-[9px] font-black text-black/50 uppercase mb-1">
-                    STATEMENT / GOAL:
+                {/* Bio / About */}
+                <div className="mt-3.5 p-3 bg-[#faf9f6] border-[1.5px] border-[#0c1d2d]/20 rounded-xl">
+                  <div className="font-mono text-[9px] font-black text-black/40 uppercase mb-0.5">
+                    ABOUT / GOAL:
                   </div>
-                  <p className="font-body font-semibold text-xs sm:text-sm text-black/85 italic leading-relaxed">
+                  <p className="font-body font-semibold text-xs text-black/80 italic leading-relaxed">
                     {bio.trim()
                       ? `"${bio.trim()}"`
-                      : '"Apticks athlete sharpening quantitative speed and logical reasoning daily."'}
+                      : '"Apticks competitor sharpening quantitative speed and logical reasoning daily."'}
                   </p>
                 </div>
 
-                {/* Athlete Statistics Deck */}
-                <div className="mt-6 grid grid-cols-3 gap-2.5 text-center">
-                  <div className="p-3 bg-[#e9f6ff] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
-                    <div className="font-display font-black text-xl sm:text-2xl text-[#071a2b]">
+                {/* Core Statistics Deck */}
+                <div className="mt-3.5 grid grid-cols-3 gap-2 text-center">
+                  <div className="p-2 bg-[#e9f6ff] border-[1.5px] border-[#0c1d2d]/20 rounded-xl">
+                    <div className="font-display font-black text-base sm:text-lg text-[#071a2b]">
                       {questionStats?.solvedCount ?? 0}
                     </div>
-                    <div className="font-mono text-[9px] font-black uppercase text-black/60 mt-0.5">
-                      PROBLEMS SOLVED
+                    <div className="font-mono text-[8px] sm:text-[9px] font-black uppercase text-black/50 mt-0.5">
+                      SOLVED
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#ffd43b] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
-                    <div className="font-display font-black text-xl sm:text-2xl text-black">
+                  <div className="p-2 bg-[#ffd43b] border-[1.5px] border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d]">
+                    <div className="font-display font-black text-base sm:text-lg text-[#0c1d2d]">
                       {questionStats?.totalPoints ?? 0}
                     </div>
-                    <div className="font-mono text-[9px] font-black uppercase text-black/70 mt-0.5">
+                    <div className="font-mono text-[8px] sm:text-[9px] font-black uppercase text-[#0c1d2d]/70 mt-0.5">
                       TOTAL XP
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#32e875] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
-                    <div className="font-display font-black text-xl sm:text-2xl text-black">
+                  <div className="p-2 bg-[#32e875] border-[1.5px] border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d]">
+                    <div className="font-display font-black text-base sm:text-lg text-[#0c1d2d]">
                       {questionStats?.accuracyRate ?? 0}%
                     </div>
-                    <div className="font-mono text-[9px] font-black uppercase text-black/70 mt-0.5">
+                    <div className="font-mono text-[8px] sm:text-[9px] font-black uppercase text-[#0c1d2d]/70 mt-0.5">
                       ACCURACY
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 flex gap-3">
+                {/* Action Buttons */}
+                <div className="mt-3.5 flex gap-2">
                   <button
                     type="button"
                     onClick={() => setActiveTab('edit')}
-                    className="flex-1 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2.5px_2.5px_0_#000000] cursor-pointer text-center"
+                    className="flex-1 py-2 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer text-center transition-transform hover:-translate-y-0.5"
                   >
-                    EDIT ATHLETE PROFILE →
+                    EDIT PROFILE →
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('settings')}
-                    className="py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2.5px_2.5px_0_#000000] cursor-pointer text-center"
+                    className="py-2 px-3.5 bg-white hover:bg-[#f8fafc] text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#0c1d2d] cursor-pointer text-center transition-transform hover:-translate-y-0.5"
                   >
                     SETTINGS
                   </button>
@@ -733,91 +734,99 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Achievements & Division Status */}
-            <div className="space-y-6">
-              <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
-                <div className="flex items-center justify-between pb-3 border-b-2 border-black mb-5">
-                  <div>
-                    <h3 className="font-display font-black text-xl uppercase text-black">
-                      EARNED BADGES
+            {/* Achievements & Performance Column */}
+            <div className="space-y-5">
+              {/* Badges Gallery Card */}
+              <div className="bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-5">
+                <div className="flex items-center justify-between pb-2.5 border-b-[1.5px] border-[#0c1d2d]/15 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#ffd43b]" />
+                    <h3 className="font-display font-black text-sm uppercase text-[#0c1d2d]">
+                      BADGES
                     </h3>
-                    <p className="text-xs font-semibold text-black/60 mt-0.5">
-                      Milestones unlocked through competitive practice.
-                    </p>
                   </div>
-                  <Sparkles className="w-5 h-5 text-[#ffd43b]" />
+                  <span className="font-mono text-[10px] font-black text-black/50 uppercase">
+                    4 / 12 UNLOCKED
+                  </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3.5 bg-[#c084fc] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
-                    <Trophy className="w-5 h-5 text-black shrink-0" />
-                    <div>
-                      <div className="font-display font-black text-xs leading-tight uppercase">
-                        SPEED DEMON
-                      </div>
-                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
-                        Solved problem &lt; 30s
-                      </div>
+                {/* Compact 4-column equal-width badge gallery */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div
+                    className="p-2.5 sm:p-3 bg-[#c084fc] border-[1.5px] border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d] flex flex-col items-center justify-center text-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-default"
+                    title="Speed Demon: Solved problem < 30s"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-black/10 flex items-center justify-center">
+                      <Trophy className="w-3.5 h-3.5 text-[#0c1d2d]" />
                     </div>
+                    <span className="font-display font-black text-[10px] sm:text-[11px] leading-tight uppercase text-[#0c1d2d] truncate w-full">
+                      SPEED DEMON
+                    </span>
                   </div>
 
-                  <div className="p-3.5 bg-[#ffd43b] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
-                    <Flame className={`w-5 h-5 text-black shrink-0 ${userStreak?.isActiveToday ? 'animate-pulse' : ''}`} />
-                    <div>
-                      <div className="font-display font-black text-xs leading-tight uppercase">
-                        STREAK RUNNER
-                      </div>
-                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
-                        {userStreak && userStreak.currentStreak > 0
-                          ? `Active ${userStreak.currentStreak}-Day streak${userStreak.longestStreak > userStreak.currentStreak ? ` (Best: ${userStreak.longestStreak}d)` : ''}`
-                          : 'Solve today to build streak'}
-                      </div>
+                  <div
+                    className="p-2.5 sm:p-3 bg-[#ffd43b] border-[1.5px] border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d] flex flex-col items-center justify-center text-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-default"
+                    title={
+                      userStreak && userStreak.currentStreak > 0
+                        ? `Streak Runner: Active ${userStreak.currentStreak}-Day streak`
+                        : 'Streak Runner: Solve today to build streak'
+                    }
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-black/10 flex items-center justify-center">
+                      <Flame
+                        className={`w-3.5 h-3.5 text-[#0c1d2d] ${
+                          userStreak?.isActiveToday ? 'animate-pulse' : ''
+                        }`}
+                      />
                     </div>
+                    <span className="font-display font-black text-[10px] sm:text-[11px] leading-tight uppercase text-[#0c1d2d] truncate w-full">
+                      STREAK RUNNER
+                    </span>
                   </div>
 
-                  <div className="p-3.5 bg-[#32e875] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
-                    <CheckCircle2 className="w-5 h-5 text-black shrink-0" />
-                    <div>
-                      <div className="font-display font-black text-xs leading-tight uppercase">
-                        ACCURACY ACE
-                      </div>
-                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
-                        &gt; 80% accuracy score
-                      </div>
+                  <div
+                    className="p-2.5 sm:p-3 bg-[#32e875] border-[1.5px] border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d] flex flex-col items-center justify-center text-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-default"
+                    title="Accuracy Ace: > 80% accuracy score"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-black/10 flex items-center justify-center">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#0c1d2d]" />
                     </div>
+                    <span className="font-display font-black text-[10px] sm:text-[11px] leading-tight uppercase text-[#0c1d2d] truncate w-full">
+                      ACCURACY ACE
+                    </span>
                   </div>
 
-                  <div className="p-3.5 bg-[#38aef0] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center gap-2.5">
-                    <Zap className="w-5 h-5 text-black shrink-0" />
-                    <div>
-                      <div className="font-display font-black text-xs leading-tight uppercase">
-                        CENTURION
-                      </div>
-                      <div className="text-[10px] font-mono font-bold text-black/70 mt-0.5">
-                        Earned 100+ XP in Season 1
-                      </div>
+                  <div
+                    className="p-2.5 sm:p-3 bg-[#38aef0] border-[1.5px] border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d] flex flex-col items-center justify-center text-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-default"
+                    title="Centurion: Earned 100+ XP in Season 1"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-black/10 flex items-center justify-center">
+                      <Zap className="w-3.5 h-3.5 text-[#0c1d2d]" />
                     </div>
+                    <span className="font-display font-black text-[10px] sm:text-[11px] leading-tight uppercase text-[#0c1d2d] truncate w-full">
+                      CENTURION
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Competitive Performance & Attempt History Deck */}
-              <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
-                <div className="flex items-center justify-between pb-3 border-b-2 border-black mb-5">
-                  <div>
-                    <h3 className="font-display font-black text-xl uppercase text-black">
+              <div className="bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-5">
+                <div className="flex items-center justify-between pb-2.5 border-b-[1.5px] border-[#0c1d2d]/15 mb-3.5">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-[#ffd43b]" />
+                    <h3 className="font-display font-black text-sm uppercase text-[#0c1d2d]">
                       COMPETITIVE PERFORMANCE
                     </h3>
-                    <p className="text-xs font-semibold text-black/60 mt-0.5">
-                      Deterministic XP breakdown & speed practice attempt logs.
-                    </p>
                   </div>
-                  <Award className="w-5 h-5 text-[#ffd43b]" />
+                  <span className="font-mono text-[10px] font-bold text-black/50 uppercase">
+                    XP BREAKDOWN & ATTEMPTS
+                  </span>
                 </div>
 
                 {/* 7 Performance KPI Blocks */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6 text-center">
-                  <div className="p-3 bg-[#e9f6ff] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                  <div className="p-3 bg-[#e9f6ff] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d]">
                     <div className="font-display font-black text-lg sm:text-xl text-black">
                       {questionStats?.totalAttempts ?? 0}
                     </div>
@@ -826,7 +835,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#d1fae5] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                  <div className="p-3 bg-[#d1fae5] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d]">
                     <div className="font-display font-black text-lg sm:text-xl text-[#065f46]">
                       {questionStats?.correctAttempts ?? 0}
                     </div>
@@ -835,7 +844,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#fee2e2] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                  <div className="p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d]">
                     <div className="font-display font-black text-lg sm:text-xl text-[#991b1b]">
                       {questionStats?.incorrectAttempts ?? 0}
                     </div>
@@ -844,7 +853,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#ffd43b] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                  <div className="p-3 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d]">
                     <div className="font-display font-black text-lg sm:text-xl text-black">
                       {questionStats?.accuracyRate ?? 0}%
                     </div>
@@ -853,7 +862,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#fefce8] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                  <div className="p-3 bg-[#fefce8] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d]">
                     <div className="font-display font-black text-base sm:text-lg text-[#854d0e]">
                       +{questionStats?.xpEarned ?? 0}
                     </div>
@@ -862,7 +871,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#fff1f2] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000]">
+                  <div className="p-3 bg-[#fff1f2] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d]">
                     <div className="font-display font-black text-base sm:text-lg text-[#be123c]">
                       -{questionStats?.xpLost ?? 0}
                     </div>
@@ -871,7 +880,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-black text-white border-2 border-black rounded-xl shadow-[2px_2px_0_#ffd43b] col-span-2">
+                  <div className="p-3 bg-black text-white border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] col-span-2">
                     <div className="font-display font-black text-base sm:text-lg text-[#ffd43b]">
                       {questionStats?.netXp ?? 0} XP
                     </div>
@@ -883,7 +892,7 @@ export default function Profile() {
 
                 {/* Recent Attempt History Feed */}
                 <div>
-                  <div className="flex items-center justify-between pb-2 border-b-2 border-black mb-3">
+                  <div className="flex items-center justify-between pb-2 border-b-2 border-[#0c1d2d] mb-3">
                     <div className="font-display font-black text-xs uppercase text-black">
                       RECENT ATTEMPT LOG
                     </div>
@@ -893,7 +902,7 @@ export default function Profile() {
                   </div>
 
                   {userAttempts.length === 0 ? (
-                    <div className="p-4 bg-[#f8fafc] border-2 border-dashed border-black/30 rounded-xl text-center font-body text-xs font-semibold text-black/60">
+                    <div className="p-4 bg-[#f8fafc] border-2 border-dashed border-[#0c1d2d]/30 rounded-xl text-center font-body text-xs font-semibold text-black/60">
                       No attempt history recorded yet. Solve problems in the Question Bank to build your competitive track record!
                     </div>
                   ) : (
@@ -904,11 +913,11 @@ export default function Profile() {
                       {userAttempts.map((att) => (
                         <div
                           key={att.id}
-                          className="p-3 bg-white border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] flex items-center justify-between gap-2"
+                          className="p-3 bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] flex items-center justify-between gap-2"
                         >
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="px-1.5 py-0.2 bg-[#071a2b] text-white border border-black rounded text-[9px] font-mono font-black uppercase">
+                              <span className="px-1.5 py-0.2 bg-[#0c1d2d] text-white border border-[#0c1d2d] rounded text-[9px] font-mono font-black uppercase">
                                 {att.questionId}
                               </span>
                               <span className="font-display font-black text-xs text-black truncate">
@@ -923,7 +932,7 @@ export default function Profile() {
                           <div className="shrink-0 text-right">
                             <span
                               className={`
-                                inline-flex items-center px-2 py-0.5 border border-black rounded-lg font-mono font-black text-[10px] uppercase shadow-[1px_1px_0_#000000]
+                                inline-flex items-center px-2 py-0.5 border border-[#0c1d2d] rounded-lg font-mono font-black text-[10px] uppercase shadow-[1px_1px_0_#0c1d2d]
                                 ${
                                   att.isCorrect
                                     ? 'bg-[#32e875] text-black'
@@ -951,9 +960,9 @@ export default function Profile() {
         {/* TAB 2: EDIT PROFILE FORM                          */}
         {/* ================================================= */}
         {activeTab === 'edit' && (
-          <div className="max-w-2xl bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
-            <div className="border-b-3 border-black pb-4 mb-6">
-              <div className="inline-block bg-[#38aef0] text-black border-2 border-black rounded-full px-3 py-0.5 text-[10px] font-mono font-black tracking-widest uppercase mb-2 shadow-[2px_2px_0_#000000]">
+          <div className="max-w-2xl bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl sm:rounded-3xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8">
+            <div className="border-b-2 border-[#0c1d2d] pb-4 mb-6">
+              <div className="inline-block bg-[#38aef0] text-black border-2 border-[#0c1d2d] rounded-full px-3 py-0.5 text-[10px] font-mono font-black tracking-widest uppercase mb-2 shadow-[2px_2px_0_#0c1d2d]">
                 CUSTOMIZE IDENTITY
               </div>
               <h2 className="font-display font-black text-2xl sm:text-3xl uppercase tracking-tight text-black leading-none">
@@ -972,7 +981,7 @@ export default function Profile() {
                 </label>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="w-16 h-16 bg-[#ffd43b] border-3 border-black rounded-2xl shadow-[3px_3px_0_#000000] flex items-center justify-center font-display font-black text-2xl text-black overflow-hidden shrink-0">
+                  <div className="w-16 h-16 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center justify-center font-display font-black text-2xl text-black overflow-hidden shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -994,7 +1003,7 @@ export default function Profile() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingAvatar}
-                        className="px-3.5 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 cursor-pointer"
                       >
                         <Upload className="w-3.5 h-3.5" />
                         <span>{uploadingAvatar ? 'UPLOADING...' : 'UPLOAD PHOTO'}</span>
@@ -1004,7 +1013,7 @@ export default function Profile() {
                         <button
                           type="button"
                           onClick={handleRemoveAvatar}
-                          className="px-3.5 py-2 bg-[#ff5b5b] text-white hover:bg-[#ef4444] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] cursor-pointer"
+                          className="px-3.5 py-2 bg-[#ff5b5b] text-white hover:bg-[#ef4444] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer"
                         >
                           REMOVE
                         </button>
@@ -1017,7 +1026,7 @@ export default function Profile() {
                 </div>
 
                 {/* Avatar Presets */}
-                <div className="mt-3 pt-3 border-t-2 border-black/10">
+                <div className="mt-3 pt-3 border-t-2 border-[#0c1d2d]/10">
                   <span className="block font-mono text-[10px] font-black text-black/60 uppercase mb-2">
                     OR SELECT PRESET:
                   </span>
@@ -1027,7 +1036,7 @@ export default function Profile() {
                         key={preset.id}
                         type="button"
                         onClick={() => handleSelectPresetAvatar(preset.url)}
-                        className={`w-9 h-9 border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] transition-transform hover:-translate-y-0.5 cursor-pointer ${
+                        className={`w-9 h-9 border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] transition-transform hover:-translate-y-0.5 cursor-pointer ${
                           avatarUrl === preset.url ? 'ring-3 ring-black' : ''
                         }`}
                       >
@@ -1046,8 +1055,8 @@ export default function Profile() {
                 >
                   DISPLAY NAME
                 </label>
-                <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden">
-                  <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+                <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[2px_2px_0_#38aef0] overflow-hidden">
+                  <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black flex items-center">
                     <User className="w-4 h-4 text-black" />
                   </span>
                   <input
@@ -1074,7 +1083,7 @@ export default function Profile() {
 
                   {usernameStatus && (
                     <span
-                      className={`text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-full border border-black ${
+                      className={`text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-full border border-[#0c1d2d] ${
                         usernameStatus.isCurrent
                           ? 'bg-[#e9f6ff] text-[#071a2b]'
                           : usernameStatus.available
@@ -1094,7 +1103,7 @@ export default function Profile() {
                 </div>
 
                 {!cooldown.canChange && (
-                  <div className="mb-2 p-3 bg-[#fffde7] border-2 border-black rounded-xl text-xs font-body font-bold text-[#926002] flex items-start gap-2">
+                  <div className="mb-2 p-3 bg-[#fffde7] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-[#926002] flex items-start gap-2">
                     <Lock className="w-4 h-4 shrink-0 mt-0.5 text-black" />
                     <div>
                       <strong>Handle locked:</strong> Usernames can only be changed once every 14 days. Available in{' '}
@@ -1104,8 +1113,8 @@ export default function Profile() {
                   </div>
                 )}
 
-                <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden">
-                  <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black font-display font-black text-sm">
+                <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[2px_2px_0_#38aef0] overflow-hidden">
+                  <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black font-display font-black text-sm">
                     @
                   </span>
                   <input
@@ -1141,7 +1150,7 @@ export default function Profile() {
                   placeholder="Share your target exams, college, or aptitude goals..."
                   maxLength={160}
                   rows={3}
-                  className="w-full p-3 bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] outline-none font-body font-semibold text-sm placeholder:text-black/35 focus:shadow-[3px_3px_0_#38aef0]"
+                  className="w-full p-3 bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] outline-none font-body font-semibold text-sm placeholder:text-black/35 focus:shadow-[2px_2px_0_#38aef0]"
                 />
               </div>
 
@@ -1154,7 +1163,7 @@ export default function Profile() {
                     normalizeUsername(originalProfile?.username || '') &&
                     (!usernameStatus?.available || !cooldown.canChange))
                 }
-                className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <span>{saving ? 'SAVING CHANGES...' : 'SAVE PROFILE CHANGES'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1169,8 +1178,8 @@ export default function Profile() {
         {activeTab === 'settings' && (
           <div className="max-w-3xl space-y-6">
             {/* 1. Account / Recovery Email */}
-            <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
-              <div className="border-b-3 border-black pb-3 mb-5 flex items-center justify-between">
+            <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl sm:rounded-3xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8">
+              <div className="border-b-2 border-[#0c1d2d] pb-3 mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-5 h-5 text-black" />
                   <h3 className="font-display font-black text-xl uppercase text-black">
@@ -1178,17 +1187,17 @@ export default function Profile() {
                   </h3>
                 </div>
                 {isEmailVerified ? (
-                  <span className="bg-[#32e875] border-2 border-black rounded-full px-3 py-0.5 font-mono text-[10px] font-black uppercase shadow-[1.5px_1.5px_0_#000000]">
+                  <span className="bg-[#32e875] border-2 border-[#0c1d2d] rounded-full px-3 py-0.5 font-mono text-[10px] font-black uppercase shadow-[1.5px_1.5px_0_#0c1d2d]">
                     VERIFIED
                   </span>
                 ) : (
-                  <span className="bg-[#ffd43b] border-2 border-black rounded-full px-3 py-0.5 font-mono text-[10px] font-black uppercase shadow-[1.5px_1.5px_0_#000000]">
+                  <span className="bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-full px-3 py-0.5 font-mono text-[10px] font-black uppercase shadow-[1.5px_1.5px_0_#0c1d2d]">
                     UNLINKED
                   </span>
                 )}
               </div>
 
-              <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div className="p-4 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
                   <div className="font-display font-black text-xs uppercase text-black mb-0.5">
                     RECOVERY & NOTIFICATION EMAIL
@@ -1209,7 +1218,7 @@ export default function Profile() {
                     setEmailModalError(null)
                     setEmailModalSuccess(null)
                   }}
-                  className="px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] cursor-pointer"
+                  className="px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer"
                 >
                   {isEmailVerified ? 'CHANGE EMAIL' : '+ LINK EMAIL'}
                 </button>
@@ -1221,15 +1230,15 @@ export default function Profile() {
             </section>
 
             {/* 2. Security & Password */}
-            <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
-              <div className="border-b-3 border-black pb-3 mb-5 flex items-center gap-2.5">
+            <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl sm:rounded-3xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8">
+              <div className="border-b-2 border-[#0c1d2d] pb-3 mb-5 flex items-center gap-2.5">
                 <Shield className="w-5 h-5 text-black" />
                 <h3 className="font-display font-black text-xl uppercase text-black">
                   SECURITY CREDENTIALS
                 </h3>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8fafc] border-2 border-black rounded-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl">
                 <div>
                   <div className="font-display font-black text-xs uppercase text-black">
                     ACCOUNT PASSWORD
@@ -1241,7 +1250,7 @@ export default function Profile() {
 
                 <Link
                   to="/update-password"
-                  className="inline-flex items-center gap-2 text-xs font-display font-black text-black hover:text-[#2563eb] border-2 border-black rounded-lg bg-white px-4 py-2 shadow-[2px_2px_0_#000000] uppercase tracking-wider transition-transform hover:-translate-x-0.5"
+                  className="inline-flex items-center gap-2 text-xs font-display font-black text-black hover:text-[#2563eb] border-2 border-[#0c1d2d] rounded-lg bg-white px-4 py-2 shadow-[2px_2px_0_#0c1d2d] uppercase tracking-wider transition-transform hover:-translate-x-0.5"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
                   <span>CHANGE PASSWORD →</span>
@@ -1250,15 +1259,15 @@ export default function Profile() {
             </section>
 
             {/* 3. Preferences */}
-            <section className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
-              <div className="border-b-3 border-black pb-3 mb-5 flex items-center gap-2.5">
+            <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl sm:rounded-3xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8">
+              <div className="border-b-2 border-[#0c1d2d] pb-3 mb-5 flex items-center gap-2.5">
                 <Sliders className="w-5 h-5 text-black" />
                 <h3 className="font-display font-black text-xl uppercase text-black">
                   ARENA PREFERENCES
                 </h3>
               </div>
 
-              <div className="p-4 bg-[#f8fafc] border-2 border-black rounded-xl flex items-center justify-between">
+              <div className="p-4 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl flex items-center justify-between">
                 <div>
                   <div className="font-display font-black text-xs uppercase text-black">
                     REDUCED MOTION COMPLIANCE
@@ -1267,14 +1276,14 @@ export default function Profile() {
                     Automatically adapts to system prefers-reduced-motion settings.
                   </div>
                 </div>
-                <span className="bg-[#32e875] border-2 border-black rounded-full px-2.5 py-0.5 font-mono text-[10px] font-black uppercase">
+                <span className="bg-[#32e875] border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-mono text-[10px] font-black uppercase">
                   AUTO ENABLED
                 </span>
               </div>
             </section>
 
             {/* 4. Session & Destructive Logout */}
-            <section className="bg-[#fee2e2] border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+            <section className="bg-[#fee2e2] border-2 sm:border-2 border-[#0c1d2d] rounded-xl sm:rounded-3xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <div className="font-display font-black text-lg uppercase text-[#991b1b]">
@@ -1289,7 +1298,7 @@ export default function Profile() {
                   type="button"
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="px-5 py-2.5 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs uppercase tracking-wider transition-all hover:-translate-x-0.5 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
+                  className="px-5 py-2.5 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] font-display font-black text-xs uppercase tracking-wider transition-all hover:-translate-x-0.5 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>{loggingOut ? 'LOGGING OUT...' : 'LOG OUT NOW'}</span>
@@ -1311,31 +1320,31 @@ export default function Profile() {
           onClick={() => setEmailModalOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[8px_8px_0_#ffd43b] p-6 sm:p-8 relative"
+            className="w-full max-w-md bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl sm:rounded-3xl shadow-[8px_8px_0_#ffd43b] p-6 sm:p-8 relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b-2 border-black mb-5">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-[#0c1d2d] mb-5">
               <div className="font-display font-black text-lg uppercase text-black">
                 {otpStep ? 'VERIFY EMAIL CODE' : 'LINK RECOVERY EMAIL'}
               </div>
               <button
                 type="button"
                 onClick={() => setEmailModalOpen(false)}
-                className="w-7 h-7 border-2 border-black rounded-lg bg-[#ff5b5b] text-white flex items-center justify-center font-black cursor-pointer hover:bg-black"
+                className="w-7 h-7 border-2 border-[#0c1d2d] rounded-lg bg-[#ff5b5b] text-white flex items-center justify-center font-black cursor-pointer hover:bg-black"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {emailModalError && (
-              <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs flex items-center gap-2">
+              <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl text-[#991b1b] font-display font-black text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{emailModalError}</span>
               </div>
             )}
 
             {emailModalSuccess && (
-              <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] font-display font-black text-xs flex items-center gap-2">
+              <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-[#0c1d2d] rounded-xl text-[#065f46] font-display font-black text-xs flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{emailModalSuccess}</span>
               </div>
@@ -1354,8 +1363,8 @@ export default function Profile() {
                   >
                     REAL EMAIL / GMAIL
                   </label>
-                  <div className="flex items-center bg-white border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] overflow-hidden">
-                    <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+                  <div className="flex items-center bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] overflow-hidden">
+                    <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black flex items-center">
                       <Mail className="w-4 h-4 text-black" />
                     </span>
                     <input
@@ -1374,7 +1383,7 @@ export default function Profile() {
                 <button
                   type="submit"
                   disabled={emailLoading}
-                  className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs sm:text-sm tracking-wider uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                  className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] font-display font-black text-xs sm:text-sm tracking-wider uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
                 >
                   <span>{emailLoading ? 'SENDING CODE...' : 'SEND VERIFICATION CODE'}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1395,20 +1404,20 @@ export default function Profile() {
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                     required
                     autoFocus
-                    className="w-full py-3 px-4 text-center font-mono font-black text-2xl tracking-[0.4em] bg-[#f8fafc] border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] outline-none focus:shadow-[3px_3px_0_#38aef0]"
+                    className="w-full py-3 px-4 text-center font-mono font-black text-2xl tracking-[0.4em] bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] outline-none focus:shadow-[2px_2px_0_#38aef0]"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={emailLoading || otpCode.length < 6}
-                  className="w-full py-3.5 bg-[#32e875] hover:bg-[#22c55e] border-2 border-black rounded-xl shadow-[3px_3px_0_#000000] font-display font-black text-xs sm:text-sm tracking-wider uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                  className="w-full py-3.5 bg-[#32e875] hover:bg-[#22c55e] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] font-display font-black text-xs sm:text-sm tracking-wider uppercase transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
                 >
                   <span>{emailLoading ? 'VERIFYING...' : 'VERIFY & LINK EMAIL'}</span>
                   <CheckCircle2 className="w-4 h-4" />
                 </button>
 
-                <div className="flex items-center justify-between pt-2 border-t-2 border-black/10">
+                <div className="flex items-center justify-between pt-2 border-t-2 border-[#0c1d2d]/10">
                   <button
                     type="button"
                     onClick={handleResendOtp}

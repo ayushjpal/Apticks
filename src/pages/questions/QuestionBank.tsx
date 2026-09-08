@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+﻿import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Search,
@@ -279,9 +279,9 @@ export default function QuestionBank() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#0c1d2d] flex items-center justify-center text-white">
         <div className="text-center font-display font-black">
-          <div className="w-10 h-10 border-3 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-10 h-10 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-3" />
           <p className="text-xs tracking-wider">LOADING QUESTION ARENA...</p>
         </div>
       </div>
@@ -294,9 +294,9 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* TOP ARENA HEADER (COMPACT)                        */}
         {/* ================================================= */}
-        <div className="bg-white border-2 sm:border-3 border-black rounded-2xl shadow-[5px_5px_0_#ffd43b] p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-1.5 bg-[#38aef0] text-black border border-black rounded-full px-2 py-0.2 text-[9px] font-mono font-black tracking-widest uppercase shadow-[1px_1px_0_#000000] mb-1">
+            <div className="inline-flex items-center gap-1.5 bg-[#38aef0] text-black border border-[#0c1d2d] rounded-full px-2 py-0.2 text-[9px] font-mono font-black tracking-widest uppercase shadow-[1px_1px_0_#0c1d2d] mb-1">
               <BookOpen className="w-2.5 h-2.5 text-black" />
               <span>MODULE 02 // SPEED PRACTICE</span>
             </div>
@@ -312,13 +312,13 @@ export default function QuestionBank() {
             <button
               type="button"
               onClick={handlePickRandom}
-              className="px-3 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] font-display font-black text-xs uppercase tracking-wider transition-transform hover:-translate-x-0.5 cursor-pointer flex items-center gap-1.5"
+              className="px-3 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] font-display font-black text-xs uppercase tracking-wider transition-transform hover:-translate-x-0.5 cursor-pointer flex items-center gap-1.5"
             >
               <Shuffle className="w-3.5 h-3.5" />
               <span>RANDOM PROBLEM</span>
             </button>
 
-            <div className="px-3 py-2 bg-black text-white border-2 border-black rounded-xl shadow-[2px_2px_0_#ffd43b] font-display font-black text-xs uppercase flex items-center gap-1.5">
+            <div className="px-3 py-2 bg-black text-white border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] font-display font-black text-xs uppercase flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-[#ffd43b] fill-[#ffd43b]" />
               <span className="font-mono">{stats.totalPoints} XP</span>
             </div>
@@ -328,13 +328,13 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* DENSE PROGRESS & DIFFICULTY SUMMARY STRIP         */}
         {/* ================================================= */}
-        <section className="bg-white border-2 sm:border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] p-3 sm:p-3.5">
+        <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-3 sm:p-3.5">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-2.5 items-center">
             {/* Solved Summary */}
-            <div className="p-2.5 bg-[#e9f6ff] border-2 border-black rounded-xl shadow-[1.5px_1.5px_0_#000000]">
+            <div className="p-2.5 bg-[#e9f6ff] border-2 border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d]">
               <div className="flex items-center justify-between font-mono text-[10px] font-black text-black">
                 <span>SOLVED</span>
-                <span className="bg-[#38aef0] text-black px-1.5 py-0.2 rounded border border-black text-[9px]">
+                <span className="bg-[#38aef0] text-black px-1.5 py-0.2 rounded border border-[#0c1d2d] text-[9px]">
                   {stats.accuracyRate}% ACC
                 </span>
               </div>
@@ -344,12 +344,12 @@ export default function QuestionBank() {
             </div>
 
             {/* Easy Progress */}
-            <div className="p-2.5 bg-[#f0fdf4] border-2 border-black rounded-xl shadow-[1.5px_1.5px_0_#000000]">
+            <div className="p-2.5 bg-[#f0fdf4] border-2 border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d]">
               <div className="flex justify-between items-center font-display font-black text-[11px] mb-1">
                 <span className="text-[#15803d]">EASY</span>
                 <span className="font-mono text-[10px]">{stats.easySolved}/{stats.easyTotal}</span>
               </div>
-              <div className="w-full h-1.5 bg-white border border-black rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-white border border-[#0c1d2d] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#32e875] rounded-full"
                   style={{
@@ -360,12 +360,12 @@ export default function QuestionBank() {
             </div>
 
             {/* Medium Progress */}
-            <div className="p-2.5 bg-[#fefce8] border-2 border-black rounded-xl shadow-[1.5px_1.5px_0_#000000]">
+            <div className="p-2.5 bg-[#fefce8] border-2 border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d]">
               <div className="flex justify-between items-center font-display font-black text-[11px] mb-1">
                 <span className="text-[#a16207]">MEDIUM</span>
                 <span className="font-mono text-[10px]">{stats.mediumSolved}/{stats.mediumTotal}</span>
               </div>
-              <div className="w-full h-1.5 bg-white border border-black rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-white border border-[#0c1d2d] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#ffd43b] rounded-full"
                   style={{
@@ -376,12 +376,12 @@ export default function QuestionBank() {
             </div>
 
             {/* Hard Progress */}
-            <div className="p-2.5 bg-[#fef2f2] border-2 border-black rounded-xl shadow-[1.5px_1.5px_0_#000000]">
+            <div className="p-2.5 bg-[#fef2f2] border-2 border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d]">
               <div className="flex justify-between items-center font-display font-black text-[11px] mb-1">
                 <span className="text-[#b91c1c]">HARD</span>
                 <span className="font-mono text-[10px]">{stats.hardSolved}/{stats.hardTotal}</span>
               </div>
-              <div className="w-full h-1.5 bg-white border border-black rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-white border border-[#0c1d2d] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#ff5b5b] rounded-full"
                   style={{
@@ -398,7 +398,7 @@ export default function QuestionBank() {
                   selectedStatus === 'bookmarked' ? 'all' : 'bookmarked'
                 )
               }
-              className={`p-2.5 border-2 border-black rounded-xl shadow-[1.5px_1.5px_0_#000000] cursor-pointer transition-colors col-span-2 md:col-span-1 flex items-center justify-between ${
+              className={`p-2.5 border-2 border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d] cursor-pointer transition-colors col-span-2 md:col-span-1 flex items-center justify-between ${
                 selectedStatus === 'bookmarked' ? 'bg-[#ffd43b]' : 'bg-white hover:bg-[#e9f6ff]'
               }`}
             >
@@ -431,11 +431,11 @@ export default function QuestionBank() {
                 onClick={() => handleSelectCategory(cat.id)}
                 aria-pressed={isActive}
                 className={`
-                  px-3 py-1.5 sm:px-3.5 sm:py-2 border-2 border-black rounded-xl font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all duration-150 flex items-center gap-1.5 select-none
+                  px-3 py-1.5 sm:px-3.5 sm:py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-[11px] sm:text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer transition-all duration-150 flex items-center gap-1.5 select-none
                   ${
                     isActive
-                      ? 'bg-[#ffd43b] text-black shadow-[2.5px_2.5px_0_#000000] -translate-y-0.5'
-                      : 'bg-white text-black/75 hover:text-black hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#000000]'
+                      ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
+                      : 'bg-white text-black/75 hover:text-black hover:bg-[#e9f6ff] shadow-[1.5px_1.5px_0_#0c1d2d]'
                   }
                 `}
               >
@@ -443,8 +443,8 @@ export default function QuestionBank() {
                 <span
                   className={`font-mono text-[10px] px-1.5 py-0.2 rounded-full border ${
                     isActive
-                      ? 'bg-black text-[#ffd43b] border-black font-black'
-                      : 'bg-black/5 text-black/60 border-black/20'
+                      ? 'bg-black text-[#ffd43b] border-[#0c1d2d] font-black'
+                      : 'bg-black/5 text-black/60 border-[#0c1d2d]/20'
                   }`}
                 >
                   {count}
@@ -457,9 +457,9 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* SEARCH & FILTERS BAR                              */}
         {/* ================================================= */}
-        <div className="bg-white border-2 sm:border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] p-2.5 sm:p-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-2.5 sm:p-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
           {/* Search Input */}
-          <div className="flex-1 flex items-center bg-white border-2 border-black rounded-xl shadow-[1.5px_1.5px_0_#000000] overflow-hidden">
+          <div className="flex-1 flex items-center bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[1.5px_1.5px_0_#0c1d2d] overflow-hidden">
             <span className="px-2.5 text-black">
               <Search className="w-3.5 h-3.5" />
             </span>
@@ -479,7 +479,7 @@ export default function QuestionBank() {
               <select
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="py-1.5 px-2.5 bg-white border-2 border-black rounded-xl font-display font-bold text-[11px] shadow-[1.5px_1.5px_0_#000000] outline-none cursor-pointer"
+                className="py-1.5 px-2.5 bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-[11px] shadow-[1.5px_1.5px_0_#0c1d2d] outline-none cursor-pointer"
               >
                 <option value="all">All Topics ({availableTopics.length})</option>
                 {availableTopics.map((top) => (
@@ -491,7 +491,7 @@ export default function QuestionBank() {
             </div>
 
             {/* Difficulty Chips */}
-            <div className="flex items-center gap-1 bg-[#f1f5f9] border-1.5 border-black rounded-xl p-0.5">
+            <div className="flex items-center gap-1 bg-[#f1f5f9] border-1.5 border-[#0c1d2d] rounded-xl p-0.5">
               <button
                 type="button"
                 onClick={() => setSelectedDifficulty('all')}
@@ -536,7 +536,7 @@ export default function QuestionBank() {
                 type="button"
                 onClick={handleResetFilters}
                 title="Reset all active filters"
-                className="px-2.5 py-1 bg-[#fee2e2] hover:bg-[#fecaca] text-[#991b1b] border-1.5 border-black rounded-lg font-display font-black text-[10px] uppercase shadow-[1px_1px_0_#000000] cursor-pointer flex items-center gap-1 transition-transform hover:-translate-x-0.5"
+                className="px-2.5 py-1 bg-[#fee2e2] hover:bg-[#fecaca] text-[#991b1b] border-1.5 border-[#0c1d2d] rounded-lg font-display font-black text-[10px] uppercase shadow-[1px_1px_0_#0c1d2d] cursor-pointer flex items-center gap-1 transition-transform hover:-translate-x-0.5"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>RESET</span>
@@ -548,9 +548,9 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* PROBLEMS TABLE (DESKTOP) / CARDS (MOBILE)         */}
         {/* ================================================= */}
-        <div className="bg-white border-2 sm:border-3 border-black rounded-2xl shadow-[5px_5px_0_#000000] overflow-hidden">
+        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
           {/* Header Strip with Result Count */}
-          <div className="px-3.5 py-2 bg-[#f8fafc] border-b-2 border-black flex items-center justify-between text-xs font-mono font-bold text-black/70">
+          <div className="px-3.5 py-2 bg-[#f8fafc] border-b-2 border-[#0c1d2d] flex items-center justify-between text-xs font-mono font-bold text-black/70">
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="w-3.5 h-3.5 text-black" />
               <span>
@@ -560,7 +560,7 @@ export default function QuestionBank() {
             </div>
 
             {selectedCategory !== 'all' && (
-              <span className="bg-[#ffd43b] text-black border border-black rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase">
+              <span className="bg-[#ffd43b] text-black border border-[#0c1d2d] rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase">
                 {selectedCategory}
               </span>
             )}
@@ -572,15 +572,15 @@ export default function QuestionBank() {
             className="hidden md:block question-list-scroll max-h-[480px] lg:max-h-[520px] overflow-y-auto overflow-x-auto min-h-0"
           >
             <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 z-10 shadow-[0_2px_0_#000000]">
-                <tr className="bg-[#071a2b] text-white border-b-2 border-black font-mono text-[11px] uppercase tracking-wider">
-                  <th className="py-2.5 px-3 text-center w-12 bg-[#071a2b]">STATUS</th>
-                  <th className="py-2.5 px-2 text-center w-10 bg-[#071a2b]">SAVE</th>
-                  <th className="py-2.5 px-3 bg-[#071a2b]">PROBLEM TITLE</th>
-                  <th className="py-2.5 px-3 bg-[#071a2b]">CATEGORY // TOPIC</th>
-                  <th className="py-2.5 px-3 text-center w-24 bg-[#071a2b]">DIFFICULTY</th>
-                  <th className="py-2.5 px-3 text-center w-20 bg-[#071a2b]">ACCURACY</th>
-                  <th className="py-2.5 px-4 text-right w-28 bg-[#071a2b]">ACTION</th>
+              <thead className="sticky top-0 z-10 shadow-[0_2px_0_#0c1d2d]">
+                <tr className="bg-[#0c1d2d] text-white border-b-2 border-[#0c1d2d] font-mono text-[11px] uppercase tracking-wider">
+                  <th className="py-2.5 px-3 text-center w-12 bg-[#0c1d2d]">STATUS</th>
+                  <th className="py-2.5 px-2 text-center w-10 bg-[#0c1d2d]">SAVE</th>
+                  <th className="py-2.5 px-3 bg-[#0c1d2d]">PROBLEM TITLE</th>
+                  <th className="py-2.5 px-3 bg-[#0c1d2d]">CATEGORY // TOPIC</th>
+                  <th className="py-2.5 px-3 text-center w-24 bg-[#0c1d2d]">DIFFICULTY</th>
+                  <th className="py-2.5 px-3 text-center w-20 bg-[#0c1d2d]">ACCURACY</th>
+                  <th className="py-2.5 px-4 text-right w-28 bg-[#0c1d2d]">ACTION</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10 font-body text-xs">
@@ -588,7 +588,7 @@ export default function QuestionBank() {
                   <tr>
                     <td colSpan={7} className="py-10 px-4 text-center">
                       <div className="max-w-md mx-auto">
-                        <div className="w-10 h-10 bg-[#ffd43b] border-2 border-black rounded-xl mx-auto mb-2 flex items-center justify-center font-display font-black shadow-[2px_2px_0_#000000]">
+                        <div className="w-10 h-10 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl mx-auto mb-2 flex items-center justify-center font-display font-black shadow-[2px_2px_0_#0c1d2d]">
                           !
                         </div>
                         <div className="font-display font-black text-lg uppercase text-black">
@@ -600,7 +600,7 @@ export default function QuestionBank() {
                         <button
                           type="button"
                           onClick={handleResetFilters}
-                          className="mt-3 px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] transition-transform hover:-translate-x-0.5 cursor-pointer inline-flex items-center gap-1.5"
+                          className="mt-3 px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] transition-transform hover:-translate-x-0.5 cursor-pointer inline-flex items-center gap-1.5"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           <span>RESET ALL FILTERS</span>
@@ -624,11 +624,11 @@ export default function QuestionBank() {
                         <td className="py-2.5 px-3 text-center">
                           <div className="flex justify-center">
                             {isSolved ? (
-                              <span className="w-5 h-5 rounded-full bg-[#32e875] border-1.5 border-black flex items-center justify-center font-black text-[10px] text-black">
-                                ✓
+                              <span className="w-5 h-5 rounded-full bg-[#32e875] border-1.5 border-[#0c1d2d] flex items-center justify-center font-black text-[10px] text-black">
+                                âœ“
                               </span>
                             ) : (
-                              <span className="w-4 h-4 rounded-full border-1.5 border-black/30" />
+                              <span className="w-4 h-4 rounded-full border-1.5 border-[#0c1d2d]/20" />
                             )}
                           </div>
                         </td>
@@ -638,7 +638,7 @@ export default function QuestionBank() {
                           <button
                             type="button"
                             onClick={(e) => handleToggleBookmark(e, q.id)}
-                            className={`p-1 border-1.5 border-black rounded-lg transition-transform hover:scale-110 cursor-pointer ${
+                            className={`p-1 border-1.5 border-[#0c1d2d] rounded-lg transition-transform hover:scale-110 cursor-pointer ${
                               isBookmarked ? 'bg-[#ffd43b] text-black' : 'bg-white text-black/40'
                             }`}
                             title={isBookmarked ? 'Remove Bookmark' : 'Bookmark Problem'}
@@ -649,14 +649,14 @@ export default function QuestionBank() {
 
                         {/* Title & Tags */}
                         <td className="py-2.5 px-3">
-                          <div className="font-display font-black text-sm text-black uppercase tracking-tight hover:text-[#2563eb]">
+                          <div className="font-display font-black text-sm text-black uppercase tracking-tight hover:text-[#38aef0]">
                             {q.title}
                           </div>
                           <div className="flex flex-wrap gap-1 mt-0.5">
                             {q.tags.map((tag: string) => (
                               <span
                                 key={tag}
-                                className="text-[9px] font-mono font-bold bg-[#f1f5f9] border border-black/30 rounded px-1 py-0.2"
+                                className="text-[9px] font-mono font-bold bg-[#f1f5f9] border border-[#0c1d2d]/20 rounded px-1 py-0.2"
                               >
                                 #{tag}
                               </span>
@@ -677,17 +677,17 @@ export default function QuestionBank() {
                         {/* Difficulty */}
                         <td className="py-2.5 px-3 text-center">
                           {q.difficulty === 'easy' && (
-                            <span className="bg-[#32e875] text-black border border-black rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase shadow-[1px_1px_0_#000000]">
+                            <span className="bg-[#32e875] text-black border border-[#0c1d2d] rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase shadow-[1px_1px_0_#0c1d2d]">
                               EASY
                             </span>
                           )}
                           {q.difficulty === 'medium' && (
-                            <span className="bg-[#ffd43b] text-black border border-black rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase shadow-[1px_1px_0_#000000]">
+                            <span className="bg-[#ffd43b] text-black border border-[#0c1d2d] rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase shadow-[1px_1px_0_#0c1d2d]">
                               MEDIUM
                             </span>
                           )}
                           {q.difficulty === 'hard' && (
-                            <span className="bg-[#ff5b5b] text-white border border-black rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase shadow-[1px_1px_0_#000000]">
+                            <span className="bg-[#ff5b5b] text-white border border-[#0c1d2d] rounded-full px-2 py-0.2 text-[9px] font-display font-black uppercase shadow-[1px_1px_0_#0c1d2d]">
                               HARD
                             </span>
                           )}
@@ -706,13 +706,13 @@ export default function QuestionBank() {
                               e.stopPropagation()
                               navigate(`/questions/${q.id}`)
                             }}
-                            className={`px-3 py-1 border-2 border-black rounded-lg font-display font-black text-[11px] uppercase tracking-wider shadow-[1.5px_1.5px_0_#000000] cursor-pointer transition-transform hover:-translate-x-0.5 ${
+                            className={`px-3 py-1 border-2 border-[#0c1d2d] rounded-lg font-display font-black text-[11px] uppercase tracking-wider shadow-[1.5px_1.5px_0_#0c1d2d] cursor-pointer transition-transform hover:-translate-x-0.5 ${
                               isSolved
                                 ? 'bg-white text-black hover:bg-[#e9f6ff]'
                                 : 'bg-[#ffd43b] text-black hover:bg-[#facc15]'
                             }`}
                           >
-                            {isSolved ? 'REVIEW →' : 'SOLVE →'}
+                            {isSolved ? 'REVIEW â†’' : 'SOLVE â†’'}
                           </button>
                         </td>
                       </tr>
@@ -730,7 +730,7 @@ export default function QuestionBank() {
           >
             {filteredQuestions.length === 0 ? (
               <div className="p-6 text-center">
-                <div className="w-8 h-8 bg-[#ffd43b] border-2 border-black rounded-lg mx-auto mb-2 flex items-center justify-center font-display font-black text-xs shadow-[1.5px_1.5px_0_#000000]">
+                <div className="w-8 h-8 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg mx-auto mb-2 flex items-center justify-center font-display font-black text-xs shadow-[1.5px_1.5px_0_#0c1d2d]">
                   !
                 </div>
                 <div className="font-display font-black text-base uppercase text-black">
@@ -742,7 +742,7 @@ export default function QuestionBank() {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="mt-3 px-3.5 py-1.5 bg-[#ffd43b] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#000000] inline-flex items-center gap-1.5"
+                  className="mt-3 px-3.5 py-1.5 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#0c1d2d] inline-flex items-center gap-1.5"
                 >
                   <RotateCcw className="w-3 h-3" />
                   <span>RESET FILTERS</span>
@@ -763,27 +763,27 @@ export default function QuestionBank() {
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-1.5">
                         {isSolved ? (
-                          <span className="px-1.5 py-0.2 bg-[#32e875] border border-black rounded-full font-display font-black text-[9px] uppercase">
+                          <span className="px-1.5 py-0.2 bg-[#32e875] border border-[#0c1d2d] rounded-full font-display font-black text-[9px] uppercase">
                             SOLVED
                           </span>
                         ) : (
-                          <span className="px-1.5 py-0.2 bg-slate-100 border border-black rounded-full font-display font-bold text-[9px] uppercase">
+                          <span className="px-1.5 py-0.2 bg-slate-100 border border-[#0c1d2d] rounded-full font-display font-bold text-[9px] uppercase">
                             UNSOLVED
                           </span>
                         )}
 
                         {q.difficulty === 'easy' && (
-                          <span className="bg-[#32e875] border border-black rounded-full px-1.5 py-0.2 text-[8px] font-display font-black uppercase">
+                          <span className="bg-[#32e875] border border-[#0c1d2d] rounded-full px-1.5 py-0.2 text-[8px] font-display font-black uppercase">
                             EASY
                           </span>
                         )}
                         {q.difficulty === 'medium' && (
-                          <span className="bg-[#ffd43b] border border-black rounded-full px-1.5 py-0.2 text-[8px] font-display font-black uppercase">
+                          <span className="bg-[#ffd43b] border border-[#0c1d2d] rounded-full px-1.5 py-0.2 text-[8px] font-display font-black uppercase">
                             MED
                           </span>
                         )}
                         {q.difficulty === 'hard' && (
-                          <span className="bg-[#ff5b5b] text-white border border-black rounded-full px-1.5 py-0.2 text-[8px] font-display font-black uppercase">
+                          <span className="bg-[#ff5b5b] text-white border border-[#0c1d2d] rounded-full px-1.5 py-0.2 text-[8px] font-display font-black uppercase">
                             HARD
                           </span>
                         )}
@@ -792,7 +792,7 @@ export default function QuestionBank() {
                       <button
                         type="button"
                         onClick={(e) => handleToggleBookmark(e, q.id)}
-                        className={`p-1 border-1.5 border-black rounded-lg ${
+                        className={`p-1 border-1.5 border-[#0c1d2d] rounded-lg ${
                           isBookmarked ? 'bg-[#ffd43b]' : 'bg-white'
                         }`}
                       >
@@ -806,10 +806,10 @@ export default function QuestionBank() {
 
                     <div className="mt-1.5 flex items-center justify-between">
                       <span className="font-mono text-[10px] font-bold text-black/60">
-                        {q.topic} • {q.category}
+                        {q.topic} â€¢ {q.category}
                       </span>
-                      <span className="font-display font-black text-xs text-[#2563eb]">
-                        {isSolved ? 'REVIEW →' : 'SOLVE →'}
+                      <span className="font-display font-black text-xs text-[#38aef0]">
+                        {isSolved ? 'REVIEW â†’' : 'SOLVE â†’'}
                       </span>
                     </div>
                   </div>
@@ -822,3 +822,4 @@ export default function QuestionBank() {
     </AppLayout>
   )
 }
+

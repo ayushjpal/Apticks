@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Zap, ShieldCheck, Trophy, Sparkles } from 'lucide-react'
+import ApticksLogo from '../ui/ApticksLogo'
 
 export interface AuthShellProps {
   eyebrow?: string
@@ -46,9 +47,9 @@ export const AuthShell: React.FC<AuthShellProps> = ({
 
           {/* Top Logo & Tagline */}
           <div className="relative z-10">
-            <Link to="/" className="inline-flex items-center gap-2.5 group">
-              <div className="w-10 h-10 bg-[#ffd43b] border-2 sm:border-3 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] flex items-center justify-center font-display font-black text-2xl text-black transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5">
-                A
+            <Link to="/" className="inline-flex items-center gap-2.5 group" aria-label="Apticks Home">
+              <div className="w-10 h-10 bg-[#ffd43b] border-2 sm:border-3 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] flex items-center justify-center p-1 transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5">
+                <ApticksLogo variant="mark" className="w-full h-full" ariaHidden />
               </div>
               <div>
                 <span className="font-display font-black text-xl tracking-tight text-white block leading-none">

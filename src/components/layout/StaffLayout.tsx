@@ -41,33 +41,33 @@ export default function StaffLayout({ children }: StaffLayoutProps) {
   return (
     <div className="min-h-screen bg-[#071a2b] text-[#050505] flex flex-col relative arena-bg-grid">
       {/* Staff Control Center Header */}
-      <header className="sticky top-0 z-40 bg-[#071a2b]/95 backdrop-blur-md border-b-3 border-black px-4 py-3 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-40 bg-[#071a2b]/95 backdrop-blur-md border-b-2 border-[#1a3047] px-4 py-2.5 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           {/* Brand & Control Center Title */}
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="flex items-center gap-2.5 group shrink-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#ffd43b] border-2 sm:border-3 border-black shadow-[2.5px_2.5px_0_#000000] rounded-xl flex items-center justify-center font-display font-black text-xl text-black transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5">
-                A
+            <Link to="/dashboard" className="flex items-center gap-2 group shrink-0" aria-label="Apticks Dashboard">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#ffd43b] border-2 border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d] rounded-xl flex items-center justify-center transition-transform group-hover:-translate-y-0.5">
+                <span className="font-display font-black text-sm text-[#0c1d2d]">A</span>
               </div>
             </Link>
 
-            <div className="border-l-2 border-white/20 pl-3">
+            <div className="border-l-2 border-white/15 pl-3">
               <div className="flex items-center gap-2">
                 <span className="font-display font-black text-base sm:text-lg tracking-tight text-white leading-none">
                   CONTROL CENTER
                 </span>
                 <span
                   className={`
-                    inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-display font-black uppercase tracking-wider rounded-full border-2 border-black shadow-[1.5px_1.5px_0_#000000]
-                    ${isAdmin ? 'bg-[#ffd43b] text-black' : 'bg-[#38aef0] text-black'}
+                    inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-display font-black uppercase tracking-wider rounded-full border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]
+                    ${isAdmin ? 'bg-[#ffd43b] text-[#0c1d2d]' : 'bg-[#38aef0] text-[#0c1d2d]'}
                   `}
                 >
                   <Shield className="w-2.5 h-2.5 fill-current" />
                   {role.toUpperCase()}
                 </span>
               </div>
-              <p className="hidden sm:block text-[11px] font-body font-semibold text-white/60 mt-0.5">
-                Manage Apticks content, competitions and platform governance.
+              <p className="hidden sm:block text-[11px] font-body font-semibold text-white/50 mt-0.5">
+                Manage content, competitions and platform governance.
               </p>
             </div>
           </div>
@@ -76,18 +76,17 @@ export default function StaffLayout({ children }: StaffLayoutProps) {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-black border-2 border-black shadow-[2px_2px_0_#000000] rounded-xl font-display font-black text-xs uppercase tracking-wider hover:bg-[#ffd43b] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-[#0c1d2d] border-2 border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider hover:bg-[#ffd43b] hover:-translate-y-0.5 transition-all"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">RETURN TO ARENA</span>
-              <span className="sm:hidden">ARENA</span>
+              <span className="hidden sm:inline">ARENA</span>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Staff Navigation Tabs */}
-      <div className="bg-[#0b243b] border-b-3 border-black px-4 sm:px-6 lg:px-8 py-2 sticky top-[57px] sm:top-[65px] z-30 shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+      <div className="bg-[#0b243b] border-b-2 border-[#1a3047] px-4 sm:px-6 lg:px-8 py-2 sticky top-[49px] sm:top-[53px] z-30">
         <div className="max-w-7xl mx-auto flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
           {visibleNavItems.map((item) => {
             const isActive =
@@ -101,18 +100,18 @@ export default function StaffLayout({ children }: StaffLayoutProps) {
                 key={item.id}
                 to={item.path}
                 className={`
-                  inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border-2 border-black font-display font-black text-xs uppercase tracking-wider shrink-0 transition-all select-none
+                  inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border-[1.5px] font-display font-black text-xs uppercase tracking-wider shrink-0 transition-all select-none
                   ${
                     isActive
-                      ? 'bg-[#ffd43b] text-black shadow-[2.5px_2.5px_0_#000000] -translate-y-0.5'
-                      : 'bg-white/10 text-white/80 border-transparent hover:bg-white/20 hover:text-white hover:border-black/50'
+                      ? 'bg-[#ffd43b] text-[#0c1d2d] border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
+                      : 'bg-white/8 text-white/70 border-transparent hover:bg-white/15 hover:text-white'
                   }
                 `}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
                 <span>{item.label}</span>
                 {item.adminOnly && (
-                  <span className="ml-1 text-[9px] px-1 py-0.2 bg-black text-white rounded font-mono">
+                  <span className="ml-1 text-[9px] px-1 py-0.2 bg-[#0c1d2d] text-white rounded font-mono">
                     ADMIN
                   </span>
                 )}

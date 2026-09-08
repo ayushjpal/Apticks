@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -344,7 +344,7 @@ export default function QuestionSolver() {
     return (
       <AppLayout>
         <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-          <div className="w-12 h-12 border-4 border-black border-t-[#ffd43b] rounded-full animate-spin mb-4" />
+          <div className="w-12 h-12 border-2 border-[#0c1d2d] border-t-[#ffd43b] rounded-full animate-spin mb-4" />
           <div className="font-display font-black text-xl uppercase tracking-wider text-black">
             LOADING ARENA QUESTION...
           </div>
@@ -359,10 +359,10 @@ export default function QuestionSolver() {
         {/* ================================================= */}
         {/* TOP BAR / NAVIGATION                              */}
         {/* ================================================= */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-black">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-[#0c1d2d]">
           <Link
             to="/questions"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] transition-transform hover:-translate-x-0.5"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] transition-transform hover:-translate-x-0.5"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>BACK TO QUESTION BANK</span>
@@ -372,7 +372,7 @@ export default function QuestionSolver() {
             {/* Stopwatch HUD */}
             <div
               className={`
-                px-3 py-1.5 border-2 border-black rounded-xl font-mono font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-[2px_2px_0_#000000]
+                px-3 py-1.5 border-2 border-[#0c1d2d] rounded-xl font-mono font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-[2px_2px_0_#0c1d2d]
                 ${timerActive && !isSubmitted ? 'bg-[#ffd43b] animate-pulse' : 'bg-white'}
               `}
             >
@@ -386,7 +386,7 @@ export default function QuestionSolver() {
               onClick={handleToggleBookmark}
               aria-label={isBookmarked ? 'Remove Bookmark' : 'Bookmark Question'}
               className={`
-                p-2 border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] transition-transform hover:-translate-y-0.5 cursor-pointer
+                p-2 border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] transition-transform hover:-translate-y-0.5 cursor-pointer
                 ${isBookmarked ? 'bg-[#ffd43b]' : 'bg-white hover:bg-slate-100'}
               `}
             >
@@ -401,7 +401,7 @@ export default function QuestionSolver() {
         {/* DAILY CHALLENGE BANNER                            */}
         {/* ================================================= */}
         {isChallengeMode && (
-          <div className="bg-[#ffd43b] border-2 sm:border-3 border-black rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0_#000000] flex flex-wrap items-center justify-between gap-3 animate-entry">
+          <div className="bg-[#ffd43b] border-2 sm:border-2 border-[#0c1d2d] rounded-xl p-4 sm:p-5 shadow-[3px_3px_0_#0c1d2d] flex flex-wrap items-center justify-between gap-3 animate-entry">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center shrink-0">
                 <Flame className="w-6 h-6 text-[#ffd43b] fill-[#ffd43b]" />
@@ -415,7 +415,7 @@ export default function QuestionSolver() {
                 </div>
               </div>
             </div>
-            <div className="bg-[#ff5b5b] text-white border-2 border-black rounded-full px-3 py-1 font-mono text-xs font-black uppercase shadow-[2px_2px_0_#000000]">
+            <div className="bg-[#ff5b5b] text-white border-2 border-[#0c1d2d] rounded-full px-3 py-1 font-mono text-xs font-black uppercase shadow-[2px_2px_0_#0c1d2d]">
               +50 BONUS XP
             </div>
           </div>
@@ -429,17 +429,17 @@ export default function QuestionSolver() {
           {/* 1. LEFT COLUMN: QUESTION CARD (~60% width)      */}
           {/* =============================================== */}
           <div className="order-1 lg:order-1 lg:col-span-7 flex flex-col">
-            <div className="bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8">
+            <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
-                <span className="px-2.5 py-1 bg-[#071a2b] text-[#ffd43b] border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase">
+                <span className="px-2.5 py-1 bg-[#0c1d2d] text-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg font-mono font-black text-[10px] uppercase">
                   {question.category}
                 </span>
-                <span className="px-2.5 py-1 bg-[#e9f6ff] text-black border-2 border-black rounded-lg font-mono font-bold text-[10px] uppercase">
+                <span className="px-2.5 py-1 bg-[#e9f6ff] text-black border-2 border-[#0c1d2d] rounded-lg font-mono font-bold text-[10px] uppercase">
                   {question.topic}
                 </span>
                 <span
                   className={`
-                    px-2.5 py-1 border-2 border-black rounded-lg font-mono font-black text-[10px] uppercase
+                    px-2.5 py-1 border-2 border-[#0c1d2d] rounded-lg font-mono font-black text-[10px] uppercase
                     ${
                       question.difficulty === 'easy'
                         ? 'bg-[#32e875] text-black'
@@ -452,7 +452,7 @@ export default function QuestionSolver() {
                   {question.difficulty}
                 </span>
 
-                <div className="ml-auto flex items-center gap-1.5 px-3 py-1 bg-[#ffd43b] border-2 border-black rounded-lg font-display font-black text-xs text-black shadow-[1.5px_1.5px_0_#000000]">
+                <div className="ml-auto flex items-center gap-1.5 px-3 py-1 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs text-black shadow-[1.5px_1.5px_0_#0c1d2d]">
                   <Award className="w-3.5 h-3.5" />
                   <span>{question.points} XP</span>
                 </div>
@@ -462,7 +462,7 @@ export default function QuestionSolver() {
                 {question.title}
               </h1>
 
-              <div className="mt-4 pt-4 border-t-2 border-dashed border-black/30 font-body font-bold text-base sm:text-lg text-black/90 leading-relaxed whitespace-pre-line break-words">
+              <div className="mt-4 pt-4 border-t-2 border-dashed border-[#0c1d2d]/20 font-body font-bold text-base sm:text-lg text-black/90 leading-relaxed whitespace-pre-line break-words">
                 {question.prompt}
               </div>
             </div>
@@ -473,7 +473,7 @@ export default function QuestionSolver() {
           {/* =============================================== */}
           <section
             aria-label="Options"
-            className="order-2 lg:order-2 lg:col-span-5 bg-white border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] p-6 sm:p-8 flex flex-col justify-between"
+            className="order-2 lg:order-2 lg:col-span-5 bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-6 sm:p-8 flex flex-col justify-between"
           >
             <div>
               <div className="font-mono text-xs font-black text-black/60 uppercase mb-4 tracking-wider">
@@ -487,7 +487,7 @@ export default function QuestionSolver() {
                   const isCorrectOption = opt.id === effectiveCorrect
 
                   let cardBg = 'bg-white hover:bg-slate-50'
-                  const borderColor = 'border-black'
+                  const borderColor = 'border-[#0c1d2d]'
 
                   if (isSubmitted) {
                     if (isCorrectOption) {
@@ -498,7 +498,7 @@ export default function QuestionSolver() {
                       cardBg = 'bg-slate-100 opacity-60'
                     }
                   } else if (isSelected) {
-                    cardBg = 'bg-[#ffd43b] text-black shadow-[4px_4px_0_#000000]'
+                    cardBg = 'bg-[#ffd43b] text-black shadow-[3px_3px_0_#0c1d2d]'
                   }
 
                   return (
@@ -509,15 +509,15 @@ export default function QuestionSolver() {
                       aria-pressed={isSelected}
                       onClick={() => setSelectedOption(opt.id)}
                       className={`
-                        p-3.5 sm:p-4 rounded-xl border-2 sm:border-3 ${borderColor} ${cardBg}
+                        p-3.5 sm:p-4 rounded-xl border-2 sm:border-2 ${borderColor} ${cardBg}
                         flex items-center justify-between text-left transition-all cursor-pointer
-                        ${!isSubmitted ? 'hover:-translate-y-0.5 active:translate-y-0 shadow-[2px_2px_0_#000000]' : ''}
+                        ${!isSubmitted ? 'hover:-translate-y-0.5 active:translate-y-0 shadow-[2px_2px_0_#0c1d2d]' : ''}
                       `}
                     >
                       <div className="flex items-center gap-3 sm:gap-3.5">
                         <span
                           className={`
-                            w-8 h-8 rounded-lg border-2 border-black flex items-center justify-center font-display font-black text-sm shrink-0
+                            w-8 h-8 rounded-lg border-2 border-[#0c1d2d] flex items-center justify-center font-display font-black text-sm shrink-0
                             ${isSelected ? 'bg-black text-white' : 'bg-[#e9f6ff] text-black'}
                           `}
                         >
@@ -550,7 +550,7 @@ export default function QuestionSolver() {
               <button
                 type="button"
                 onClick={() => setShowHint(!showHint)}
-                className={`px-3.5 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
+                className={`px-3.5 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
                   showHint ? 'bg-[#ffd43b]' : 'bg-white hover:bg-slate-100'
                 }`}
               >
@@ -561,7 +561,7 @@ export default function QuestionSolver() {
               <button
                 type="button"
                 onClick={() => setShowScratchpad(!showScratchpad)}
-                className={`px-3.5 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
+                className={`px-3.5 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
                   showScratchpad ? 'bg-[#38aef0] text-white' : 'bg-white hover:bg-slate-100 text-black'
                 }`}
               >
@@ -572,7 +572,7 @@ export default function QuestionSolver() {
 
             {/* Hint Drawer */}
             {showHint && question.hints && question.hints.length > 0 && (
-              <div className="p-5 bg-[#fffde7] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
+              <div className="p-5 bg-[#fffde7] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] animate-entry">
                 <div className="flex items-center gap-2 font-display font-black text-xs uppercase text-[#926002] mb-2">
                   <Sparkles className="w-4 h-4" />
                   <span>ARENA COACH HINTS:</span>
@@ -587,8 +587,8 @@ export default function QuestionSolver() {
 
             {/* Scratchpad Drawer */}
             {showScratchpad && (
-              <div className="p-5 bg-[#e9f6ff] border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] animate-entry">
-                <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-black">
+              <div className="p-5 bg-[#e9f6ff] border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] animate-entry">
+                <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-[#0c1d2d]">
                   <span className="font-display font-black text-xs uppercase text-[#071a2b]">
                     DIGITAL CALCULATION SCRATCHPAD
                   </span>
@@ -601,7 +601,7 @@ export default function QuestionSolver() {
                   onChange={(e) => setScratchpadNotes(e.target.value)}
                   placeholder="Jot down rough calculations, formulas, or step-by-step logic here..."
                   rows={4}
-                  className="w-full p-3 bg-white border-2 border-black rounded-xl font-mono text-xs font-bold outline-none focus:shadow-[2px_2px_0_#38aef0]"
+                  className="w-full p-3 bg-white border-2 border-[#0c1d2d] rounded-xl font-mono text-xs font-bold outline-none focus:shadow-[2px_2px_0_#38aef0]"
                 />
               </div>
             )}
@@ -617,7 +617,7 @@ export default function QuestionSolver() {
                 type="button"
                 onClick={handleSubmitAnswer}
                 disabled={!selectedOption || isSubmitting}
-                className="w-full py-3.5 px-6 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-6 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm uppercase tracking-wider transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <span>{isSubmitting ? 'PROCESSING...' : 'LOCK & SUBMIT ANSWER'}</span>
                 <CheckCircle2 className="w-4 h-4" />
@@ -632,7 +632,7 @@ export default function QuestionSolver() {
                     setSelectedOption(null)
                     setTimerActive(true)
                   }}
-                  className="px-4 py-3 bg-white hover:bg-slate-100 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 cursor-pointer shrink-0"
+                  className="px-4 py-3 bg-white hover:bg-slate-100 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>RE-ATTEMPT</span>
@@ -642,7 +642,7 @@ export default function QuestionSolver() {
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="flex-1 py-3 px-5 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                    className="flex-1 py-3 px-5 bg-[#32e875] hover:bg-[#22c55e] border-2 sm:border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
                   >
                     <span>RETURN TO DASHBOARD</span>
                     <ChevronRight className="w-4 h-4" />
@@ -651,7 +651,7 @@ export default function QuestionSolver() {
                   <button
                     type="button"
                     onClick={handleNextQuestion}
-                    className="flex-1 py-3 px-5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#000000] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
+                    className="flex-1 py-3 px-5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs sm:text-sm uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] flex items-center justify-center gap-2 cursor-pointer transition-transform hover:-translate-x-0.5"
                   >
                     <span>NEXT PROBLEM</span>
                     <ChevronRight className="w-4 h-4" />
@@ -668,11 +668,11 @@ export default function QuestionSolver() {
           {isSubmitted && (
             <div
               className={`
-                order-5 lg:order-5 lg:col-span-12 p-6 border-3 sm:border-4 border-black rounded-2xl sm:rounded-3xl shadow-[6px_6px_0_#000000] animate-entry
+                order-5 lg:order-5 lg:col-span-12 p-6 border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] animate-entry
                 ${isCorrect ? 'bg-[#d1fae5]' : 'bg-[#fee2e2]'}
               `}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b-2 border-black">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b-2 border-[#0c1d2d]">
                 <div className="flex items-center gap-2.5">
                   {isCorrect ? (
                     <>
@@ -680,7 +680,7 @@ export default function QuestionSolver() {
                       <div>
                         <span className="font-display font-black text-base sm:text-lg uppercase text-[#065f46]">
                           {xpResult && xpResult.xpChange === 0
-                            ? 'CORRECT REATTEMPT! (+0 XP — ALREADY EARNED)'
+                            ? 'CORRECT REATTEMPT! (+0 XP â€” ALREADY EARNED)'
                             : `CORRECT! +${xpResult?.xpChange ?? question.points} XP EARNED`}
                         </span>
                         {xpResult?.xpReason && (
@@ -695,7 +695,7 @@ export default function QuestionSolver() {
                       <ShieldAlert className="w-6 h-6 text-[#991b1b] shrink-0" />
                       <div>
                         <span className="font-display font-black text-base sm:text-lg uppercase text-[#991b1b]">
-                          INCORRECT ATTEMPT • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP PENALTY
+                          INCORRECT ATTEMPT â€¢ {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP PENALTY
                         </span>
                         <div className="font-mono text-[10px] font-bold text-[#991b1b]/80">
                           CORRECT ANSWER IS OPTION {authoritativeCorrectOption || question.correctOption}
@@ -708,11 +708,11 @@ export default function QuestionSolver() {
                 {/* Question-Specific Attempt Breakdown */}
                 <div className="flex items-center gap-2">
                   {questionAttemptStats && (
-                    <div className="flex items-center gap-1.5 font-mono text-[10px] font-black uppercase bg-white px-2.5 py-1 border-2 border-black rounded-lg shadow-[1.5px_1.5px_0_#000000]">
+                    <div className="flex items-center gap-1.5 font-mono text-[10px] font-black uppercase bg-white px-2.5 py-1 border-2 border-[#0c1d2d] rounded-lg shadow-[1.5px_1.5px_0_#0c1d2d]">
                       <span>ATTEMPTS: {questionAttemptStats.totalAttempts}</span>
-                      <span>•</span>
+                      <span>â€¢</span>
                       <span className="text-[#059669]">CORRECT: {questionAttemptStats.correctCount}</span>
-                      <span>•</span>
+                      <span>â€¢</span>
                       <span className="text-[#dc2626]">INCORRECT: {questionAttemptStats.incorrectCount}</span>
                     </div>
                   )}
@@ -722,14 +722,14 @@ export default function QuestionSolver() {
                 </div>
               </div>
 
-              <div className="p-4 bg-white border-2 border-black rounded-xl font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
+              <div className="p-4 bg-white border-2 border-[#0c1d2d] rounded-xl font-body font-semibold text-xs sm:text-sm text-black/85 leading-relaxed">
                 <div className="font-display font-black text-xs uppercase text-black mb-1.5">
                   STEP-BY-STEP MATHEMATICAL SOLUTION:
                 </div>
                 <div className="whitespace-pre-line">{authoritativeExplanation || question.explanation}</div>
 
                 {question.formulaOrRule && (
-                  <div className="mt-3 p-3 bg-[#fffde7] border-2 border-black rounded-lg font-mono text-xs font-bold text-black flex items-center gap-2">
+                  <div className="mt-3 p-3 bg-[#fffde7] border-2 border-[#0c1d2d] rounded-lg font-mono text-xs font-bold text-black flex items-center gap-2">
                     <Zap className="w-4 h-4 text-[#ffd43b] shrink-0" />
                     <span>FORMULA / KEY PRINCIPLE: {question.formulaOrRule}</span>
                   </div>
@@ -743,7 +743,7 @@ export default function QuestionSolver() {
                   {question.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 bg-white border border-black rounded-md font-mono text-[10px] font-bold text-black/80"
+                      className="px-2 py-0.5 bg-white border border-[#0c1d2d] rounded-md font-mono text-[10px] font-bold text-black/80"
                     >
                       #{tag}
                     </span>
@@ -757,3 +757,4 @@ export default function QuestionSolver() {
     </AppLayout>
   )
 }
+

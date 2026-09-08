@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Trophy,
@@ -599,15 +599,15 @@ export default function ModeratorContests() {
   const getStatusBadge = (status: ContestStatus) => {
     switch (status) {
       case 'live':
-        return 'bg-[#ffd43b] text-black border-black shadow-[2px_2px_0_#000000]'
+        return 'bg-[#ffd43b] text-black border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]'
       case 'upcoming':
-        return 'bg-[#38aef0] text-black border-black shadow-[2px_2px_0_#000000]'
+        return 'bg-[#38aef0] text-black border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]'
       case 'draft':
-        return 'bg-white/80 text-black border-black shadow-[2px_2px_0_#000000]'
+        return 'bg-white/80 text-black border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]'
       case 'completed':
-        return 'bg-[#15803d] text-white border-black shadow-[2px_2px_0_#000000]'
+        return 'bg-[#15803d] text-white border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]'
       case 'cancelled':
-        return 'bg-[#ff5c5c] text-white border-black shadow-[2px_2px_0_#000000]'
+        return 'bg-[#ff5c5c] text-white border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]'
       default:
         return 'bg-black text-white'
     }
@@ -628,7 +628,7 @@ export default function ModeratorContests() {
                 <span>CONTROL CENTER</span>
               </Link>
               <span className="text-white/40">/</span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#ffd43b] text-black border-2 border-black rounded-full font-display font-black text-[11px] shadow-[1.5px_1.5px_0_#000000]">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-full font-display font-black text-[11px] shadow-[1.5px_1.5px_0_#0c1d2d]">
                 <Trophy className="w-3 h-3" />
                 CONTESTS
               </span>
@@ -645,7 +645,7 @@ export default function ModeratorContests() {
             <button
               onClick={handleRefresh}
               disabled={refreshing || loading}
-              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white text-black border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#000000] hover:bg-[#ffd43b] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white text-black border-2 sm:border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] hover:bg-[#ffd43b] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">REFRESH</span>
@@ -653,7 +653,7 @@ export default function ModeratorContests() {
 
             <button
               onClick={handleOpenCreateModal}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#ffd43b] text-black border-2 sm:border-3 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#000000] hover:bg-[#ffdf5d] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#ffd43b] text-black border-2 sm:border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] hover:bg-[#ffdf5d] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>CREATE CONTEST</span>
@@ -663,14 +663,14 @@ export default function ModeratorContests() {
 
         {/* Global Notifications */}
         {successToast && (
-          <div className="bg-[#dcfce7] border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000] flex items-center gap-3 text-black">
+          <div className="bg-[#dcfce7] border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center gap-3 text-black">
             <CheckCircle2 className="w-5 h-5 text-[#15803d] shrink-0" />
             <p className="text-xs sm:text-sm font-body font-bold">{successToast}</p>
           </div>
         )}
 
         {error && (
-          <div className="bg-[#fee2e2] border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000] flex items-center gap-3 text-black">
+          <div className="bg-[#fee2e2] border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center gap-3 text-black">
             <AlertTriangle className="w-5 h-5 text-[#b91c1c] shrink-0" />
             <p className="text-xs sm:text-sm font-body font-bold">{error}</p>
           </div>
@@ -678,7 +678,7 @@ export default function ModeratorContests() {
 
         {/* Inventory Metric Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-          <div className="bg-white border-2 sm:border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between">
               <span className="font-display font-black text-[11px] text-black/60 uppercase">TOTAL</span>
               <Layers className="w-4 h-4 text-black/40" />
@@ -689,7 +689,7 @@ export default function ModeratorContests() {
             <div className="text-[11px] font-mono text-black/50 font-bold">All Tournaments</div>
           </div>
 
-          <div className="bg-[#ffd43b] border-2 sm:border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-[#ffd43b] border-2 sm:border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between">
               <span className="font-display font-black text-[11px] text-black uppercase">LIVE ARENA</span>
               <Trophy className="w-4 h-4 text-black" />
@@ -700,7 +700,7 @@ export default function ModeratorContests() {
             <div className="text-[11px] font-mono text-black/70 font-bold">In-Progress Now</div>
           </div>
 
-          <div className="bg-[#38aef0] border-2 sm:border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-[#38aef0] border-2 sm:border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between">
               <span className="font-display font-black text-[11px] text-black uppercase">UPCOMING</span>
               <Calendar className="w-4 h-4 text-black" />
@@ -711,7 +711,7 @@ export default function ModeratorContests() {
             <div className="text-[11px] font-mono text-black/70 font-bold">Scheduled Contests</div>
           </div>
 
-          <div className="bg-white border-2 sm:border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000]">
+          <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between">
               <span className="font-display font-black text-[11px] text-black/60 uppercase">DRAFTS</span>
               <FileText className="w-4 h-4 text-black/40" />
@@ -722,7 +722,7 @@ export default function ModeratorContests() {
             <div className="text-[11px] font-mono text-black/50 font-bold">Staged Drafts</div>
           </div>
 
-          <div className="bg-white border-2 sm:border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000] col-span-2 lg:col-span-1">
+          <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between">
               <span className="font-display font-black text-[11px] text-black/60 uppercase">COMPLETED</span>
               <CheckCircle2 className="w-4 h-4 text-black/40" />
@@ -735,15 +735,15 @@ export default function ModeratorContests() {
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-white border-3 border-black p-4 rounded-xl shadow-[4px_4px_0_#000000] space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
           <div className="flex flex-wrap items-center gap-1.5">
             {(['all', 'live', 'upcoming', 'draft', 'completed', 'cancelled'] as const).map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1.5 text-xs font-display font-black uppercase rounded-lg border-2 border-black transition-all ${
+                className={`px-3 py-1.5 text-xs font-display font-black uppercase rounded-lg border-2 border-[#0c1d2d] transition-all ${
                   statusFilter === st
-                    ? 'bg-black text-white shadow-[2px_2px_0_#000000]'
+                    ? 'bg-black text-white shadow-[2px_2px_0_#0c1d2d]'
                     : 'bg-white text-black hover:bg-black/5'
                 }`}
               >
@@ -762,7 +762,7 @@ export default function ModeratorContests() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by title, slug..."
-              className="w-full pl-9 pr-8 py-2 bg-[#f8fafc] border-2 border-black rounded-lg text-xs font-body font-bold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:border-black shadow-[2px_2px_0_#000000]"
+              className="w-full pl-9 pr-8 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-lg text-xs font-body font-bold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]"
             />
             {searchQuery && (
               <button
@@ -776,7 +776,7 @@ export default function ModeratorContests() {
         </div>
 
         {/* Contest Inventory Table / Cards */}
-        <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] overflow-hidden">
+        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
           {loading ? (
             <div className="p-12 text-center">
               <RefreshCw className="w-8 h-8 mx-auto animate-spin text-black/40 mb-3" />
@@ -801,7 +801,7 @@ export default function ModeratorContests() {
             >
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 z-10 shadow-[0_2px_0_#000000]">
-                  <tr className="border-b-3 border-black bg-[#f1f5f9] text-[11px] font-display font-black uppercase text-black tracking-wider">
+                  <tr className="border-b-2 border-[#0c1d2d] bg-[#f1f5f9] text-[11px] font-display font-black uppercase text-black tracking-wider">
                     <th className="py-3 px-4">CONTEST TITLE & SLUG</th>
                     <th className="py-3 px-4">STATUS</th>
                     <th className="py-3 px-4">TYPE & DIFFICULTY</th>
@@ -865,7 +865,7 @@ export default function ModeratorContests() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-black/5 border border-black/10 rounded-md font-mono font-bold text-xs">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-black/5 border border-[#0c1d2d]/10 rounded-md font-mono font-bold text-xs">
                           <Users className="w-3.5 h-3.5 text-black/60" />
                           <span>{c.participantsCount || 0}</span>
                         </div>
@@ -874,7 +874,7 @@ export default function ModeratorContests() {
                       <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleOpenManage(c)}
-                          className="px-3 py-1.5 bg-white text-black hover:bg-[#ffd43b] border-2 border-black rounded-lg font-display font-black text-[11px] uppercase tracking-wider shadow-[2px_2px_0_#000000] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
+                          className="px-3 py-1.5 bg-white text-black hover:bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-[11px] uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
                         >
                           MANAGE
                         </button>
@@ -900,11 +900,11 @@ export default function ModeratorContests() {
           >
             <div
               data-lenis-prevent
-              className="bg-white border-3 sm:border-4 border-black w-full max-w-4xl rounded-2xl shadow-[8px_8px_0_#000000] overflow-hidden h-[92vh] sm:h-[88vh] max-h-[92vh] sm:max-h-[88vh] flex flex-col"
+              className="bg-white border-2 sm:border-2 border-[#0c1d2d] w-full max-w-4xl rounded-xl shadow-[8px_8px_0_#000000] overflow-hidden h-[92vh] sm:h-[88vh] max-h-[92vh] sm:max-h-[88vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header (Fixed / Never scrolls) */}
-              <div className="bg-[#071a2b] text-white p-4 sm:p-5 border-b-3 border-black flex items-start justify-between gap-4 shrink-0 flex-none">
+              <div className="bg-[#0c1d2d] text-white p-4 sm:p-5 border-b-2 border-[#0c1d2d] flex items-start justify-between gap-4 shrink-0 flex-none">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                     <span
@@ -929,19 +929,19 @@ export default function ModeratorContests() {
                 <button
                   onClick={() => setManagingContest(null)}
                   aria-label="Close contest management modal"
-                  className="w-8 h-8 bg-white/10 hover:bg-[#ff5c5c] text-white hover:text-black border-2 border-white/20 hover:border-black rounded-lg flex items-center justify-center transition-colors shrink-0"
+                  className="w-8 h-8 bg-white/10 hover:bg-[#ff5c5c] text-white hover:text-black border-2 border-white/20 hover:border-[#0c1d2d] rounded-lg flex items-center justify-center transition-colors shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Navigation Tabs (Fixed / Never scrolls) */}
-              <div className="border-b-2 border-black bg-[#f8fafc] px-3 sm:px-6 flex items-center gap-1 sm:gap-2 shrink-0 flex-none overflow-x-auto">
+              <div className="border-b-2 border-[#0c1d2d] bg-[#f8fafc] px-3 sm:px-6 flex items-center gap-1 sm:gap-2 shrink-0 flex-none overflow-x-auto">
                 <button
                   onClick={() => setDetailTab('overview')}
-                  className={`py-3 px-3 sm:px-4 font-display font-black text-xs uppercase border-b-3 whitespace-nowrap transition-colors ${
+                  className={`py-3 px-3 sm:px-4 font-display font-black text-xs uppercase border-b-2 whitespace-nowrap transition-colors ${
                     detailTab === 'overview'
-                      ? 'border-black text-black'
+                      ? 'border-[#0c1d2d] text-black'
                       : 'border-transparent text-black/50 hover:text-black'
                   }`}
                 >
@@ -949,9 +949,9 @@ export default function ModeratorContests() {
                 </button>
                 <button
                   onClick={() => setDetailTab('questions')}
-                  className={`py-3 px-3 sm:px-4 font-display font-black text-xs uppercase border-b-3 whitespace-nowrap transition-colors ${
+                  className={`py-3 px-3 sm:px-4 font-display font-black text-xs uppercase border-b-2 whitespace-nowrap transition-colors ${
                     detailTab === 'questions'
-                      ? 'border-black text-black'
+                      ? 'border-[#0c1d2d] text-black'
                       : 'border-transparent text-black/50 hover:text-black'
                   }`}
                 >
@@ -959,9 +959,9 @@ export default function ModeratorContests() {
                 </button>
                 <button
                   onClick={() => setDetailTab('participants')}
-                  className={`py-3 px-3 sm:px-4 font-display font-black text-xs uppercase border-b-3 whitespace-nowrap transition-colors ${
+                  className={`py-3 px-3 sm:px-4 font-display font-black text-xs uppercase border-b-2 whitespace-nowrap transition-colors ${
                     detailTab === 'participants'
-                      ? 'border-black text-black'
+                      ? 'border-[#0c1d2d] text-black'
                       : 'border-transparent text-black/50 hover:text-black'
                   }`}
                 >
@@ -971,7 +971,7 @@ export default function ModeratorContests() {
 
               {/* Action error banner (Fixed / shrink-0) */}
               {actionError && (
-                <div className="mx-3 sm:mx-6 mt-3 p-3 bg-[#fee2e2] border-2 border-black rounded-lg text-xs font-body font-bold text-black flex items-center gap-2 shrink-0 flex-none">
+                <div className="mx-3 sm:mx-6 mt-3 p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-lg text-xs font-body font-bold text-black flex items-center gap-2 shrink-0 flex-none">
                   <AlertTriangle className="w-4 h-4 text-[#b91c1c] shrink-0" />
                   <span>{actionError}</span>
                 </div>
@@ -995,21 +995,21 @@ export default function ModeratorContests() {
                   /* TAB 1: OVERVIEW & CONFIG */
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="bg-[#f8fafc] border-2 border-black p-3.5 rounded-xl">
+                      <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-3.5 rounded-xl">
                         <div className="text-[11px] font-mono text-black/60 uppercase">Category</div>
                         <div className="font-display font-black text-sm uppercase text-black mt-1">
                           {managingContest.category}
                         </div>
                       </div>
 
-                      <div className="bg-[#f8fafc] border-2 border-black p-3.5 rounded-xl">
+                      <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-3.5 rounded-xl">
                         <div className="text-[11px] font-mono text-black/60 uppercase">Difficulty & Type</div>
                         <div className="font-display font-black text-sm uppercase text-black mt-1">
                           {managingContest.difficulty} • {managingContest.contestType}
                         </div>
                       </div>
 
-                      <div className="bg-[#f8fafc] border-2 border-black p-3.5 rounded-xl">
+                      <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-3.5 rounded-xl">
                         <div className="text-[11px] font-mono text-black/60 uppercase">XP Pool</div>
                         <div className="font-display font-black text-sm text-black mt-1">
                           {managingContest.xpPool} XP
@@ -1018,7 +1018,7 @@ export default function ModeratorContests() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-white border-2 border-black p-4 rounded-xl space-y-2">
+                      <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl space-y-2">
                         <h4 className="font-display font-black text-xs uppercase text-black">
                           TIMING & DURATION
                         </h4>
@@ -1029,7 +1029,7 @@ export default function ModeratorContests() {
                         </div>
                       </div>
 
-                      <div className="bg-white border-2 border-black p-4 rounded-xl space-y-2">
+                      <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl space-y-2">
                         <h4 className="font-display font-black text-xs uppercase text-black">
                           MARKING CONFIGURATION
                         </h4>
@@ -1042,7 +1042,7 @@ export default function ModeratorContests() {
                     </div>
 
                     {managingContest.description && (
-                      <div className="bg-[#f8fafc] border-2 border-black p-4 rounded-xl">
+                      <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-4 rounded-xl">
                         <div className="text-[11px] font-display font-black text-black/60 uppercase mb-1">
                           Description
                         </div>
@@ -1053,7 +1053,7 @@ export default function ModeratorContests() {
                     )}
 
                     {managingContest.rules && (
-                      <div className="bg-[#f8fafc] border-2 border-black p-4 rounded-xl">
+                      <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-4 rounded-xl">
                         <div className="text-[11px] font-display font-black text-black/60 uppercase mb-1">
                           Tournament Rules
                         </div>
@@ -1064,7 +1064,7 @@ export default function ModeratorContests() {
                     )}
 
                     {/* Status Actions */}
-                    <div className="border-t-2 border-black/10 pt-4">
+                    <div className="border-t-2 border-[#0c1d2d]/10 pt-4">
                       <h4 className="font-display font-black text-xs uppercase text-black mb-3">
                         LIFECYCLE TRANSITIONS
                       </h4>
@@ -1074,21 +1074,21 @@ export default function ModeratorContests() {
                             <button
                               onClick={() => handleStatusChange('upcoming')}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-[#38aef0] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-[#68c6fc]"
+                              className="px-4 py-2 bg-[#38aef0] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-[#68c6fc]"
                             >
                               SCHEDULE / PUBLISH (UPCOMING)
                             </button>
                             <button
                               onClick={() => handleStatusChange('cancelled')}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-[#ff5c5c] text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-black"
+                              className="px-4 py-2 bg-[#ff5c5c] text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-black"
                             >
                               CANCEL CONTEST
                             </button>
                             <button
                               onClick={() => handleDeleteContest(managingContest.id)}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-white text-[#b91c1c] border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-[#fee2e2]"
+                              className="px-4 py-2 bg-white text-[#b91c1c] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-[#fee2e2]"
                             >
                               DELETE DRAFT
                             </button>
@@ -1100,21 +1100,21 @@ export default function ModeratorContests() {
                             <button
                               onClick={() => handleStatusChange('live')}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-[#ffd43b] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-[#ffdf5d]"
+                              className="px-4 py-2 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-[#ffdf5d]"
                             >
                               OPEN ARENA (LIVE)
                             </button>
                             <button
                               onClick={() => handleStatusChange('draft')}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-white text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-black/5"
+                              className="px-4 py-2 bg-white text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-black/5"
                             >
                               REVERT TO DRAFT
                             </button>
                             <button
                               onClick={() => handleStatusChange('cancelled')}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-[#ff5c5c] text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-black"
+                              className="px-4 py-2 bg-[#ff5c5c] text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-black"
                             >
                               CANCEL CONTEST
                             </button>
@@ -1126,14 +1126,14 @@ export default function ModeratorContests() {
                             <button
                               onClick={() => handleStatusChange('completed')}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-[#15803d] text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-black"
+                              className="px-4 py-2 bg-[#15803d] text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-black"
                             >
                               FINALIZE / END CONTEST
                             </button>
                             <button
                               onClick={() => handleStatusChange('cancelled')}
                               disabled={actionLoading}
-                              className="px-4 py-2 bg-[#ff5c5c] text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-black"
+                              className="px-4 py-2 bg-[#ff5c5c] text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-black"
                             >
                               CANCEL CONTEST
                             </button>
@@ -1167,7 +1167,7 @@ export default function ModeratorContests() {
                           <button
                             onClick={handleOpenQuestionPicker}
                             disabled={actionLoading}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#ffd43b] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#000000] hover:bg-[#ffdf5d]"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:bg-[#ffdf5d]"
                           >
                             <Plus className="w-3.5 h-3.5 stroke-[3]" />
                             <span>+ ADD QUESTIONS</span>
@@ -1176,7 +1176,7 @@ export default function ModeratorContests() {
                     </div>
 
                     {contestQuestions.length === 0 ? (
-                      <div className="p-8 text-center border-2 border-dashed border-black/20 rounded-xl space-y-2">
+                      <div className="p-8 text-center border-2 border-dashed border-[#0c1d2d]/20 rounded-xl space-y-2">
                         <Layers className="w-8 h-8 mx-auto text-black/30" />
                         <div className="font-display font-black text-xs uppercase text-black">
                           No Questions Assigned
@@ -1190,7 +1190,7 @@ export default function ModeratorContests() {
                         {contestQuestions.map((q, idx) => (
                           <div
                             key={q.question_id}
-                            className="bg-[#f8fafc] border-2 border-black p-3 rounded-xl flex items-center justify-between gap-3 shadow-[2px_2px_0_#000000]"
+                            className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-3 rounded-xl flex items-center justify-between gap-3 shadow-[2px_2px_0_#0c1d2d]"
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <span className="w-7 h-7 bg-black text-white font-mono font-black text-xs rounded-lg flex items-center justify-center shrink-0">
@@ -1200,7 +1200,7 @@ export default function ModeratorContests() {
                                 <div className="font-display font-black text-xs uppercase text-black flex items-center gap-2 flex-wrap">
                                   <span className="truncate">{q.title}</span>
                                   {q.is_active === false && (
-                                    <span className="px-1.5 py-0.5 bg-black/10 text-black/70 border border-black/20 rounded font-mono text-[9px] font-bold uppercase shrink-0">
+                                    <span className="px-1.5 py-0.5 bg-black/10 text-black/70 border border-[#0c1d2d]/20 rounded font-mono text-[9px] font-bold uppercase shrink-0">
                                       Dedicated Contest Q
                                     </span>
                                   )}
@@ -1258,7 +1258,7 @@ export default function ModeratorContests() {
                     </div>
 
                     {managingContest.participantsCount === 0 ? (
-                      <div className="p-8 text-center border-2 border-dashed border-black/20 rounded-xl space-y-2">
+                      <div className="p-8 text-center border-2 border-dashed border-[#0c1d2d]/20 rounded-xl space-y-2">
                         <Users className="w-8 h-8 mx-auto text-black/30" />
                         <div className="font-display font-black text-xs uppercase text-black">
                           Zero Registrations
@@ -1268,7 +1268,7 @@ export default function ModeratorContests() {
                         </p>
                       </div>
                     ) : (
-                      <div className="bg-[#f8fafc] border-2 border-black p-4 rounded-xl text-center space-y-2">
+                      <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-4 rounded-xl text-center space-y-2">
                         <div className="font-display font-black text-lg text-black">
                           {managingContest.participantsCount} Registered Players
                         </div>
@@ -1283,13 +1283,13 @@ export default function ModeratorContests() {
               </div>
 
               {/* Modal Footer (Fixed / Never scrolls) */}
-              <div className="p-3 sm:p-3.5 bg-[#f8fafc] border-t-2 sm:border-t-3 border-black flex items-center justify-between gap-3 shrink-0 flex-none">
+              <div className="p-3 sm:p-3.5 bg-[#f8fafc] border-t-2 sm:border-t-3 border-[#0c1d2d] flex items-center justify-between gap-3 shrink-0 flex-none">
                 <div className="text-[11px] font-mono text-black/60 hidden sm:block">
                   Status: <span className="font-bold text-black uppercase">{managingContest.status}</span> • {contestQuestions.length} Questions • {managingContest.totalMarks} Marks
                 </div>
                 <button
                   onClick={() => setManagingContest(null)}
-                  className="px-4 py-1.5 bg-white text-black hover:bg-[#ffd43b] border-2 border-black rounded-lg font-display font-black text-xs uppercase tracking-wider transition-colors ml-auto shadow-[2px_2px_0_#000000]"
+                  className="px-4 py-1.5 bg-white text-black hover:bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase tracking-wider transition-colors ml-auto shadow-[2px_2px_0_#0c1d2d]"
                 >
                   CLOSE
                 </button>
@@ -1311,32 +1311,32 @@ export default function ModeratorContests() {
           >
             <div
               data-lenis-prevent
-              className="bg-white border-3 sm:border-4 border-black w-full max-w-3xl rounded-2xl shadow-[8px_8px_0_#000000] overflow-hidden h-[88vh] sm:h-[82vh] max-h-[88vh] sm:max-h-[82vh] flex flex-col"
+              className="bg-white border-2 sm:border-2 border-[#0c1d2d] w-full max-w-3xl rounded-xl shadow-[8px_8px_0_#000000] overflow-hidden h-[88vh] sm:h-[82vh] max-h-[88vh] sm:max-h-[82vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header: fixed / never scrolls */}
-              <div className="bg-black text-white p-3.5 sm:p-4 border-b-2 sm:border-b-3 border-black flex items-center justify-between shrink-0 flex-none">
+              <div className="bg-black text-white p-3.5 sm:p-4 border-b-2 sm:border-b-2 border-[#0c1d2d] flex items-center justify-between shrink-0 flex-none">
                 <h3 className="font-display font-black text-sm sm:text-base uppercase tracking-tight">
                   Add Active Questions from Bank
                 </h3>
                 <button
                   onClick={() => setIsQuestionPickerOpen(false)}
                   aria-label="Close question picker"
-                  className="w-7 h-7 bg-white/10 hover:bg-[#ff5c5c] text-white hover:text-black border border-white/20 hover:border-black rounded-lg flex items-center justify-center transition-colors shrink-0"
+                  className="w-7 h-7 bg-white/10 hover:bg-[#ff5c5c] text-white hover:text-black border border-white/20 hover:border-[#0c1d2d] rounded-lg flex items-center justify-center transition-colors shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Toolbar/Filters: fixed / never scrolls */}
-              <div className="p-3 bg-[#f8fafc] border-b-2 border-black flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0 flex-none">
+              <div className="p-3 bg-[#f8fafc] border-b-2 border-[#0c1d2d] flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0 flex-none">
                 <select
                   value={pickerCategory}
                   onChange={(e) => {
                     setPickerLoading(true)
                     setPickerCategory(e.target.value)
                   }}
-                  className="px-2.5 py-1.5 bg-white border-2 border-black rounded-lg text-xs font-display font-bold text-black focus:outline-none shrink-0"
+                  className="px-2.5 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-display font-bold text-black focus:outline-none shrink-0"
                 >
                   <option value="all">ALL CATEGORIES</option>
                   {CATEGORIES.map((cat) => (
@@ -1356,7 +1356,7 @@ export default function ModeratorContests() {
                       setPickerSearch(e.target.value)
                     }}
                     placeholder="Search active question title, ID, topic..."
-                    className="w-full pl-8 pr-3 py-1.5 bg-white border-2 border-black rounded-lg text-xs font-body font-bold text-black focus:outline-none"
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-body font-bold text-black focus:outline-none"
                   />
                 </div>
               </div>
@@ -1381,7 +1381,7 @@ export default function ModeratorContests() {
                   availableQuestions.map((q) => (
                     <div
                       key={q.id}
-                      className="bg-white border-2 border-black p-3 rounded-xl flex items-center justify-between gap-3 hover:bg-[#f8fafc] transition-colors"
+                      className="bg-white border-2 border-[#0c1d2d] p-3 rounded-xl flex items-center justify-between gap-3 hover:bg-[#f8fafc] transition-colors"
                     >
                       <div className="min-w-0">
                         <div className="font-display font-black text-xs uppercase text-black truncate">
@@ -1394,7 +1394,7 @@ export default function ModeratorContests() {
 
                       <div className="shrink-0">
                         {q.isAssigned ? (
-                          <span className="px-2.5 py-1 bg-black/10 text-black/60 border border-black/20 rounded-md font-mono font-bold text-[10px] uppercase">
+                          <span className="px-2.5 py-1 bg-black/10 text-black/60 border border-[#0c1d2d]/20 rounded-md font-mono font-bold text-[10px] uppercase">
                             ASSIGNED
                           </span>
                         ) : q.isActive === false ? (
@@ -1405,7 +1405,7 @@ export default function ModeratorContests() {
                           <button
                             onClick={() => handleAssignQuestion(q.id)}
                             disabled={actionLoading}
-                            className="px-3 py-1 bg-[#ffd43b] text-black border-2 border-black rounded-md font-display font-black text-[11px] uppercase hover:bg-[#ffdf5d] active:translate-x-0 active:translate-y-0 shadow-[1.5px_1.5px_0_#000000] disabled:opacity-50"
+                            className="px-3 py-1 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-md font-display font-black text-[11px] uppercase hover:bg-[#ffdf5d] active:translate-x-0 active:translate-y-0 shadow-[1.5px_1.5px_0_#0c1d2d] disabled:opacity-50"
                           >
                             + ADD
                           </button>
@@ -1418,13 +1418,13 @@ export default function ModeratorContests() {
               </div>
 
               {/* Footer: Fixed / Never scrolls */}
-              <div className="p-3 bg-[#f8fafc] border-t-2 sm:border-t-3 border-black flex items-center justify-between gap-3 shrink-0 flex-none">
+              <div className="p-3 bg-[#f8fafc] border-t-2 sm:border-t-3 border-[#0c1d2d] flex items-center justify-between gap-3 shrink-0 flex-none">
                 <div className="text-[11px] font-mono text-black/60">
                   {availableQuestions.filter((q) => !q.isAssigned && q.isActive !== false).length} active questions available
                 </div>
                 <button
                   onClick={() => setIsQuestionPickerOpen(false)}
-                  className="px-5 py-1.5 bg-black text-white hover:bg-[#ffd43b] hover:text-black border-2 border-black rounded-lg font-display font-black text-xs uppercase tracking-wider transition-colors shadow-[2px_2px_0_#000000]"
+                  className="px-5 py-1.5 bg-black text-white hover:bg-[#ffd43b] hover:text-black border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase tracking-wider transition-colors shadow-[2px_2px_0_#0c1d2d]"
                 >
                   DONE
                 </button>
@@ -1446,11 +1446,11 @@ export default function ModeratorContests() {
           >
             <div
               data-lenis-prevent
-              className="bg-white border-3 sm:border-4 border-black w-full max-w-2xl rounded-2xl shadow-[8px_8px_0_#000000] overflow-hidden h-[92vh] sm:h-[88vh] max-h-[92vh] sm:max-h-[88vh] flex flex-col"
+              className="bg-white border-2 sm:border-2 border-[#0c1d2d] w-full max-w-2xl rounded-xl shadow-[8px_8px_0_#000000] overflow-hidden h-[92vh] sm:h-[88vh] max-h-[92vh] sm:max-h-[88vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header: Fixed / Never scrolls */}
-              <div className="bg-[#ffd43b] text-black p-4 sm:p-5 border-b-3 border-black flex items-center justify-between shrink-0 flex-none">
+              <div className="bg-[#ffd43b] text-black p-4 sm:p-5 border-b-2 border-[#0c1d2d] flex items-center justify-between shrink-0 flex-none">
                 <div>
                   <h3 className="font-display font-black text-xl uppercase tracking-tight">
                     CREATE NEW TOURNAMENT
@@ -1462,7 +1462,7 @@ export default function ModeratorContests() {
                 <button
                   onClick={() => setIsCreateModalOpen(false)}
                   aria-label="Close create tournament modal"
-                  className="w-8 h-8 bg-black/10 hover:bg-black text-black hover:text-white border-2 border-black rounded-lg flex items-center justify-center transition-colors shrink-0"
+                  className="w-8 h-8 bg-black/10 hover:bg-black text-black hover:text-white border-2 border-[#0c1d2d] rounded-lg flex items-center justify-center transition-colors shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1478,7 +1478,7 @@ export default function ModeratorContests() {
                 >
                   <div className="p-4 sm:p-6 space-y-4">
                   {formError && (
-                    <div className="p-3 bg-[#fee2e2] border-2 border-black rounded-lg text-xs font-body font-bold text-black flex items-center gap-2">
+                    <div className="p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-lg text-xs font-body font-bold text-black flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 text-[#b91c1c] shrink-0" />
                       <span>{formError}</span>
                     </div>
@@ -1493,7 +1493,7 @@ export default function ModeratorContests() {
                       value={formTitle}
                       onChange={(e) => handleTitleChange(e.target.value)}
                       placeholder="e.g. APTICKS SPEED CLASH #15"
-                      className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-body font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                      className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-body font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       required
                     />
                   </div>
@@ -1507,7 +1507,7 @@ export default function ModeratorContests() {
                       value={formSlug}
                       onChange={(e) => setFormSlug(e.target.value)}
                       placeholder="e.g. apticks-speed-clash-15"
-                      className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                      className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       required
                     />
                   </div>
@@ -1520,7 +1520,7 @@ export default function ModeratorContests() {
                       <select
                         value={formCategory}
                         onChange={(e) => setFormCategory(e.target.value)}
-                        className="w-full px-2.5 py-2 bg-white border-2 border-black rounded-lg text-xs font-display font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-2.5 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-display font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       >
                         {CATEGORIES.map((c) => (
                           <option key={c} value={c}>
@@ -1537,7 +1537,7 @@ export default function ModeratorContests() {
                       <select
                         value={formDifficulty}
                         onChange={(e) => setFormDifficulty(e.target.value as ContestDifficulty)}
-                        className="w-full px-2.5 py-2 bg-white border-2 border-black rounded-lg text-xs font-display font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-2.5 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-display font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       >
                         {DIFFICULTIES.map((d) => (
                           <option key={d} value={d}>
@@ -1554,7 +1554,7 @@ export default function ModeratorContests() {
                       <select
                         value={formContestType}
                         onChange={(e) => setFormContestType(e.target.value as ContestType)}
-                        className="w-full px-2.5 py-2 bg-white border-2 border-black rounded-lg text-xs font-display font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-2.5 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-display font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       >
                         {CONTEST_TYPES.map((t) => (
                           <option key={t} value={t}>
@@ -1579,7 +1579,7 @@ export default function ModeratorContests() {
                         type="datetime-local"
                         value={formStartTime}
                         onChange={(e) => handleStartTimeChange(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       />
                       <p className="text-[10px] font-mono text-black/60 mt-1">
                         Select date and specific start time
@@ -1599,7 +1599,7 @@ export default function ModeratorContests() {
                         type="datetime-local"
                         value={formEndTime}
                         onChange={(e) => handleEndTimeChange(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       />
                       <p className="text-[10px] font-mono text-black/60 mt-1">
                         Select date and specific end time
@@ -1617,7 +1617,7 @@ export default function ModeratorContests() {
                         min={1}
                         value={formDuration}
                         onChange={(e) => handleDurationChange(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       />
                     </div>
 
@@ -1631,7 +1631,7 @@ export default function ModeratorContests() {
                         min={0.5}
                         value={formPositiveMarks}
                         onChange={(e) => setFormPositiveMarks(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                         required
                       />
                     </div>
@@ -1646,7 +1646,7 @@ export default function ModeratorContests() {
                         min={0}
                         value={formNegativeMarks}
                         onChange={(e) => setFormNegativeMarks(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                         required
                       />
                     </div>
@@ -1660,7 +1660,7 @@ export default function ModeratorContests() {
                         min={0}
                         value={formXpPool}
                         onChange={(e) => setFormXpPool(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                        className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-mono font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                       />
                     </div>
                   </div>
@@ -1674,11 +1674,11 @@ export default function ModeratorContests() {
                       value={formDescription}
                       onChange={(e) => setFormDescription(e.target.value)}
                       placeholder="Short summary of topics and speed challenge parameters..."
-                      className="w-full px-3 py-2 bg-white border-2 border-black rounded-lg text-xs font-body font-bold text-black focus:outline-none shadow-[2px_2px_0_#000000]"
+                      className="w-full px-3 py-2 bg-white border-2 border-[#0c1d2d] rounded-lg text-xs font-body font-bold text-black focus:outline-none shadow-[2px_2px_0_#0c1d2d]"
                     />
                   </div>
 
-                  <div className="bg-[#f8fafc] border-2 border-black p-3.5 rounded-xl flex items-center justify-between gap-3">
+                  <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-3.5 rounded-xl flex items-center justify-between gap-3">
                     <div>
                       <div className="text-[11px] font-display font-black uppercase text-black">
                         Initial Status: DRAFT
@@ -1687,7 +1687,7 @@ export default function ModeratorContests() {
                         Contests must be created in draft state. Questions must be assigned before publishing to Upcoming.
                       </div>
                     </div>
-                    <span className="px-3 py-1 bg-[#ffd43b] text-black border-2 border-black rounded-lg text-[10px] font-display font-black uppercase shrink-0 shadow-[2px_2px_0_#000000]">
+                    <span className="px-3 py-1 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-lg text-[10px] font-display font-black uppercase shrink-0 shadow-[2px_2px_0_#0c1d2d]">
                       Draft
                     </span>
                   </div>
@@ -1695,18 +1695,18 @@ export default function ModeratorContests() {
                 </div>
 
                 {/* Footer action bar: Fixed / Never scrolls */}
-                <div className="p-3 sm:p-4 bg-[#f8fafc] border-t-2 sm:border-t-3 border-black flex items-center justify-end gap-3 shrink-0 flex-none">
+                <div className="p-3 sm:p-4 bg-[#f8fafc] border-t-2 sm:border-t-3 border-[#0c1d2d] flex items-center justify-end gap-3 shrink-0 flex-none">
                   <button
                     type="button"
                     onClick={() => setIsCreateModalOpen(false)}
-                    className="px-4 py-2 bg-white text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase hover:bg-black/5 transition-colors"
+                    className="px-4 py-2 bg-white text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase hover:bg-black/5 transition-colors"
                   >
                     CANCEL
                   </button>
                   <button
                     type="submit"
                     disabled={actionLoading}
-                    className="px-5 py-2 bg-[#ffd43b] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[3px_3px_0_#000000] hover:bg-[#ffdf5d] transition-all disabled:opacity-50"
+                    className="px-5 py-2 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[3px_3px_0_#0c1d2d] hover:bg-[#ffdf5d] transition-all disabled:opacity-50"
                   >
                     {actionLoading ? 'CREATING...' : 'CREATE CONTEST'}
                   </button>

@@ -11,6 +11,13 @@
     --color-danger-red: #ff5b5b;
     --color-rank-purple: #c084fc;
     --color-paper-tint: #faf9f6;
+
+    /* Refined border & shadow tokens */
+    --border-primary: #0c1d2d;
+    --border-subtle: #1a3047;
+    --shadow-sm: 2px 2px 0 var(--border-primary);
+    --shadow-md: 3px 3px 0 var(--border-primary);
+    --shadow-lg: 4px 4px 0 var(--border-primary);
   }
 
   body {
@@ -39,83 +46,81 @@
 .arena-bg-grid {
   background-size: 32px 32px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
 
 .arena-bg-dots {
   background-size: 24px 24px;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
 }
 
 /* =========================================================
-   NEO-BRUTALIST ELEVATION & CONTROLLED RADIUS UTILITIES
+   REFINED ELEVATION & CONTROLLED RADIUS UTILITIES
    ========================================================= */
 .neo-card-lg {
-  border-radius: 1.125rem; /* 18px */
-  border-width: 3px;
-  border-color: #000000;
-  box-shadow: 5px 5px 0px #000000;
+  border-radius: 0.875rem; /* 14px */
+  border-width: 2px;
+  border-color: var(--border-primary);
+  box-shadow: var(--shadow-lg);
 }
 
 .neo-card-md {
   border-radius: 0.75rem; /* 12px */
-  border-width: 2.5px;
-  border-color: #000000;
-  box-shadow: 3px 3px 0px #000000;
+  border-width: 2px;
+  border-color: var(--border-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .neo-card-sm {
   border-radius: 0.5rem; /* 8px */
-  border-width: 2px;
-  border-color: #000000;
-  box-shadow: 2px 2px 0px #000000;
+  border-width: 1.5px;
+  border-color: var(--border-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .neo-pill {
   border-radius: 9999px;
-  border-width: 2px;
-  border-color: #000000;
-  box-shadow: 2px 2px 0px #000000;
+  border-width: 1.5px;
+  border-color: var(--border-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .neo-btn {
   border-radius: 0.625rem; /* 10px */
-  border-width: 2.5px;
-  border-color: #000000;
-  box-shadow: 3px 3px 0px #000000;
+  border-width: 2px;
+  border-color: var(--border-primary);
+  box-shadow: var(--shadow-md);
   transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease;
 }
 
 .neo-btn:hover {
-  transform: translate(-1.5px, -1.5px);
-  box-shadow: 4.5px 4.5px 0px #000000;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--border-primary);
 }
 
 .neo-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px #000000;
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1px 1px 0 var(--border-primary);
 }
 
-/* Custom Tactical Scrollbar */
+/* Custom Scrollbar — Subtle */
 ::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
   background: #071a2b;
-  border-left: 2px solid #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ffd43b;
-  border: 2px solid #000000;
+  background: #1a3047;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #facc15;
+  background: #264060;
 }
 
 /* Custom Question List Scroll Container */
@@ -124,28 +129,26 @@
   overscroll-behavior: auto;
   touch-action: pan-y;
   scrollbar-width: thin;
-  scrollbar-color: #ffd43b #f1f5f9;
+  scrollbar-color: #264060 #f1f5f9;
   -webkit-overflow-scrolling: touch;
 }
 
 .question-list-scroll::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 .question-list-scroll::-webkit-scrollbar-track {
   background: #f1f5f9;
-  border-left: 1.5px solid #000000;
 }
 
 .question-list-scroll::-webkit-scrollbar-thumb {
-  background: #ffd43b;
-  border: 1.5px solid #000000;
-  border-radius: 4px;
+  background: #94a3b8;
+  border-radius: 3px;
 }
 
 .question-list-scroll::-webkit-scrollbar-thumb:hover {
-  background: #facc15;
+  background: #64748b;
 }
 
 /* Reduced Motion Override */

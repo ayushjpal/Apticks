@@ -1,17 +1,46 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Flame, Zap, Shield } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import {
+  Flame,
+  Zap,
+  Shield,
+  Menu,
+  X,
+  Home,
+  Trophy,
+  BookOpen,
+  BarChart2,
+  User,
+} from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UserProfile } from '../../services/profileService'
 import { QuestionService } from '../../services/questionService'
 import { StreakService } from '../../services/streakService'
 import type { UserStreak } from '../../types/questions'
 
+interface NavItem {
+  id: string
+  label: string
+  path: string
+  icon: React.ComponentType<{ className?: string }>
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: 'home', label: 'HOME', path: '/dashboard', icon: Home },
+  { id: 'contests', label: 'CONTESTS', path: '/contests', icon: Trophy },
+  { id: 'practice', label: 'PRACTICE', path: '/questions', icon: BookOpen },
+  { id: 'rank', label: 'RANK', path: '/leaderboard', icon: BarChart2 },
+  { id: 'profile', label: 'PROFILE', path: '/profile', icon: User },
+]
+
 export default function AppHeader() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [totalXP, setTotalXP] = useState(0)
   const [streakData, setStreakData] = useState<UserStreak | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
 
   useEffect(() => {
     let isMounted = true
@@ -72,42 +101,92 @@ export default function AppHeader() {
     profile?.username?.charAt(0).toUpperCase() ||
     'P'
 
-  return (
-    <header className="sticky top-0 z-40 bg-[#071a2b]/95 backdrop-blur-md border-b-3 border-black px-4 py-3 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        {/* Brand Logo */}
-        <Link to="/dashboard" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#ffd43b] border-2 sm:border-3 border-black shadow-[2.5px_2.5px_0_#000000] rounded-xl flex items-center justify-center font-display font-black text-xl sm:text-2xl text-black transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5">
-            A
-          </div>
-          <div>
-            <div className="font-display font-black text-lg sm:text-xl tracking-tight text-white leading-none">
-              APTICKS
-            </div>
-            <div className="font-mono text-[8px] sm:text-[9px] font-bold tracking-[0.2em] text-[#38aef0] uppercase mt-0.5">
-              SPEED ARENA
-            </div>
-          </div>
-        </Link>
+  const getIsActive = (path: string) => {
+    if (path === '/dashboard' && location.pathname === '/dashboard') return true
+    if (path === '/contests' && location.pathname.startsWith('/contests')) return true
+    if (path === '/questions' && location.pathname.startsWith('/questions')) return true
+    if (path === '/leaderboard' && location.pathname.startsWith('/leaderboard')) return true
+    if (path === '/profile' && location.pathname.startsWith('/profile')) return true
+    return false
+  }
 
-        {/* Quick HUD Metrics & Profile Avatar */}
-        <div className="flex items-center gap-2 sm:gap-3">
+  return (
+    <header className="sticky top-0 z-40 bg-[#071a2b]/95 backdrop-blur-md border-b-2 border-[#1a3047]">
+      <div className="max-w-7xl mx-auto px-4 py-2.5 sm:px-6 lg:px-8 flex items-center justify-between gap-3 lg:gap-6">
+        {/* Left Section: Brand Logo + Primary Desktop Navigation */}
+        <div className="flex items-center gap-4 lg:gap-8 shrink-0">
+          {/* Brand Logo */}
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 sm:gap-2.5 group shrink-0"
+            aria-label="Apticks Dashboard"
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#ffd43b] border-2 border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d] rounded-xl flex items-center justify-center transition-transform group-hover:-translate-y-0.5">
+              <span className="font-display font-black text-sm text-[#0c1d2d]">A</span>
+            </div>
+            <div>
+              <div className="font-display font-black text-base sm:text-lg tracking-tight text-white leading-none">
+                APTICKS
+              </div>
+              <div className="font-mono text-[8px] sm:text-[9px] font-bold tracking-[0.15em] text-white/50 uppercase mt-0.5">
+                SPEED ARENA
+              </div>
+            </div>
+          </Link>
+
+          {/* Primary Navigation Links (Desktop) */}
+          <nav aria-label="Main Navigation" className="hidden md:flex items-center gap-1 lg:gap-1.5">
+            {NAV_ITEMS.map((item) => {
+              const isActive = getIsActive(item.path)
+
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`
+                    px-2.5 lg:px-3 py-1.5 rounded-lg font-display font-black text-xs uppercase tracking-wider
+                    transition-all duration-150 select-none
+                    ${
+                      isActive
+                        ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]'
+                        : 'text-white/70 hover:text-white hover:bg-white/[0.08]'
+                    }
+                  `}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+
+        {/* Right Section: HUD Metrics, Staff & Profile */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           {/* Streak pill (hidden on very narrow screens, visible on >= 400px) */}
           {(streakData?.currentStreak ?? 0) > 0 ? (
-            <div className={`hidden min-[400px]:flex items-center gap-1.5 ${streakData?.isActiveToday ? 'bg-[#ff5b5b]' : 'bg-[#ff7b7b]'} text-white border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 py-1 text-[11px] font-display font-black`}>
-              <Flame className={`w-3.5 h-3.5 fill-white shrink-0 ${streakData?.isActiveToday ? 'animate-pulse' : ''}`} />
-              <span>{streakData?.currentStreak}D STREAK</span>
+            <div
+              className={`hidden min-[400px]:flex items-center gap-1.5 ${
+                streakData?.isActiveToday ? 'bg-[#ff5b5b]' : 'bg-[#ff7b7b]'
+              } text-white border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 py-1 text-[11px] font-display font-black`}
+            >
+              <Flame
+                className={`w-3.5 h-3.5 fill-white shrink-0 ${
+                  streakData?.isActiveToday ? 'animate-pulse' : ''
+                }`}
+              />
+              <span>{streakData?.currentStreak}D</span>
             </div>
           ) : (
-            <div className="hidden min-[400px]:flex items-center gap-1.5 bg-white/10 text-white/70 border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 py-1 text-[11px] font-display font-black">
-              <Flame className="w-3.5 h-3.5 text-white/50 shrink-0" />
-              <span>0D STREAK</span>
+            <div className="hidden min-[400px]:flex items-center gap-1.5 bg-white/10 text-white/60 border-[1.5px] border-white/20 rounded-full px-2.5 py-1 text-[11px] font-display font-black">
+              <Flame className="w-3.5 h-3.5 text-white/40 shrink-0" />
+              <span>0D</span>
             </div>
           )}
 
           {/* XP pill */}
-          <div className="flex items-center gap-1.5 bg-[#ffd43b] text-black border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black">
-            <Zap className="w-3.5 h-3.5 fill-black shrink-0" />
+          <div className="flex items-center gap-1.5 bg-[#ffd43b] text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black">
+            <Zap className="w-3.5 h-3.5 fill-[#0c1d2d] shrink-0" />
             <span>{totalXP} XP</span>
           </div>
 
@@ -115,12 +194,11 @@ export default function AppHeader() {
           {(profile?.role === 'admin' || profile?.role === 'moderator') && (
             <Link
               to="/moderator"
-              className="flex items-center gap-1.5 bg-black text-[#ffd43b] hover:bg-[#ffd43b] hover:text-black border-2 border-black shadow-[2px_2px_0_#000000] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black hover:-translate-y-0.5 transition-all shrink-0"
+              className="flex items-center gap-1.5 bg-[#0c1d2d] text-[#ffd43b] hover:bg-[#ffd43b] hover:text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-display font-black hover:-translate-y-0.5 transition-all shrink-0"
               title="Enter Staff Control Center"
             >
               <Shield className="w-3.5 h-3.5 fill-current shrink-0" />
-              <span className="hidden md:inline">CONTROL CENTER</span>
-              <span className="md:hidden">STAFF</span>
+              <span className="hidden lg:inline">STAFF</span>
             </Link>
           )}
 
@@ -129,7 +207,7 @@ export default function AppHeader() {
             type="button"
             onClick={() => navigate('/profile')}
             aria-label="Open Athlete Profile"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#38aef0] border-2 sm:border-3 border-black shadow-[2px_2px_0_#000000] flex items-center justify-center overflow-hidden transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#38aef0] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] flex items-center justify-center overflow-hidden transition-transform hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer shrink-0"
           >
             {profile?.avatar_url ? (
               <img
@@ -138,13 +216,73 @@ export default function AppHeader() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="font-display font-black text-sm text-black">
+              <span className="font-display font-black text-sm text-[#0c1d2d]">
                 {initial}
               </span>
             )}
           </button>
+
+          {/* Mobile Navigation Toggle (< md) */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+            className="md:hidden w-8 h-8 rounded-xl bg-white/10 hover:bg-white/15 text-white/80 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0 border border-white/10"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-4 h-4" />
+            ) : (
+              <Menu className="w-4 h-4" />
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation Dropdown Menu */}
+      {mobileMenuOpen && (
+        <nav
+          aria-label="Mobile Navigation"
+          className="md:hidden border-t border-[#1a3047] px-4 py-3 space-y-1 bg-[#071a2b]/98"
+        >
+          {NAV_ITEMS.map((item) => {
+            const isActive = getIsActive(item.path)
+            const Icon = item.icon
+
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`
+                  flex items-center gap-3 px-3 py-2.5 rounded-xl font-display font-black text-xs uppercase tracking-wider
+                  transition-colors select-none
+                  ${
+                    isActive
+                      ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]'
+                      : 'text-white/75 hover:text-white hover:bg-white/[0.08]'
+                  }
+                `}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span>{item.label}</span>
+              </Link>
+            )
+          })}
+
+          {(profile?.role === 'admin' || profile?.role === 'moderator') && (
+            <Link
+              to="/moderator"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl font-display font-black text-xs uppercase tracking-wider text-[#ffd43b] hover:bg-white/[0.08] transition-colors border-t border-[#1a3047] mt-1.5 pt-2.5"
+            >
+              <Shield className="w-4 h-4 shrink-0" />
+              <span>STAFF CONTROL CENTER</span>
+            </Link>
+          )}
+        </nav>
+      )}
     </header>
   )
 }

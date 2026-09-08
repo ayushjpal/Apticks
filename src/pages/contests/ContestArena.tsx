@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+﻿import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Clock,
@@ -225,9 +225,9 @@ export default function ContestArena() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white px-4">
+      <div className="min-h-screen bg-[#0c1d2d] flex items-center justify-center text-white px-4">
         <div className="text-center font-display font-black">
-          <Loader2 className="w-12 h-12 border-3 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
           <h2 className="text-xl uppercase tracking-wider text-[#ffd43b]">
             SYNCING TOURNAMENT ARENA...
           </h2>
@@ -241,8 +241,8 @@ export default function ContestArena() {
 
   if (errorMessage || !contest || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white px-4">
-        <div className="bg-white text-black border-4 border-black rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-[8px_8px_0_#ff5b5b] text-center">
+      <div className="min-h-screen bg-[#0c1d2d] flex items-center justify-center text-white px-4">
+        <div className="bg-white text-black border-2 border-[#0c1d2d] rounded-xl p-6 sm:p-8 max-w-md w-full shadow-[8px_8px_0_#ff5b5b] text-center">
           <XCircle className="w-12 h-12 text-[#ff5b5b] mx-auto mb-3" />
           <h2 className="font-display font-black text-xl uppercase">ARENA ACCESS DENIED</h2>
           <p className="text-xs font-body font-semibold text-black/70 mt-2">
@@ -251,7 +251,7 @@ export default function ContestArena() {
           <button
             type="button"
             onClick={() => navigate('/contests')}
-            className="mt-6 w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000]"
+            className="mt-6 w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d]"
           >
             RETURN TO TOURNAMENTS
           </button>
@@ -265,15 +265,15 @@ export default function ContestArena() {
   const isTimeCritical = timeRemaining !== null && timeRemaining <= 120 // less than 2 mins
 
   return (
-    <div className="min-h-screen bg-[#071a2b] text-black arena-bg-grid flex flex-col">
+    <div className="min-h-screen bg-[#0c1d2d] text-black arena-bg-grid flex flex-col">
       {/* =================================================== */}
       {/* 1. TOP SYNCHRONIZED ARENA HEADER                     */}
       {/* =================================================== */}
-      <header className="bg-white border-b-3 border-black sticky top-0 z-30 px-3 sm:px-6 py-2.5 shadow-[0_4px_0_#000000]">
+      <header className="bg-white border-b-2 border-[#0c1d2d] sticky top-0 z-30 px-3 sm:px-6 py-2.5 shadow-[0_4px_0_#000000]">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           {/* Contest info */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#ff5b5b] border border-black animate-pulse shrink-0" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#ff5b5b] border border-[#0c1d2d] animate-pulse shrink-0" />
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="bg-black text-[#ffd43b] px-1.5 py-0.2 rounded font-mono text-[9px] font-black uppercase">
@@ -289,7 +289,7 @@ export default function ContestArena() {
           {/* Central Live Timer */}
           <div className="flex items-center gap-2">
             <div
-              className={`flex items-center gap-1.5 px-3 py-1 border-2 border-black rounded-xl font-mono font-black text-xs sm:text-sm shadow-[2px_2px_0_#000000] transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1 border-2 border-[#0c1d2d] rounded-xl font-mono font-black text-xs sm:text-sm shadow-[2px_2px_0_#0c1d2d] transition-colors ${
                 isTimeCritical
                   ? 'bg-[#ff5b5b] text-white animate-pulse'
                   : 'bg-[#ffd43b] text-black'
@@ -299,7 +299,7 @@ export default function ContestArena() {
               <span>{timeRemaining !== null ? formatTime(timeRemaining) : '--:--'}</span>
             </div>
 
-            <div className="hidden md:flex items-center gap-1 bg-[#f8fafc] border-1.5 border-black rounded-lg px-2 py-1 font-mono text-[10px] font-bold text-black/70">
+            <div className="hidden md:flex items-center gap-1 bg-[#f8fafc] border-1.5 border-[#0c1d2d] rounded-lg px-2 py-1 font-mono text-[10px] font-bold text-black/70">
               <span>{attemptedCount}/{questions.length} ATTEMPTED</span>
             </div>
           </div>
@@ -309,7 +309,7 @@ export default function ContestArena() {
             <button
               type="button"
               onClick={() => setShowSubmitModal(true)}
-              className="px-3 sm:px-5 py-1.5 sm:py-2 bg-[#32e875] hover:bg-[#22c55e] text-black border-2 border-black rounded-xl font-display font-black text-[11px] sm:text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1.5 transition-transform hover:-translate-x-0.5 cursor-pointer"
+              className="px-3 sm:px-5 py-1.5 sm:py-2 bg-[#32e875] hover:bg-[#22c55e] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-[11px] sm:text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5 transition-transform hover:-translate-x-0.5 cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
               <span>SUBMIT CONTEST</span>
@@ -326,24 +326,24 @@ export default function ContestArena() {
           {/* ================================================= */}
           {/* LEFT COLUMN: QUESTION CONTENT (60-65%)            */}
           {/* ================================================= */}
-          <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-5 sm:p-7 flex flex-col justify-between">
+          <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-5 sm:p-7 flex flex-col justify-between">
             <div className="space-y-4">
               {/* Question metadata strip */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b-2 border-black">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b-2 border-[#0c1d2d]">
                 <div className="flex items-center gap-2">
-                  <span className="bg-[#ffd43b] text-black border-1.5 border-black rounded-lg px-2.5 py-0.5 font-mono font-black text-xs uppercase shadow-[1.5px_1.5px_0_#000000]">
+                  <span className="bg-[#ffd43b] text-black border-1.5 border-[#0c1d2d] rounded-lg px-2.5 py-0.5 font-mono font-black text-xs uppercase shadow-[1.5px_1.5px_0_#0c1d2d]">
                     QUESTION {String(currentIndex + 1).padStart(2, '0')} / {String(questions.length).padStart(2, '0')}
                   </span>
-                  <span className="bg-[#f1f5f9] border border-black rounded-md px-2 py-0.5 font-mono text-[10px] font-bold text-black/70">
+                  <span className="bg-[#f1f5f9] border border-[#0c1d2d] rounded-md px-2 py-0.5 font-mono text-[10px] font-bold text-black/70">
                     {currentQuestion.category}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 font-mono text-xs font-black">
-                  <span className="bg-[#dcfce7] text-[#166534] border border-black rounded-md px-2 py-0.5">
+                  <span className="bg-[#dcfce7] text-[#166534] border border-[#0c1d2d] rounded-md px-2 py-0.5">
                     +{currentQuestion.marks} MARKS
                   </span>
-                  <span className="bg-[#fee2e2] text-[#991b1b] border border-black rounded-md px-2 py-0.5">
+                  <span className="bg-[#fee2e2] text-[#991b1b] border border-[#0c1d2d] rounded-md px-2 py-0.5">
                     -{currentQuestion.negativeMarks} MARKS
                   </span>
                 </div>
@@ -359,18 +359,18 @@ export default function ContestArena() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-5 bg-[#faf9f6] border-2 border-black rounded-xl shadow-[2px_2px_0_#000000] text-sm sm:text-base font-body font-semibold text-black leading-relaxed whitespace-pre-line">
+              <div className="p-4 sm:p-5 bg-[#faf9f6] border-2 border-[#0c1d2d] rounded-xl shadow-[2px_2px_0_#0c1d2d] text-sm sm:text-base font-body font-semibold text-black leading-relaxed whitespace-pre-line">
                 {currentQuestion.prompt}
               </div>
             </div>
 
             {/* Bottom Question Controls */}
-            <div className="mt-6 pt-4 border-t-2 border-black flex items-center justify-between gap-2">
+            <div className="mt-6 pt-4 border-t-2 border-[#0c1d2d] flex items-center justify-between gap-2">
               <button
                 type="button"
                 disabled={currentIndex === 0}
                 onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                className="px-3 sm:px-4 py-2 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-2 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>PREV</span>
@@ -379,7 +379,7 @@ export default function ContestArena() {
               <button
                 type="button"
                 onClick={handleClearSelection}
-                className="px-3 py-2 bg-white hover:bg-[#fee2e2] border-2 border-black rounded-xl font-display font-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_#000000] flex items-center gap-1 text-black/75 cursor-pointer"
+                className="px-3 py-2 bg-white hover:bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-[11px] uppercase shadow-[1.5px_1.5px_0_#0c1d2d] flex items-center gap-1 text-black/75 cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>CLEAR</span>
@@ -389,7 +389,7 @@ export default function ContestArena() {
                 type="button"
                 disabled={currentIndex === questions.length - 1}
                 onClick={() => setCurrentIndex((prev) => Math.min(questions.length - 1, prev + 1))}
-                className="px-3 sm:px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] disabled:opacity-40 disabled:hover:bg-[#ffd43b] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-2 bg-[#ffd43b] hover:bg-[#facc15] disabled:opacity-40 disabled:hover:bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"
               >
                 <span>NEXT</span>
                 <ChevronRight className="w-4 h-4" />
@@ -402,8 +402,8 @@ export default function ContestArena() {
           {/* ================================================= */}
           <div className="space-y-4 flex flex-col justify-between">
             {/* Options Deck */}
-            <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-4 sm:p-6">
-              <div className="flex items-center justify-between pb-2.5 mb-3 border-b-2 border-black">
+            <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-6">
+              <div className="flex items-center justify-between pb-2.5 mb-3 border-b-2 border-[#0c1d2d]">
                 <span className="font-display font-black text-xs uppercase text-black">
                   SELECT YOUR ANSWER
                 </span>
@@ -421,14 +421,14 @@ export default function ContestArena() {
                       key={option.id}
                       type="button"
                       onClick={() => handleSelectOption(option.id)}
-                      className={`w-full text-left p-3.5 sm:p-4 rounded-xl border-2 sm:border-3 border-black font-body font-bold text-xs sm:text-sm flex items-start gap-3 cursor-pointer transition-all ${
+                      className={`w-full text-left p-3.5 sm:p-4 rounded-xl border-2 sm:border-2 border-[#0c1d2d] font-body font-bold text-xs sm:text-sm flex items-start gap-3 cursor-pointer transition-all ${
                         isSelected
-                          ? 'bg-[#ffd43b] shadow-[3px_3px_0_#000000] -translate-y-0.5'
-                          : 'bg-white hover:bg-[#e9f6ff] shadow-[2px_2px_0_#000000]'
+                          ? 'bg-[#ffd43b] shadow-[3px_3px_0_#0c1d2d] -translate-y-0.5'
+                          : 'bg-white hover:bg-[#e9f6ff] shadow-[2px_2px_0_#0c1d2d]'
                       }`}
                     >
                       <span
-                        className={`w-6 h-6 rounded-lg border-2 border-black flex items-center justify-center font-mono font-black text-xs shrink-0 ${
+                        className={`w-6 h-6 rounded-lg border-2 border-[#0c1d2d] flex items-center justify-center font-mono font-black text-xs shrink-0 ${
                           isSelected ? 'bg-black text-white' : 'bg-[#f1f5f9] text-black'
                         }`}
                       >
@@ -442,8 +442,8 @@ export default function ContestArena() {
             </div>
 
             {/* Question Navigator Grid */}
-            <div className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-4 sm:p-5">
-              <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-black">
+            <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-4 sm:p-5">
+              <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-[#0c1d2d]">
                 <span className="font-display font-black text-xs uppercase text-black">
                   QUESTION NAVIGATOR
                 </span>
@@ -462,9 +462,9 @@ export default function ContestArena() {
                       key={q.questionId}
                       type="button"
                       onClick={() => setCurrentIndex(idx)}
-                      className={`h-9 border-2 border-black rounded-lg font-mono font-black text-xs flex items-center justify-center cursor-pointer transition-all ${
+                      className={`h-9 border-2 border-[#0c1d2d] rounded-lg font-mono font-black text-xs flex items-center justify-center cursor-pointer transition-all ${
                         isCurrent
-                          ? 'ring-3 ring-black bg-[#ffd43b] text-black scale-105 shadow-[2px_2px_0_#000000]'
+                          ? 'ring-3 ring-black bg-[#ffd43b] text-black scale-105 shadow-[2px_2px_0_#0c1d2d]'
                           : isAnswered
                           ? 'bg-[#32e875] text-black hover:bg-[#22c55e]'
                           : 'bg-[#f8fafc] text-black/70 hover:bg-slate-200'
@@ -477,17 +477,17 @@ export default function ContestArena() {
               </div>
 
               {/* Status Legend */}
-              <div className="mt-3 pt-2.5 border-t border-black/10 flex items-center justify-center gap-4 text-[10px] font-mono font-bold text-black/70">
+              <div className="mt-3 pt-2.5 border-t border-[#0c1d2d]/10 flex items-center justify-center gap-4 text-[10px] font-mono font-bold text-black/70">
                 <div className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded bg-[#32e875] border border-black" />
+                  <span className="w-2.5 h-2.5 rounded bg-[#32e875] border border-[#0c1d2d]" />
                   <span>Attempted</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded bg-[#f8fafc] border border-black" />
+                  <span className="w-2.5 h-2.5 rounded bg-[#f8fafc] border border-[#0c1d2d]" />
                   <span>Unattempted</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded bg-[#ffd43b] border border-black ring-1 ring-black" />
+                  <span className="w-2.5 h-2.5 rounded bg-[#ffd43b] border border-[#0c1d2d] ring-1 ring-black" />
                   <span>Current</span>
                 </div>
               </div>
@@ -501,8 +501,8 @@ export default function ContestArena() {
       {/* =================================================== */}
       {showSubmitModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white border-4 border-black rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-[8px_8px_0_#000000] animate-in fade-in zoom-in-95">
-            <div className="w-12 h-12 bg-[#ffd43b] border-2 border-black rounded-xl flex items-center justify-center mx-auto mb-3 shadow-[2px_2px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] rounded-xl p-6 sm:p-8 max-w-md w-full shadow-[8px_8px_0_#000000] animate-in fade-in zoom-in-95">
+            <div className="w-12 h-12 bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-[2px_2px_0_#0c1d2d]">
               <AlertTriangle className="w-6 h-6 text-black" />
             </div>
 
@@ -515,7 +515,7 @@ export default function ContestArena() {
             </p>
 
             {/* Submission Stat Breakdown */}
-            <div className="my-5 grid grid-cols-2 gap-3 p-3 bg-[#f8fafc] border-2 border-black rounded-xl text-center">
+            <div className="my-5 grid grid-cols-2 gap-3 p-3 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-center">
               <div>
                 <div className="font-mono text-[10px] font-bold text-black/60 uppercase">
                   ATTEMPTED
@@ -539,7 +539,7 @@ export default function ContestArena() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => setShowSubmitModal(false)}
-                className="flex-1 py-2.5 bg-white hover:bg-slate-100 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] cursor-pointer"
+                className="flex-1 py-2.5 bg-white hover:bg-slate-100 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer"
               >
                 CONTINUE SOLVING
               </button>
@@ -547,7 +547,7 @@ export default function ContestArena() {
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleSubmitContest}
-                className="flex-1 py-2.5 bg-[#32e875] hover:bg-[#22c55e] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 py-2.5 bg-[#32e875] hover:bg-[#22c55e] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

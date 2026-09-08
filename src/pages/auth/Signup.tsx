@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, ArrowRight, User, Lock, CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -236,7 +236,7 @@ export default function Signup() {
     >
       {/* Error notification */}
       {error && (
-        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-black rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
           <span>{error}</span>
         </div>
@@ -244,7 +244,7 @@ export default function Signup() {
 
       {/* Success notification */}
       {success && (
-        <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-black rounded-xl text-[#065f46] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
+        <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-[#0c1d2d] rounded-xl text-[#065f46] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{success}</span>
         </div>
@@ -259,8 +259,8 @@ export default function Signup() {
           >
             CHOOSE USERNAME
           </label>
-          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
-            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black font-display font-black text-sm flex items-center">
+          <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black font-display font-black text-sm flex items-center">
               <User className="w-4 h-4 text-black mr-1" />
               @
             </span>
@@ -286,13 +286,13 @@ export default function Signup() {
           {username.trim() && (
             <div className="mt-2">
               {checkingUsername ? (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#fef3c7] border-2 border-black rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#000000]">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#fef3c7] border-2 border-[#0c1d2d] rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#0c1d2d]">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Checking handle availability...</span>
                 </div>
               ) : usernameStatus ? (
                 <div
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 border-2 border-black rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#000000] ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 border-2 border-[#0c1d2d] rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#0c1d2d] ${
                     !usernameStatus.isValid
                       ? 'bg-[#fee2e2] text-[#991b1b]'
                       : usernameStatus.isAvailable
@@ -334,8 +334,8 @@ export default function Signup() {
           >
             CONFIRM PASSWORD
           </label>
-          <div className="flex items-center bg-white border-2 sm:border-3 border-black rounded-xl shadow-[3px_3px_0_#000000] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
-            <span className="px-3.5 py-3 border-r-2 border-black bg-[#f1f5f9] text-black flex items-center">
+          <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
+            <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black flex items-center">
               <Lock className="w-4 h-4 text-black" />
             </span>
             <input
@@ -365,7 +365,7 @@ export default function Signup() {
         <button
           type="submit"
           disabled={loading || oauthLoading !== null || checkingUsername}
-          className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-3 border-black rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+          className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
         >
           <span>{loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}</span>
           <ArrowRight className="w-4 h-4" />
@@ -387,7 +387,7 @@ export default function Signup() {
           type="button"
           onClick={handleGoogleSignup}
           disabled={loading || oauthLoading !== null}
-          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -417,7 +417,7 @@ export default function Signup() {
           type="button"
           onClick={handleGithubSignup}
           disabled={loading || oauthLoading !== null}
-          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
             <svg className="w-4 h-4 shrink-0 text-black fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -430,13 +430,13 @@ export default function Signup() {
       </div>
 
       {/* Switch to Login */}
-      <div className="mt-6 pt-4 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div className="mt-6 pt-4 border-t-2 border-[#0c1d2d]/10 flex flex-col sm:flex-row items-center justify-between gap-2">
         <span className="text-xs font-display font-bold text-black/60">
           Already on Apticks?
         </span>
         <Link
           to="/login"
-          className="text-xs font-display font-black text-[#071a2b] hover:text-[#2563eb] border-2 border-black rounded-lg bg-[#ffd43b] px-3.5 py-1.5 shadow-[2px_2px_0_#000000] uppercase tracking-wider transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+          className="text-xs font-display font-black text-[#071a2b] hover:text-[#2563eb] border-2 border-[#0c1d2d] rounded-lg bg-[#ffd43b] px-3.5 py-1.5 shadow-[2px_2px_0_#0c1d2d] uppercase tracking-wider transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
         >
           SIGN IN →
         </Link>

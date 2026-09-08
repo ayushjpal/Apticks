@@ -16,13 +16,13 @@ export const NeoBadge: React.FC<NeoBadgeProps> = ({
   className = '',
 }) => {
   const variantStyles = {
-    yellow: 'bg-[#ffd43b] text-[#050505] border-black shadow-[1.5px_1.5px_0_#000000]',
-    blue: 'bg-[#38aef0] text-[#050505] border-black shadow-[1.5px_1.5px_0_#000000]',
-    green: 'bg-[#32e875] text-[#050505] border-black shadow-[1.5px_1.5px_0_#000000]',
-    red: 'bg-[#ff5b5b] text-white border-black shadow-[1.5px_1.5px_0_#000000]',
-    purple: 'bg-[#c084fc] text-[#050505] border-black shadow-[1.5px_1.5px_0_#000000]',
-    neutral: 'bg-[#f1f5f9] text-[#050505] border-black/80 shadow-[1.5px_1.5px_0_#000000]',
-    dark: 'bg-[#071a2b] text-white border-black shadow-[1.5px_1.5px_0_#ffd43b]',
+    yellow: 'bg-[#ffd43b] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
+    blue: 'bg-[#38aef0] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
+    green: 'bg-[#32e875] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
+    red: 'bg-[#ff5b5b] text-white border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
+    purple: 'bg-[#c084fc] text-[#050505] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]',
+    neutral: 'bg-[#f1f5f9] text-[#050505] border-[#0c1d2d]/60 shadow-[1.5px_1.5px_0_#0c1d2d]',
+    dark: 'bg-[#071a2b] text-white border-[#0c1d2d] shadow-[1.5px_1.5px_0_#ffd43b]',
   }
 
   const sizeStyles = {
@@ -34,7 +34,7 @@ export const NeoBadge: React.FC<NeoBadgeProps> = ({
     <span
       className={`
         inline-flex items-center font-display font-black uppercase tracking-wider
-        rounded-full border-2 select-none
+        rounded-full border-[1.5px] select-none
         ${variantStyles[variant]}
         ${sizeStyles[size]}
         ${className}

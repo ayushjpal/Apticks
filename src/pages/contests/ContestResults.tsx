@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   Trophy,
@@ -94,14 +94,14 @@ export default function ContestResults() {
   if (!contest) {
     return (
       <AppLayout>
-        <div className="p-8 bg-white border-3 border-black rounded-2xl shadow-[6px_6px_0_#000000] text-center max-w-lg mx-auto mt-12">
+        <div className="p-8 bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] text-center max-w-lg mx-auto mt-12">
           <Trophy className="w-12 h-12 mx-auto text-black/30 mb-3" />
           <h2 className="font-display font-black text-xl uppercase text-black">
             CONTEST NOT FOUND
           </h2>
           <Link
             to="/contests"
-            className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000]"
+            className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d]"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>RETURN TO CONTESTS</span>
@@ -151,14 +151,14 @@ export default function ContestResults() {
         {/* ================================================= */}
         {/* HERO RESULTS CARD                                 */}
         {/* ================================================= */}
-        <section className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-5 sm:p-7">
+        <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-5 sm:p-7">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <span className="bg-[#ffd43b] text-black border-2 border-black rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase">
+                <span className="bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase">
                   {contest.category}
                 </span>
-                <span className="bg-black text-white border-2 border-black rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase flex items-center gap-1">
+                <span className="bg-black text-white border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase flex items-center gap-1">
                   <Flame className="w-3 h-3 fill-[#ffd43b] text-[#ffd43b]" />
                   ARENA REPORT
                 </span>
@@ -177,7 +177,7 @@ export default function ContestResults() {
               <button
                 type="button"
                 onClick={() => navigate(`/contests/${contest.id}/arena`)}
-                className="px-5 py-3 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] shrink-0 flex items-center gap-1.5"
+                className="px-5 py-3 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] shrink-0 flex items-center gap-1.5"
               >
                 <Flame className="w-4 h-4 fill-white" />
                 <span>RESUME ARENA SESSION →</span>
@@ -198,7 +198,7 @@ export default function ContestResults() {
 
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
               {/* Score */}
-              <div className="bg-[#ffd43b] border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+              <div className="bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
                 <div className="font-mono text-[10px] font-black uppercase text-black/70">
                   FINAL SCORE
                 </div>
@@ -211,7 +211,7 @@ export default function ContestResults() {
               </div>
 
               {/* Rank */}
-              <div className="bg-[#38aef0] border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+              <div className="bg-[#38aef0] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
                 <div className="font-mono text-[10px] font-black uppercase text-black/80">
                   STANDINGS RANK
                 </div>
@@ -224,7 +224,7 @@ export default function ContestResults() {
               </div>
 
               {/* Accuracy */}
-              <div className="bg-[#32e875] border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+              <div className="bg-[#32e875] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
                 <div className="font-mono text-[10px] font-black uppercase text-black/80">
                   ACCURACY RATE
                 </div>
@@ -237,7 +237,7 @@ export default function ContestResults() {
               </div>
 
               {/* Time Taken */}
-              <div className="bg-white border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+              <div className="bg-white border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
                 <div className="font-mono text-[10px] font-black uppercase text-black/60">
                   TIME SPENT
                 </div>
@@ -250,7 +250,7 @@ export default function ContestResults() {
               </div>
 
               {/* XP Won */}
-              <div className="bg-black text-[#ffd43b] border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000] col-span-2 lg:col-span-1">
+              <div className="bg-black text-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d] col-span-2 lg:col-span-1">
                 <div className="font-mono text-[10px] font-black uppercase text-[#ffd43b]/80">
                   XP WON
                 </div>
@@ -265,7 +265,7 @@ export default function ContestResults() {
             </div>
 
             {/* Answer Breakdown Strip */}
-            <div className="p-3 bg-[#faf9f6] border-2 border-black rounded-xl flex items-center justify-around text-center text-xs font-mono font-black">
+            <div className="p-3 bg-[#faf9f6] border-2 border-[#0c1d2d] rounded-xl flex items-center justify-around text-center text-xs font-mono font-black">
               <div>
                 <span className="text-black/60 uppercase text-[10px]">CORRECT</span>
                 <div className="text-[#166534] text-base">{correctCount}</div>
@@ -287,11 +287,11 @@ export default function ContestResults() {
         {/* ================================================= */}
         {/* TABS: LEADERBOARD VS ANSWER REVIEW                */}
         {/* ================================================= */}
-        <div className="flex items-center gap-2 border-b-2 border-black pb-2">
+        <div className="flex items-center gap-2 border-b-2 border-[#0c1d2d] pb-2">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] cursor-pointer transition-all ${
+            className={`px-4 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer transition-all ${
               activeTab === 'overview'
                 ? 'bg-[#ffd43b] text-black -translate-y-0.5'
                 : 'bg-white text-black/80 hover:bg-[#e9f6ff]'
@@ -303,7 +303,7 @@ export default function ContestResults() {
           <button
             type="button"
             onClick={() => setActiveTab('review')}
-            className={`px-4 py-2 border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] cursor-pointer transition-all ${
+            className={`px-4 py-2 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] cursor-pointer transition-all ${
               activeTab === 'review'
                 ? 'bg-[#ffd43b] text-black -translate-y-0.5'
                 : 'bg-white text-black/80 hover:bg-[#e9f6ff]'
@@ -317,8 +317,8 @@ export default function ContestResults() {
         {/* TAB 1: GLOBAL LEADERBOARD                         */}
         {/* ================================================= */}
         {activeTab === 'overview' && (
-          <section className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] overflow-hidden">
-            <div className="p-4 border-b-2 border-black flex items-center justify-between bg-[#faf9f6]">
+          <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
+            <div className="p-4 border-b-2 border-[#0c1d2d] flex items-center justify-between bg-[#faf9f6]">
               <div className="flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-black" />
                 <h3 className="font-display font-black text-base uppercase text-black">
@@ -344,7 +344,7 @@ export default function ContestResults() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b-2 border-black bg-[#f1f5f9] font-mono text-[10px] font-black uppercase text-black">
+                    <tr className="border-b-2 border-[#0c1d2d] bg-[#f1f5f9] font-mono text-[10px] font-black uppercase text-black">
                       <th className="py-2.5 px-4">RANK</th>
                       <th className="py-2.5 px-4">ATHLETE</th>
                       <th className="py-2.5 px-4 text-right">SCORE</th>
@@ -358,13 +358,13 @@ export default function ContestResults() {
                       return (
                         <tr
                           key={entry.userId || i}
-                          className={`border-b border-black/10 font-body font-bold text-xs hover:bg-[#f8fafc] transition-colors ${
+                          className={`border-b border-[#0c1d2d]/10 font-body font-bold text-xs hover:bg-[#f8fafc] transition-colors ${
                             entry.rank === 1 ? 'bg-[#fffde7]' : ''
                           }`}
                         >
                           <td className="py-3 px-4 font-mono font-black text-sm">
                             <span
-                              className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border border-black font-mono font-black text-xs ${
+                              className={`inline-flex items-center justify-center w-7 h-7 rounded-lg border border-[#0c1d2d] font-mono font-black text-xs ${
                                 entry.rank === 1
                                   ? 'bg-[#ffd43b] text-black'
                                   : entry.rank === 2
@@ -413,7 +413,7 @@ export default function ContestResults() {
         {activeTab === 'review' && (
           <section className="space-y-4">
             {reviewQuestions.length === 0 ? (
-              <div className="p-8 bg-white border-3 border-black rounded-2xl shadow-[4px_4px_0_#000000] text-center">
+              <div className="p-8 bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] text-center">
                 <HelpCircle className="w-10 h-10 mx-auto text-black/30 mb-2" />
                 <h3 className="font-display font-black text-base uppercase text-black">
                   REVIEW CURRENTLY LOCKED
@@ -430,7 +430,7 @@ export default function ContestResults() {
                 return (
                   <div
                     key={q.questionId}
-                    className="bg-white border-3 border-black rounded-2xl shadow-[5px_5px_0_#000000] overflow-hidden"
+                    className="bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden"
                   >
                     {/* Collapsible Accordion Header */}
                     <button
@@ -441,7 +441,7 @@ export default function ContestResults() {
                       className="w-full p-4 sm:p-5 flex items-center justify-between gap-3 text-left hover:bg-[#f8fafc] cursor-pointer transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="w-8 h-8 rounded-lg border-2 border-black flex items-center justify-center font-mono font-black text-xs bg-[#ffd43b] text-black shadow-[1.5px_1.5px_0_#000000] shrink-0">
+                        <span className="w-8 h-8 rounded-lg border-2 border-[#0c1d2d] flex items-center justify-center font-mono font-black text-xs bg-[#ffd43b] text-black shadow-[1.5px_1.5px_0_#0c1d2d] shrink-0">
                           {idx + 1}
                         </span>
                         <div>
@@ -457,18 +457,18 @@ export default function ContestResults() {
                       <div className="flex items-center gap-3 shrink-0">
                         {isAttempted ? (
                           q.isCorrect ? (
-                            <span className="bg-[#dcfce7] text-[#166534] border border-black rounded-lg px-2 py-0.5 font-mono text-[10px] font-black uppercase flex items-center gap-1">
+                            <span className="bg-[#dcfce7] text-[#166534] border border-[#0c1d2d] rounded-lg px-2 py-0.5 font-mono text-[10px] font-black uppercase flex items-center gap-1">
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               <span>CORRECT (+{q.marksAwarded})</span>
                             </span>
                           ) : (
-                            <span className="bg-[#fee2e2] text-[#991b1b] border border-black rounded-lg px-2 py-0.5 font-mono text-[10px] font-black uppercase flex items-center gap-1">
+                            <span className="bg-[#fee2e2] text-[#991b1b] border border-[#0c1d2d] rounded-lg px-2 py-0.5 font-mono text-[10px] font-black uppercase flex items-center gap-1">
                               <XCircle className="w-3.5 h-3.5" />
                               <span>INCORRECT ({q.marksAwarded})</span>
                             </span>
                           )
                         ) : (
-                          <span className="bg-slate-100 text-black/60 border border-black rounded-lg px-2 py-0.5 font-mono text-[10px] font-bold uppercase">
+                          <span className="bg-slate-100 text-black/60 border border-[#0c1d2d] rounded-lg px-2 py-0.5 font-mono text-[10px] font-bold uppercase">
                             UNATTEMPTED (0)
                           </span>
                         )}
@@ -483,9 +483,9 @@ export default function ContestResults() {
 
                     {/* Collapsible Accordion Body */}
                     {isExpanded && (
-                      <div className="p-4 sm:p-6 border-t-2 border-black bg-[#faf9f6] space-y-4">
+                      <div className="p-4 sm:p-6 border-t-2 border-[#0c1d2d] bg-[#faf9f6] space-y-4">
                         {/* Prompt */}
-                        <div className="p-4 bg-white border-2 border-black rounded-xl text-sm font-body font-semibold text-black whitespace-pre-line leading-relaxed">
+                        <div className="p-4 bg-white border-2 border-[#0c1d2d] rounded-xl text-sm font-body font-semibold text-black whitespace-pre-line leading-relaxed">
                           {q.prompt}
                         </div>
 
@@ -495,7 +495,7 @@ export default function ContestResults() {
                             const isUserPick = q.selectedOption === opt.id
                             const isCorrectOpt = q.correctOption === opt.id
 
-                            let style = 'bg-white border-black'
+                            let style = 'bg-white border-[#0c1d2d]'
                             if (isCorrectOpt) {
                               style = 'bg-[#dcfce7] border-[#166534] text-[#166534] font-black'
                             } else if (isUserPick && !q.isCorrect) {
@@ -507,7 +507,7 @@ export default function ContestResults() {
                                 key={opt.id}
                                 className={`p-3 rounded-xl border-2 font-body text-xs sm:text-sm flex items-start gap-2.5 ${style}`}
                               >
-                                <span className="w-6 h-6 rounded border border-black flex items-center justify-center font-mono font-black text-xs shrink-0 bg-white text-black">
+                                <span className="w-6 h-6 rounded border border-[#0c1d2d] flex items-center justify-center font-mono font-black text-xs shrink-0 bg-white text-black">
                                   {opt.id}
                                 </span>
                                 <div className="flex-1 mt-0.5 leading-snug">
@@ -529,7 +529,7 @@ export default function ContestResults() {
                         </div>
 
                         {/* Explanation */}
-                        <div className="p-4 bg-white border-2 border-black rounded-xl space-y-2">
+                        <div className="p-4 bg-white border-2 border-[#0c1d2d] rounded-xl space-y-2">
                           <div className="flex items-center gap-1.5 font-display font-black text-xs uppercase text-black">
                             <BookOpen className="w-4 h-4 text-black" />
                             <span>OFFICIAL EXPLANATION & DERIVATION</span>
@@ -538,7 +538,7 @@ export default function ContestResults() {
                             {q.explanation}
                           </p>
                           {q.formulaOrRule && (
-                            <div className="mt-2 p-2.5 bg-[#f1f5f9] border border-black rounded-lg font-mono text-[11px] font-bold text-black/80">
+                            <div className="mt-2 p-2.5 bg-[#f1f5f9] border border-[#0c1d2d] rounded-lg font-mono text-[11px] font-bold text-black/80">
                               Formula / Core Rule: {q.formulaOrRule}
                             </div>
                           )}

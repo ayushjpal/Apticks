@@ -1,11 +1,11 @@
-/* =========================================================
+﻿/* =========================================================
    APTICKS — NEO BRUTALIST PROFILE MANAGEMENT
    ========================================================= */
 
 .prof-page {
   min-height: 100vh;
   background-color: #061a2d;
-  color: #000000;
+  color: #0c1d2d;
   position: relative;
   overflow-x: hidden;
   font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
@@ -40,8 +40,8 @@
   justify-content: space-between;
   padding: 14px 20px;
   background-color: #071a2b;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   margin-bottom: 24px;
 }
 
@@ -50,9 +50,9 @@
   align-items: center;
   gap: 6px;
   background-color: #ffd43b;
-  color: #000000;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 12px;
   padding: 6px 14px;
@@ -62,14 +62,14 @@
 
 .prof-back-btn:hover {
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 .prof-badge-tag {
   background-color: #38aef0;
-  color: #000000;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 11px;
   padding: 2px 8px;
@@ -77,9 +77,9 @@
 
 .prof-badge-tag-amber {
   background-color: #ffd43b;
-  color: #000000;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 11px;
   padding: 2px 8px;
@@ -87,9 +87,9 @@
 
 .prof-nav-link {
   background-color: #32e875;
-  color: #000000;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 12px;
   padding: 6px 14px;
@@ -99,7 +99,7 @@
 
 .prof-nav-link:hover {
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 /* Alerts */
@@ -108,9 +108,9 @@
   align-items: center;
   justify-content: space-between;
   background-color: #32e875;
-  color: #000000;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 12px 18px;
   margin-bottom: 24px;
 }
@@ -121,8 +121,8 @@
   justify-content: space-between;
   background-color: #ff5b5b;
   color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 12px 18px;
   margin-bottom: 24px;
 }
@@ -143,22 +143,22 @@
 /* Form Card */
 .prof-form-card {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 28px;
 }
 
 .prof-card-header {
-  border-bottom: 3px solid #000000;
+  border-bottom: 2px solid #0c1d2d;
   padding-bottom: 16px;
 }
 
 .prof-badge-primary {
   display: inline-block;
   background-color: #ffd43b;
-  color: #000000;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 11px;
   padding: 3px 10px;
@@ -200,8 +200,8 @@
   width: 100%;
   padding: 12px 14px;
   background-color: #f8fafc;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 700;
   font-size: 14px;
   outline: none;
@@ -210,15 +210,15 @@
 
 .prof-input:focus {
   background-color: #ffffff;
-  box-shadow: 4px 4px 0 #38aef0;
+  box-shadow: 2px 2px 0 #38aef0;
 }
 
 .prof-textarea {
   width: 100%;
   padding: 12px 14px;
   background-color: #f8fafc;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 700;
   font-size: 14px;
   outline: none;
@@ -228,20 +228,20 @@
 
 .prof-textarea:focus {
   background-color: #ffffff;
-  box-shadow: 4px 4px 0 #38aef0;
+  box-shadow: 2px 2px 0 #38aef0;
 }
 
 /* Input with Prefix (@) */
 .prof-input-wrapper {
   display: flex;
   align-items: stretch;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   background-color: #f8fafc;
 }
 
 .prof-input-wrapper:focus-within {
-  box-shadow: 4px 4px 0 #38aef0;
+  box-shadow: 2px 2px 0 #38aef0;
 }
 
 .prof-input-prefix {
@@ -250,7 +250,7 @@
   justify-content: center;
   padding: 0 14px;
   background-color: #ffd43b;
-  border-right: 3px solid #000000;
+  border-right: 2px solid #0c1d2d;
   font-weight: 900;
   font-size: 16px;
 }
@@ -276,14 +276,14 @@
   font-weight: 900;
   font-size: 10px;
   padding: 2px 8px;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   text-transform: uppercase;
 }
 
 .prof-status-badge.available {
   background-color: #32e875;
-  color: #000000;
+  color: #0c1d2d;
 }
 
 .prof-status-badge.taken {
@@ -293,14 +293,14 @@
 
 .prof-status-badge.current {
   background-color: #38aef0;
-  color: #000000;
+  color: #0c1d2d;
 }
 
 /* Cooldown Box */
 .prof-cooldown-box {
   background-color: #fff9db;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 10px 14px;
   margin-bottom: 10px;
 }
@@ -310,8 +310,8 @@
   width: 80px;
   height: 80px;
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -335,9 +335,9 @@
 .prof-btn-secondary {
   padding: 8px 16px;
   background-color: #38aef0;
-  color: #000000;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 12px;
   cursor: pointer;
@@ -346,15 +346,15 @@
 
 .prof-btn-secondary:hover {
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 .prof-btn-danger {
   padding: 8px 16px;
   background-color: #f1f5f9;
   color: #dc2626;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 12px;
   cursor: pointer;
@@ -364,37 +364,37 @@
 .prof-btn-danger:hover {
   background-color: #fee2e2;
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 .prof-preset-btn {
   padding: 4px;
   background-color: #ffffff;
-  border: 3px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .prof-preset-btn:hover {
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 #000000;
+  box-shadow: 1px 1px 0 #0c1d2d;
 }
 
 .prof-preset-btn.active {
   background-color: #ffd43b;
-  border-color: #000000;
+  border-color: #0c1d2d;
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #000000;
+  box-shadow: 1px 1px 0 #0c1d2d;
 }
 
 .prof-submit-btn {
   width: 100%;
   padding: 14px 20px;
   background-color: #ffd43b;
-  color: #000000;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 14px;
   letter-spacing: 0.05em;
@@ -405,7 +405,7 @@
 
 .prof-submit-btn:hover:not(:disabled) {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   background-color: #ffca1a;
 }
 
@@ -431,8 +431,8 @@
 
 .prof-card-preview {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   overflow: hidden;
 }
 
@@ -441,15 +441,15 @@
   align-items: center;
   justify-content: space-between;
   background-color: #ffd43b;
-  border-bottom: 3px solid #000000;
+  border-bottom: 2px solid #0c1d2d;
   padding: 8px 14px;
 }
 
 .prof-preview-avatar {
   width: 70px;
   height: 70px;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   overflow: hidden;
   background-color: #ffffff;
   flex-shrink: 0;
@@ -462,8 +462,8 @@
   margin-top: 16px;
   padding: 12px;
   background-color: #f8fafc;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 .prof-preview-stats {
@@ -475,8 +475,8 @@
 
 .prof-stat-box {
   background-color: #071a2b;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 8px 6px;
   text-align: center;
 }
@@ -497,14 +497,14 @@
 
 .prof-card-footer {
   background-color: #f1f5f9;
-  border-top: 3px solid #000000;
+  border-top: 2px solid #0c1d2d;
   padding: 8px 14px;
 }
 
 .prof-quick-box {
   background-color: #071a2b;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 18px;
 }
 
@@ -512,9 +512,9 @@
   display: block;
   padding: 10px 14px;
   background-color: #ffffff;
-  color: #000000;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 12px;
   text-decoration: none;
@@ -524,7 +524,7 @@
 .prof-quick-link:hover {
   background-color: #ffd43b;
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 /* =========================================================
@@ -534,8 +534,8 @@
 .prof-email-status-verified {
   background-color: #d1fae5;
   color: #065f46;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 10px;
   padding: 2px 8px;
@@ -544,8 +544,8 @@
 .prof-email-status-unlinked {
   background-color: #fee2e2;
   color: #991b1b;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 10px;
   padding: 2px 8px;
@@ -553,8 +553,8 @@
 
 .prof-email-box {
   background-color: #f8fafc;
-  border: 3px solid #000000;
-  box-shadow: 3px 3px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 16px;
   margin-top: 8px;
 }
@@ -574,8 +574,8 @@
 
 .prof-modal-card {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 8px 8px 0 #ffd43b;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #ffd43b;
   max-width: 480px;
   width: 100%;
   padding: 28px;
@@ -604,8 +604,8 @@
 .prof-modal-close-btn {
   background: #ff5b5b;
   color: #ffffff;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   font-weight: 900;
   font-size: 14px;
   width: 28px;
@@ -619,7 +619,7 @@
 
 .prof-modal-close-btn:hover {
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 #000000;
+  box-shadow: 1px 1px 0 #0c1d2d;
 }
 
 .prof-otp-input {
@@ -631,14 +631,14 @@
   letter-spacing: 0.35em;
   padding: 12px 16px;
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   outline: none;
   transition: all 0.15s ease;
 }
 
 .prof-otp-input:focus {
-  box-shadow: 6px 6px 0 #38aef0;
+  box-shadow: 2px 2px 0 #38aef0;
 }
 
 .prof-otp-actions {

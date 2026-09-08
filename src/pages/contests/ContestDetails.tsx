@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   Trophy,
@@ -151,7 +151,7 @@ export default function ContestDetails() {
   if (!contest) {
     return (
       <AppLayout>
-        <div className="p-8 bg-white border-3 border-black rounded-2xl shadow-[6px_6px_0_#000000] text-center max-w-lg mx-auto mt-12">
+        <div className="p-8 bg-white border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] text-center max-w-lg mx-auto mt-12">
           <Trophy className="w-12 h-12 mx-auto text-black/30 mb-3" />
           <h2 className="font-display font-black text-xl uppercase text-black">
             CONTEST NOT FOUND
@@ -161,7 +161,7 @@ export default function ContestDetails() {
           </p>
           <Link
             to="/contests"
-            className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000]"
+            className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d]"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>RETURN TO CONTESTS</span>
@@ -195,7 +195,7 @@ export default function ContestDetails() {
       <div className="space-y-4 sm:space-y-6 animate-entry max-w-5xl mx-auto pb-12">
         {/* Toast */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 bg-[#ffd43b] text-black border-3 border-black p-3.5 rounded-xl shadow-[4px_4px_0_#000000] font-display font-black text-xs uppercase flex items-center gap-2 animate-bounce">
+          <div className="fixed bottom-6 right-6 z-50 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] p-3.5 rounded-xl shadow-[3px_3px_0_#0c1d2d] font-display font-black text-xs uppercase flex items-center gap-2 animate-bounce">
             <Zap className="w-4 h-4 fill-black" />
             <span>{toastMessage}</span>
           </div>
@@ -216,33 +216,33 @@ export default function ContestDetails() {
         {/* ================================================= */}
         {/* HERO SPEC CARD                                    */}
         {/* ================================================= */}
-        <section className="bg-white border-3 sm:border-4 border-black rounded-2xl shadow-[6px_6px_0_#000000] p-5 sm:p-7 relative overflow-hidden">
+        <section className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] p-5 sm:p-7 relative overflow-hidden">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
               {/* Badges */}
               <div className="flex flex-wrap items-center gap-2">
                 {isLive && (
-                  <span className="bg-[#ff5b5b] text-white border-2 border-black rounded-full px-3 py-0.5 font-display font-black text-[10px] uppercase flex items-center gap-1 animate-pulse">
+                  <span className="bg-[#ff5b5b] text-white border-2 border-[#0c1d2d] rounded-full px-3 py-0.5 font-display font-black text-[10px] uppercase flex items-center gap-1 animate-pulse">
                     <Flame className="w-3.5 h-3.5 fill-white" />
                     LIVE TOURNAMENT ROUND
                   </span>
                 )}
                 {contest.status === 'upcoming' && (
-                  <span className="bg-[#38aef0] text-black border-2 border-black rounded-full px-3 py-0.5 font-display font-black text-[10px] uppercase">
+                  <span className="bg-[#38aef0] text-black border-2 border-[#0c1d2d] rounded-full px-3 py-0.5 font-display font-black text-[10px] uppercase">
                     UPCOMING FIXTURE
                   </span>
                 )}
                 {contest.status === 'completed' && (
-                  <span className="bg-slate-200 text-black border-2 border-black rounded-full px-3 py-0.5 font-display font-black text-[10px] uppercase">
+                  <span className="bg-slate-200 text-black border-2 border-[#0c1d2d] rounded-full px-3 py-0.5 font-display font-black text-[10px] uppercase">
                     ARCHIVED TOURNAMENT
                   </span>
                 )}
 
-                <span className="bg-[#ffd43b] text-black border-2 border-black rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase">
+                <span className="bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-mono font-black text-[10px] uppercase">
                   DIVISION: {contest.difficulty.toUpperCase()}
                 </span>
 
-                <span className="bg-[#f8fafc] border border-black rounded-full px-2.5 py-0.5 font-mono font-bold text-[10px] text-black/70">
+                <span className="bg-[#f8fafc] border border-[#0c1d2d] rounded-full px-2.5 py-0.5 font-mono font-bold text-[10px] text-black/70">
                   {contest.category}
                 </span>
               </div>
@@ -258,11 +258,11 @@ export default function ContestDetails() {
 
               {/* Solvers & Prize strip */}
               <div className="flex flex-wrap items-center gap-3 pt-2 font-mono text-xs font-black">
-                <span className="bg-white border-2 border-black rounded-xl px-3 py-1 flex items-center gap-1.5 shadow-[1.5px_1.5px_0_#000000]">
+                <span className="bg-white border-2 border-[#0c1d2d] rounded-xl px-3 py-1 flex items-center gap-1.5 shadow-[1.5px_1.5px_0_#0c1d2d]">
                   <Users className="w-3.5 h-3.5" />
                   <span>{contest.participantsCount || 0} REGISTERED ATHLETES</span>
                 </span>
-                <span className="bg-black text-[#ffd43b] border-2 border-black rounded-xl px-3 py-1 flex items-center gap-1.5 shadow-[1.5px_1.5px_0_#000000]">
+                <span className="bg-black text-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl px-3 py-1 flex items-center gap-1.5 shadow-[1.5px_1.5px_0_#0c1d2d]">
                   <Zap className="w-3.5 h-3.5 fill-[#ffd43b]" />
                   <span>{contest.xpPool} XP PRIZE POOL</span>
                 </span>
@@ -270,7 +270,7 @@ export default function ContestDetails() {
             </div>
 
             {/* Primary Dynamic Action Box */}
-            <div className="w-full lg:w-72 shrink-0 bg-[#faf9f6] border-2 border-black rounded-xl p-4 shadow-[3px_3px_0_#000000] flex flex-col justify-between space-y-3">
+            <div className="w-full lg:w-72 shrink-0 bg-[#faf9f6] border-2 border-[#0c1d2d] rounded-xl p-4 shadow-[3px_3px_0_#0c1d2d] flex flex-col justify-between space-y-3">
               <div>
                 <div className="text-[10px] font-mono font-bold text-black/60 uppercase">
                   YOUR STATUS
@@ -298,7 +298,7 @@ export default function ContestDetails() {
                   <button
                     type="button"
                     onClick={() => navigate(`/contests/${contest.id}/results`)}
-                    className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Award className="w-4 h-4" />
                     <span>VIEW RESULTS & STANDINGS</span>
@@ -308,7 +308,7 @@ export default function ContestDetails() {
                     type="button"
                     onClick={handleEnterArena}
                     disabled={isRegistering}
-                    className="w-full py-3 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    className="w-full py-3 bg-[#ff5b5b] hover:bg-[#ef4444] text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:-translate-x-0.5 hover:-translate-y-0.5"
                   >
                     {isRegistering ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -321,7 +321,7 @@ export default function ContestDetails() {
                   </button>
                 ) : contest.status === 'upcoming' ? (
                   userStatus?.isRegistered ? (
-                    <div className="w-full py-2.5 bg-[#32e875] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase text-center flex items-center justify-center gap-1.5">
+                    <div className="w-full py-2.5 bg-[#32e875] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase text-center flex items-center justify-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4" />
                       <span>REGISTERED — READY</span>
                     </div>
@@ -330,7 +330,7 @@ export default function ContestDetails() {
                       type="button"
                       disabled={isRegistering}
                       onClick={handleRegister}
-                      className="w-full py-3 bg-[#38aef0] hover:bg-[#209be2] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#000000] flex items-center justify-center gap-1.5 cursor-pointer transition-transform hover:-translate-x-0.5"
+                      className="w-full py-3 bg-[#38aef0] hover:bg-[#209be2] text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center gap-1.5 cursor-pointer transition-transform hover:-translate-x-0.5"
                     >
                       {isRegistering ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -352,7 +352,7 @@ export default function ContestDetails() {
         {/* SPECIFICATION GRID METRICS (4 TILES)              */}
         {/* ================================================= */}
         <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-white border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between text-black/60 font-mono text-[10px] font-black uppercase">
               <span>SCHEDULE</span>
               <Clock className="w-3.5 h-3.5 text-black" />
@@ -365,7 +365,7 @@ export default function ContestDetails() {
             </div>
           </div>
 
-          <div className="bg-white border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between text-black/60 font-mono text-[10px] font-black uppercase">
               <span>ARENA TIME</span>
               <Clock className="w-3.5 h-3.5 text-black" />
@@ -378,7 +378,7 @@ export default function ContestDetails() {
             </div>
           </div>
 
-          <div className="bg-white border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+          <div className="bg-white border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between text-black/60 font-mono text-[10px] font-black uppercase">
               <span>VOLUME</span>
               <BookOpen className="w-3.5 h-3.5 text-black" />
@@ -391,7 +391,7 @@ export default function ContestDetails() {
             </div>
           </div>
 
-          <div className="bg-[#ffd43b] border-2 border-black rounded-xl p-3.5 shadow-[3px_3px_0_#000000]">
+          <div className="bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl p-3.5 shadow-[3px_3px_0_#0c1d2d]">
             <div className="flex items-center justify-between text-black/80 font-mono text-[10px] font-black uppercase">
               <span>MARKING RULE</span>
               <Zap className="w-3.5 h-3.5 fill-black text-black" />
@@ -410,9 +410,9 @@ export default function ContestDetails() {
         {/* ================================================= */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Contest Rules */}
-          <section className="bg-white border-3 border-black rounded-2xl p-5 sm:p-6 shadow-[5px_5px_0_#000000] flex flex-col justify-between">
+          <section className="bg-white border-2 border-[#0c1d2d] rounded-xl p-5 sm:p-6 shadow-[3px_3px_0_#0c1d2d] flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 pb-3 border-b-2 border-black">
+              <div className="flex items-center gap-2 pb-3 border-b-2 border-[#0c1d2d]">
                 <HelpCircle className="w-4 h-4 text-black" />
                 <h3 className="font-display font-black text-base uppercase text-black">
                   TOURNAMENT RULES
@@ -436,16 +436,16 @@ export default function ContestDetails() {
             </div>
 
             {contest.rules && (
-              <div className="mt-4 pt-3 border-t-2 border-black/10 font-mono text-[11px] text-black/70">
+              <div className="mt-4 pt-3 border-t-2 border-[#0c1d2d]/10 font-mono text-[11px] text-black/70">
                 {contest.rules}
               </div>
             )}
           </section>
 
           {/* Syllabus */}
-          <section className="bg-white border-3 border-black rounded-2xl p-5 sm:p-6 shadow-[5px_5px_0_#000000] flex flex-col justify-between">
+          <section className="bg-white border-2 border-[#0c1d2d] rounded-xl p-5 sm:p-6 shadow-[3px_3px_0_#0c1d2d] flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 pb-3 border-b-2 border-black">
+              <div className="flex items-center gap-2 pb-3 border-b-2 border-[#0c1d2d]">
                 <BookOpen className="w-4 h-4 text-black" />
                 <h3 className="font-display font-black text-base uppercase text-black">
                   ARENA SYLLABUS & DOMAINS
@@ -472,7 +472,7 @@ export default function ContestDetails() {
                   </p>
                 </div>
 
-                <div className="p-3 bg-[#f8fafc] border-2 border-black rounded-xl">
+                <div className="p-3 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl">
                   <div className="font-mono text-[10px] font-black text-black uppercase">
                     SPEED RECOMMENDATION
                   </div>
@@ -483,7 +483,7 @@ export default function ContestDetails() {
               </div>
             </div>
 
-            <div className="mt-5 pt-3 border-t-2 border-black flex items-center justify-between">
+            <div className="mt-5 pt-3 border-t-2 border-[#0c1d2d] flex items-center justify-between">
               <span className="font-mono text-[10px] font-bold text-black/60">
                 DIVISION: {contest.difficulty.toUpperCase()}
               </span>

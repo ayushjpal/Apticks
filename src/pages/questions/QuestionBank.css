@@ -1,11 +1,11 @@
-/* =========================================================
+﻿/* =========================================================
    APTICKS — NEO BRUTALIST QUESTION BANK
    ========================================================= */
 
 .qb-page {
   min-height: 100vh;
   background-color: #061a2d;
-  color: #000000;
+  color: #0c1d2d;
   position: relative;
   overflow-x: hidden;
   font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
@@ -31,7 +31,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  border: 4px solid #000000;
+  border: 2px solid #0c1d2d;
   pointer-events: none;
   z-index: 2;
   user-select: none;
@@ -51,7 +51,7 @@
   flex-shrink: 0;
   min-height: 100vh;
   background-color: #ffffff;
-  border-right: 4px solid #000000;
+  border-right: 2px solid #0c1d2d;
   display: flex;
   flex-direction: column;
 }
@@ -64,8 +64,8 @@
   width: 44px;
   height: 44px;
   background-color: #ffd43b;
-  border: 4px solid #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,7 +79,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border: 4px solid transparent;
+  border: 2px solid transparent;
   font-weight: 900;
   font-size: 14px;
   text-align: left;
@@ -89,14 +89,14 @@
 }
 
 .qb-nav-btn:hover {
-  border-color: #000000;
+  border-color: #0c1d2d;
   background-color: #e9f6ff;
 }
 
 .qb-nav-btn.active {
   background-color: #ffd43b;
-  border-color: #000000;
-  box-shadow: 4px 4px 0 #000000;
+  border-color: #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 /* Main Content */
@@ -115,8 +115,8 @@
 /* Header Bar */
 .qb-header {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #38aef0;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #38aef0;
   padding: 20px 24px;
   display: flex;
   flex-wrap: wrap;
@@ -129,8 +129,8 @@
 /* Stats Arena Card */
 .qb-stats-container {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 6px 6px 0 #ffd43b;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #ffd43b;
   padding: 24px;
   margin-bottom: 28px;
 }
@@ -143,17 +143,17 @@
 
 .qb-stat-card {
   background: #f8fafc;
-  border: 3px solid #000000;
+  border: 2px solid #0c1d2d;
   padding: 16px;
-  box-shadow: 3px 3px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 /* Progress bar inside stats */
 .qb-progress-track {
   width: 100%;
-  height: 14px;
+  height: 8px;
   background-color: #e2e8f0;
-  border: 2px solid #000000;
+  border: 2px solid #0c1d2d;
   overflow: hidden;
   margin-top: 8px;
 }
@@ -173,12 +173,12 @@
 
 .qb-cat-tab {
   padding: 10px 18px;
-  border: 3px solid #000000;
+  border: 2px solid #0c1d2d;
   background-color: #ffffff;
   font-weight: 900;
   font-size: 13px;
   cursor: pointer;
-  box-shadow: 3px 3px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
@@ -187,20 +187,20 @@
 
 .qb-cat-tab:hover {
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 .qb-cat-tab.active {
   background-color: #ffd43b;
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #000000;
+  box-shadow: 1px 1px 0 #0c1d2d;
 }
 
 /* Filter Strip */
 .qb-filter-bar {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 5px 5px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
   padding: 16px 20px;
   margin-bottom: 24px;
   display: flex;
@@ -214,7 +214,7 @@
   flex: 1;
   min-width: 240px;
   padding: 10px 16px;
-  border: 3px solid #000000;
+  border: 2px solid #0c1d2d;
   font-weight: 700;
   font-size: 14px;
   background-color: #f8fafc;
@@ -223,7 +223,7 @@
 
 .qb-search-input:focus {
   background-color: #ffffff;
-  box-shadow: 3px 3px 0 #38aef0;
+  box-shadow: 2px 2px 0 #38aef0;
 }
 
 .qb-chip-group {
@@ -235,12 +235,12 @@
 
 .qb-filter-chip {
   padding: 6px 12px;
-  border: 2px solid #000000;
+  border: 2px solid #0c1d2d;
   background-color: #ffffff;
   font-weight: 800;
   font-size: 12px;
   cursor: pointer;
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   transition: all 0.1s ease;
 }
 
@@ -249,15 +249,15 @@
 }
 
 .qb-filter-chip.active {
-  background-color: #000000;
+  background-color: #0c1d2d;
   color: #ffffff;
 }
 
 /* Question Table List */
 .qb-table-wrapper {
   background-color: #ffffff;
-  border: 4px solid #000000;
-  box-shadow: 7px 7px 0 #38aef0;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #38aef0;
   overflow-x: auto;
 }
 
@@ -275,11 +275,11 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-bottom: 4px solid #000000;
+  border-bottom: 2px solid #0c1d2d;
 }
 
 .qb-table tr {
-  border-bottom: 3px solid #000000;
+  border-bottom: 2px solid #0c1d2d;
   transition: background-color 0.15s ease;
 }
 
@@ -298,11 +298,11 @@
   display: inline-block;
   padding: 4px 10px;
   background-color: #32e875;
-  color: #000000;
-  border: 2px solid #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
   font-weight: 900;
   font-size: 11px;
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   text-transform: uppercase;
 }
 
@@ -310,11 +310,11 @@
   display: inline-block;
   padding: 4px 10px;
   background-color: #ffd43b;
-  color: #000000;
-  border: 2px solid #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
   font-weight: 900;
   font-size: 11px;
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   text-transform: uppercase;
 }
 
@@ -323,10 +323,10 @@
   padding: 4px 10px;
   background-color: #ff5b5b;
   color: #ffffff;
-  border: 2px solid #000000;
+  border: 2px solid #0c1d2d;
   font-weight: 900;
   font-size: 11px;
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   text-transform: uppercase;
 }
 
@@ -335,43 +335,43 @@
   width: 26px;
   height: 26px;
   background-color: #32e875;
-  border: 2px solid #000000;
+  border: 2px solid #0c1d2d;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
   font-size: 14px;
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 .qb-status-unsolved {
   width: 26px;
   height: 26px;
   background-color: #e2e8f0;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0 #000000;
+  border: 2px solid #0c1d2d;
+  box-shadow: 2px 2px 0 #0c1d2d;
 }
 
 /* Bookmark Button */
 .qb-star-btn {
   background: #ffffff;
-  border: 2px solid #000000;
+  border: 2px solid #0c1d2d;
   font-size: 11px;
   font-weight: 900;
   cursor: pointer;
   padding: 3px 6px;
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   transition: all 0.15s ease;
 }
 
 .qb-star-btn:hover {
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 #000000;
+  box-shadow: 1px 1px 0 #0c1d2d;
 }
 
 .qb-star-btn.bookmarked {
   background-color: #ffd43b;
-  color: #000000;
+  color: #0c1d2d;
 }
 
 .qb-star-btn.unbookmarked {
@@ -380,7 +380,7 @@
 }
 
 .qb-star-btn.unbookmarked:hover {
-  color: #000000;
+  color: #0c1d2d;
   background-color: #e2e8f0;
 }
 
@@ -391,11 +391,11 @@
   gap: 6px;
   padding: 8px 16px;
   background-color: #ffd43b;
-  color: #000000;
-  border: 3px solid #000000;
+  color: #0c1d2d;
+  border: 2px solid #0c1d2d;
   font-weight: 900;
   font-size: 13px;
-  box-shadow: 3px 3px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -403,7 +403,7 @@
 
 .qb-solve-btn:hover {
   transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 #000000;
+  box-shadow: 2px 2px 0 #0c1d2d;
   background-color: #ffde6a;
 }
 

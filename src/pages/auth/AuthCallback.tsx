@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+﻿import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -167,12 +167,12 @@ export default function AuthCallback() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#071a2b] text-black px-4 arena-bg-grid">
-      <div className="w-full max-w-sm bg-white border-4 border-black shadow-[8px_8px_0_#ffd43b] p-8 text-center">
-        <div className="w-14 h-14 mx-auto mb-5 bg-[#ffd43b] border-3 border-black shadow-[4px_4px_0_#000000] flex items-center justify-center">
+      <div className="w-full max-w-sm bg-white border-4 border-[#0c1d2d] shadow-[8px_8px_0_#ffd43b] p-8 text-center">
+        <div className="w-14 h-14 mx-auto mb-5 bg-[#ffd43b] border-3 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] flex items-center justify-center">
           <Loader2 className="w-7 h-7 text-black animate-spin" />
         </div>
 
-        <div className="inline-block bg-[#38aef0] border-2 border-black px-2.5 py-0.5 text-[10px] font-mono font-black uppercase mb-3 shadow-[2px_2px_0_#000000]">
+        <div className="inline-block bg-[#38aef0] border-2 border-[#0c1d2d] px-2.5 py-0.5 text-[10px] font-mono font-black uppercase mb-3 shadow-[2px_2px_0_#0c1d2d]">
           AUTHENTICATING
         </div>
 
