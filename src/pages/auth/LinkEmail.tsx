@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, RotateCw, AlertCircle, Shield } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -129,9 +129,9 @@ export default function LinkEmail() {
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
-        <div className="text-center font-display font-black">
-          <div className="w-12 h-12 border-4 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-4" />
-          <p>LOADING ACCOUNT...</p>
+        <div className="text-center font-medium">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs text-slate-400">Loading account...</p>
         </div>
       </div>
     )
@@ -141,8 +141,8 @@ export default function LinkEmail() {
 
   return (
     <AuthShell
-      eyebrow="ACCOUNT SETUP"
-      title={submittedEmail ? 'CHECK YOUR INBOX' : 'LINK REAL EMAIL'}
+      eyebrow="Account Setup"
+      title={submittedEmail ? 'Check Your Inbox' : 'Link Real Email'}
       subtitle={
         submittedEmail
           ? `Verification link sent to ${submittedEmail}. Confirm your email to enable password recovery.`
@@ -154,20 +154,20 @@ export default function LinkEmail() {
     >
       {/* Error notification */}
       {error && (
-        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
+        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-medium flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
       {submittedEmail ? (
         <div className="space-y-4">
-          <div className="p-4 bg-[#d1fae5] border-2 border-[#0c1d2d] rounded-xl shadow-[2.5px_2.5px_0_#000000]">
-            <div className="flex items-center gap-2 font-display font-black text-xs text-[#065f46] uppercase mb-1">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>VERIFICATION PENDING</span>
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+            <div className="flex items-center gap-2 font-semibold text-xs text-emerald-800 uppercase mb-1">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>Verification Pending</span>
             </div>
-            <p className="text-xs font-body font-semibold text-black/80 leading-relaxed">
+            <p className="text-xs text-slate-700 leading-relaxed">
               Click the confirmation link sent to <strong>{submittedEmail}</strong> to link your email permanently.
             </p>
           </div>
@@ -175,9 +175,9 @@ export default function LinkEmail() {
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-2.5 sm:py-3 bg-[#ffd43b] hover:bg-[#fcc419] text-[#0c1d2d] border border-amber-400/60 rounded-xl font-semibold text-sm shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2"
           >
-            <span>CONTINUE TO DASHBOARD</span>
+            <span>Continue to Dashboard</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -185,10 +185,10 @@ export default function LinkEmail() {
             type="button"
             onClick={handleResendVerification}
             disabled={resending}
-            className="w-full py-2.5 bg-white hover:bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl font-medium text-xs text-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
           >
             <RotateCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
-            <span>{resending ? 'RESENDING...' : 'RESEND VERIFICATION EMAIL'}</span>
+            <span>{resending ? 'Resending...' : 'Resend Verification Email'}</span>
           </button>
         </div>
       ) : (
@@ -197,13 +197,13 @@ export default function LinkEmail() {
           <div>
             <label
               htmlFor="real-email"
-              className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+              className="block mb-1.5 text-xs font-semibold tracking-wider text-slate-700 uppercase"
             >
-              REAL EMAIL / GMAIL
+              Real Email / Gmail
             </label>
-            <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
-              <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black flex items-center">
-                <Mail className="w-4 h-4 text-black" />
+            <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden transition-all">
+              <span className="px-3 py-2.5 border-r border-slate-200 bg-slate-50 text-slate-400 flex items-center">
+                <Mail className="w-4 h-4 text-slate-400" />
               </span>
               <input
                 id="real-email"
@@ -213,7 +213,7 @@ export default function LinkEmail() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
-                className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+                className="w-full py-2.5 px-3 outline-none font-medium text-sm bg-transparent placeholder:text-slate-400 text-slate-900"
               />
             </div>
           </div>
@@ -223,13 +223,13 @@ export default function LinkEmail() {
             <div>
               <label
                 htmlFor="confirm-pass"
-                className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+                className="block mb-1.5 text-xs font-semibold tracking-wider text-slate-700 uppercase"
               >
-                CONFIRM PASSWORD
+                Confirm Password
               </label>
-              <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
-                <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black flex items-center">
-                  <Lock className="w-4 h-4 text-black" />
+              <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden transition-all">
+                <span className="px-3 py-2.5 border-r border-slate-200 bg-slate-50 text-slate-400 flex items-center">
+                  <Lock className="w-4 h-4 text-slate-400" />
                 </span>
                 <input
                   id="confirm-pass"
@@ -238,13 +238,13 @@ export default function LinkEmail() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+                  className="w-full py-2.5 px-3 outline-none font-medium text-sm bg-transparent placeholder:text-slate-400 text-slate-900"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="px-3 text-black/60 hover:text-black transition-colors cursor-pointer"
+                  className="px-3 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -256,18 +256,18 @@ export default function LinkEmail() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+            className="w-full py-2.5 sm:py-3 bg-[#ffd43b] hover:bg-[#fcc419] text-[#0c1d2d] border border-amber-400/60 rounded-xl font-semibold text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
           >
-            <span>{loading ? 'SENDING LINK...' : 'SEND VERIFICATION LINK'}</span>
+            <span>{loading ? 'Sending Link...' : 'Send Verification Link'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
       )}
 
       {/* Security privacy note */}
-      <div className="mt-6 p-3.5 bg-[#e9f6ff] border-2 border-[#0c1d2d] rounded-xl flex items-start gap-2.5">
-        <Shield className="w-4 h-4 text-[#38aef0] shrink-0 mt-0.5" />
-        <p className="text-xs font-body font-semibold text-black/80 leading-relaxed">
+      <div className="mt-6 p-3 bg-sky-50 border border-sky-200 rounded-xl flex items-start gap-2.5 text-xs text-sky-900 leading-relaxed">
+        <Shield className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
+        <p>
           Your real email is kept private and will never be shown publicly or shared with other players.
         </p>
       </div>

@@ -23,29 +23,29 @@ export function StaffPageHeader({
   actions,
 }: StaffPageHeaderProps) {
   const badgeStyles = {
-    yellow: 'bg-[#ffd43b] text-black border-black',
-    blue: 'bg-[#38aef0] text-black border-black',
-    navy: 'bg-[#071a2b] text-white border-black',
-    neutral: 'bg-black/5 text-black border-black/20',
+    yellow: 'bg-amber-50 text-amber-900 border-amber-200',
+    blue: 'bg-sky-50 text-sky-800 border-sky-200',
+    navy: 'bg-[#0c1d2d] text-white border-[#0c1d2d]',
+    neutral: 'bg-slate-100 text-slate-700 border-slate-200',
   }
 
   return (
-    <div className="bg-white border-3 sm:border-4 border-black p-5 sm:p-7 rounded-2xl shadow-[6px_6px_0_#000000] relative overflow-hidden">
+    <div className="bg-white border border-[#0c1d2d]/12 p-5 sm:p-6 rounded-2xl shadow-xs relative overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1.5">
           {badgeText && (
             <div
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display font-black uppercase tracking-wider border-2 ${badgeStyles[badgeVariant]}`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border ${badgeStyles[badgeVariant]}`}
             >
               {badgeIcon}
               <span>{badgeText}</span>
             </div>
           )}
-          <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl uppercase text-black tracking-tight leading-none">
+          <h1 className="font-display font-bold text-xl sm:text-2xl lg:text-3xl text-[#0c1d2d] tracking-tight leading-tight">
             {title}
           </h1>
           {description && (
-            <p className="text-xs sm:text-sm font-body font-semibold text-black/70 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm font-body text-slate-600 max-w-2xl leading-relaxed">
               {description}
             </p>
           )}
@@ -80,19 +80,19 @@ export function StaffMetricCard({
   value,
   subtext,
   icon,
-  iconBg = 'bg-[#ffd43b]',
-  valueColor = 'text-black',
+  iconBg = 'bg-amber-50 border-amber-200 text-amber-700',
+  valueColor = 'text-[#0c1d2d]',
   loading = false,
 }: StaffMetricCardProps) {
   return (
-    <div className="bg-white border-3 border-black p-4 sm:p-5 rounded-2xl shadow-[4px_4px_0_#000000] flex flex-col justify-between">
+    <div className="bg-white border border-[#0c1d2d]/12 p-4 sm:p-5 rounded-xl shadow-xs flex flex-col justify-between">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-black/60">
+        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
           {label}
         </span>
         {icon && (
           <div
-            className={`w-8 h-8 rounded-lg border-2 border-black flex items-center justify-center text-black shrink-0 ${iconBg} shadow-[1.5px_1.5px_0_#000000]`}
+            className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 ${iconBg}`}
           >
             {icon}
           </div>
@@ -100,11 +100,11 @@ export function StaffMetricCard({
       </div>
 
       <div>
-        <div className={`text-2xl sm:text-3xl font-display font-black tracking-tight ${valueColor}`}>
+        <div className={`text-2xl font-display font-bold tracking-tight ${valueColor}`}>
           {loading ? '...' : value}
         </div>
         {subtext && (
-          <div className="text-[11px] font-body font-semibold text-black/50 mt-1 truncate">
+          <div className="text-[11px] font-body text-slate-500 mt-0.5 truncate">
             {subtext}
           </div>
         )}
@@ -124,29 +124,29 @@ export interface StaffStatusBadgeProps {
 
 export function StaffStatusBadge({ status, className = '' }: StaffStatusBadgeProps) {
   const norm = status.toLowerCase()
-  let style = 'bg-black/5 text-black border-black/20'
+  let style = 'bg-slate-100 text-slate-700 border-slate-200'
 
   if (norm === 'live' || norm === 'active') {
-    style = 'bg-[#32e875] text-black border-black shadow-[1.5px_1.5px_0_#000000]'
+    style = 'bg-emerald-50 text-emerald-800 border-emerald-200'
   } else if (norm === 'upcoming') {
-    style = 'bg-[#38aef0] text-black border-black shadow-[1.5px_1.5px_0_#000000]'
+    style = 'bg-sky-50 text-sky-800 border-sky-200'
   } else if (norm === 'draft') {
-    style = 'bg-[#ffd43b] text-black border-black shadow-[1.5px_1.5px_0_#000000]'
+    style = 'bg-amber-50 text-amber-800 border-amber-200'
   } else if (norm === 'completed') {
-    style = 'bg-black/10 text-black/80 border-black/30'
+    style = 'bg-slate-100 text-slate-800 border-slate-300'
   } else if (norm === 'cancelled' || norm === 'inactive') {
-    style = 'bg-[#fee2e2] text-[#b91c1c] border-[#b91c1c]/30'
+    style = 'bg-rose-50 text-rose-800 border-rose-200'
   } else if (norm === 'admin') {
-    style = 'bg-[#ffd43b] text-black border-black shadow-[1.5px_1.5px_0_#000000]'
+    style = 'bg-amber-50 text-amber-900 border-amber-300'
   } else if (norm === 'moderator') {
-    style = 'bg-[#38aef0] text-black border-black shadow-[1.5px_1.5px_0_#000000]'
+    style = 'bg-sky-50 text-sky-800 border-sky-200'
   } else if (norm === 'user') {
-    style = 'bg-black/5 text-black/80 border-black/20'
+    style = 'bg-slate-100 text-slate-700 border-slate-200'
   }
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-md border text-[10px] font-mono font-bold uppercase tracking-wider select-none ${style} ${className}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-mono font-bold uppercase tracking-wider select-none ${style} ${className}`}
     >
       {status}
     </span>
@@ -171,15 +171,15 @@ export function StaffEmptyState({
   action,
 }: StaffEmptyStateProps) {
   return (
-    <div className="p-8 sm:p-12 text-center border-2 sm:border-3 border-dashed border-black/25 rounded-2xl bg-[#f8fafc]/80 space-y-3">
-      <div className="w-12 h-12 rounded-xl bg-black/5 border-2 border-black/20 mx-auto flex items-center justify-center text-black/40">
-        <Icon className="w-6 h-6 stroke-[2]" />
+    <div className="p-8 sm:p-12 text-center border border-dashed border-slate-300 rounded-2xl bg-slate-50/70 space-y-3">
+      <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 mx-auto flex items-center justify-center text-slate-400 shadow-xs">
+        <Icon className="w-5 h-5" />
       </div>
       <div className="space-y-1">
-        <h3 className="font-display font-black text-sm sm:text-base uppercase text-black tracking-tight">
+        <h3 className="font-display font-bold text-sm sm:text-base text-[#0c1d2d] tracking-tight">
           {title}
         </h3>
-        <p className="text-xs font-body font-semibold text-black/60 max-w-sm mx-auto leading-relaxed">
+        <p className="text-xs font-body text-slate-500 max-w-sm mx-auto leading-relaxed">
           {description}
         </p>
       </div>
@@ -199,17 +199,17 @@ export interface StaffErrorBannerProps {
 
 export function StaffErrorBanner({ message, onRetry }: StaffErrorBannerProps) {
   return (
-    <div className="bg-[#fee2e2] border-2 sm:border-3 border-black p-4 rounded-xl shadow-[3px_3px_0_#000000] flex items-center justify-between gap-3 text-black">
+    <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl shadow-xs flex items-center justify-between gap-3 text-rose-900">
       <div className="flex items-center gap-2.5 min-w-0">
-        <AlertTriangle className="w-5 h-5 text-[#b91c1c] shrink-0" />
-        <span className="text-xs font-body font-bold text-black truncate">{message}</span>
+        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+        <span className="text-xs font-body font-medium truncate">{message}</span>
       </div>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-3 py-1 bg-white text-black hover:bg-black hover:text-white border-2 border-black rounded-lg text-xs font-display font-black uppercase transition-colors shrink-0 shadow-[1.5px_1.5px_0_#000000]"
+          className="px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-display font-bold uppercase transition-colors shrink-0 shadow-xs cursor-pointer"
         >
-          RETRY
+          Retry
         </button>
       )}
     </div>

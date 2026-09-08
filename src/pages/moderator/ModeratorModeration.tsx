@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -261,15 +261,15 @@ export default function ModeratorModeration() {
   const getStatusBadge = (status: ReportStatus) => {
     switch (status) {
       case 'pending':
-        return 'bg-[#fef3c7] text-[#b45309] border-[#fde68a]'
+        return 'bg-amber-50 text-amber-800 border-amber-300'
       case 'reviewing':
-        return 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]'
+        return 'bg-sky-50 text-sky-800 border-sky-300'
       case 'resolved':
-        return 'bg-[#dcfce7] text-[#15803d] border-[#86efac]'
+        return 'bg-emerald-50 text-emerald-800 border-emerald-300'
       case 'dismissed':
-        return 'bg-black/5 text-black/60 border-[#0c1d2d]/20'
+        return 'bg-slate-100 text-slate-600 border-slate-300'
       default:
-        return 'bg-black/5 text-black border-[#0c1d2d]/20'
+        return 'bg-slate-100 text-slate-600 border-slate-300'
     }
   }
 
@@ -277,14 +277,14 @@ export default function ModeratorModeration() {
   const getTargetIcon = (type: TargetType) => {
     switch (type) {
       case 'question':
-        return <HelpCircle className="w-3.5 h-3.5 text-[#2563eb]" />
+        return <HelpCircle className="w-3.5 h-3.5 text-sky-600" />
       case 'contest':
-        return <Trophy className="w-3.5 h-3.5 text-[#d97706]" />
+        return <Trophy className="w-3.5 h-3.5 text-amber-600" />
       case 'user':
-        return <User className="w-3.5 h-3.5 text-[#7c3aed]" />
+        return <User className="w-3.5 h-3.5 text-purple-600" />
       case 'general':
       default:
-        return <Layers className="w-3.5 h-3.5 text-black/60" />
+        return <Layers className="w-3.5 h-3.5 text-slate-400" />
     }
   }
 
@@ -307,10 +307,10 @@ export default function ModeratorModeration() {
       <div className="space-y-6 sm:space-y-8">
         {/* Header */}
         <StaffPageHeader
-          badgeText="INCIDENT TRIAGE"
+          badgeText="Incident Triage"
           badgeIcon={<ShieldCheck className="w-3.5 h-3.5 text-[#ffd43b]" />}
           badgeVariant="navy"
-          title="CONTENT MODERATION & REPORTS"
+          title="Content Moderation & Reports"
           description="Investigate user errata tickets, question disputes, clarity flags, and platform incidents with authoritative server logging."
           actions={
             <button
@@ -319,10 +319,10 @@ export default function ModeratorModeration() {
                 setMetricsLoading(true)
                 setRefreshTrigger((v) => v + 1)
               }}
-              className="px-3.5 py-2 bg-white text-black hover:bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all shadow-[2px_2px_0_#0c1d2d] flex items-center gap-1.5"
+              className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-lg text-xs font-semibold transition-all shadow-xs flex items-center gap-1.5"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              <span>REFRESH QUEUE</span>
+              <span>Refresh Queue</span>
             </button>
           }
         />
@@ -330,45 +330,45 @@ export default function ModeratorModeration() {
         {/* Real Metrics Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StaffMetricCard
-            label="PENDING REVIEW"
+            label="Pending Review"
             value={metricsLoading ? '...' : metrics.pending}
             subtext="Awaiting staff inspection"
-            icon={<Clock className="w-4 h-4" />}
-            iconBg="bg-[#fef3c7]"
-            valueColor="text-[#b45309]"
+            icon={<Clock className="w-4 h-4 text-amber-600" />}
+            iconBg="bg-amber-50"
+            valueColor="text-amber-800"
             loading={metricsLoading}
           />
           <StaffMetricCard
-            label="UNDER REVIEW"
+            label="Under Review"
             value={metricsLoading ? '...' : metrics.reviewing}
             subtext="Actively being analyzed"
-            icon={<Eye className="w-4 h-4 text-[#1d4ed8]" />}
-            iconBg="bg-[#eff6ff]"
-            valueColor="text-[#1d4ed8]"
+            icon={<Eye className="w-4 h-4 text-sky-600" />}
+            iconBg="bg-sky-50"
+            valueColor="text-sky-800"
             loading={metricsLoading}
           />
           <StaffMetricCard
-            label="RESOLVED TICKETS"
+            label="Resolved Tickets"
             value={metricsLoading ? '...' : metrics.resolved}
             subtext="Verified and calibrated"
-            icon={<CheckCircle2 className="w-4 h-4 text-[#15803d]" />}
-            iconBg="bg-[#dcfce7]"
-            valueColor="text-[#15803d]"
+            icon={<CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+            iconBg="bg-emerald-50"
+            valueColor="text-emerald-800"
             loading={metricsLoading}
           />
           <StaffMetricCard
-            label="DISMISSED REPORTS"
+            label="Dismissed Reports"
             value={metricsLoading ? '...' : metrics.dismissed}
             subtext="Invalid or false alarms"
-            icon={<Slash className="w-4 h-4 text-black/60" />}
-            iconBg="bg-black/10"
-            valueColor="text-black/60"
+            icon={<Slash className="w-4 h-4 text-slate-400" />}
+            iconBg="bg-slate-100"
+            valueColor="text-slate-600"
             loading={metricsLoading}
           />
         </div>
 
         {/* Controls & Filter Toolbar */}
-        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] p-4 sm:p-5 rounded-xl shadow-[3px_3px_0_#0c1d2d] space-y-4">
+        <div className="bg-white border border-slate-200/80 p-3.5 sm:p-4 rounded-xl shadow-xs space-y-3">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             {/* Status Navigation Chips */}
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
@@ -391,14 +391,16 @@ export default function ModeratorModeration() {
                       setSelectedStatus(st)
                       setCurrentPage(1)
                     }}
-                    className={`px-3 py-1.5 rounded-xl border-2 border-[#0c1d2d] font-display font-black text-xs uppercase whitespace-nowrap transition-all shadow-[1.5px_1.5px_0_#0c1d2d] flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all shadow-xs flex items-center gap-1.5 ${
                       selectedStatus === st
-                        ? 'bg-[#ffd43b] text-black'
-                        : 'bg-white text-black/70 hover:bg-black/5 hover:text-black'
+                        ? 'bg-[#0c1d2d] text-white border-[#0c1d2d]'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
                     }`}
                   >
-                    <span>{st === 'all' ? 'ALL' : st}</span>
-                    <span className="px-1.5 py-0.2 bg-black/10 rounded font-mono text-[10px]">
+                    <span>{st === 'all' ? 'All' : st.charAt(0).toUpperCase() + st.slice(1)}</span>
+                    <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${
+                      selectedStatus === st ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                    }`}>
                       {count}
                     </span>
                   </button>
@@ -415,26 +417,26 @@ export default function ModeratorModeration() {
                   setSearchQuery('')
                   setCurrentPage(1)
                 }}
-                className="px-3 py-1.5 bg-black/5 hover:bg-black/10 text-black border-2 border-[#0c1d2d]/20 rounded-xl text-xs font-display font-bold uppercase transition-colors inline-flex items-center gap-1 shrink-0"
+                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1 shrink-0"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span>RESET FILTERS</span>
+                <span>Reset Filters</span>
               </button>
             )}
           </div>
 
           {/* Secondary Filters: Reason Category & Live Search */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#0c1d2d]/10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
             {/* Reason Selector */}
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-black/40 shrink-0 hidden sm:block" />
+              <Filter className="w-4 h-4 text-slate-400 shrink-0 hidden sm:block" />
               <select
                 value={selectedReason}
                 onChange={(e) => {
                   setSelectedReason(e.target.value as ReportReason | 'all')
                   setCurrentPage(1)
                 }}
-                className="w-full px-3 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black focus:outline-none focus:bg-white focus:border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-[#0c1d2d]"
               >
                 {REASON_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -446,7 +448,7 @@ export default function ModeratorModeration() {
 
             {/* Search Input */}
             <div className="sm:col-span-2 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
@@ -455,7 +457,7 @@ export default function ModeratorModeration() {
                   setCurrentPage(1)
                 }}
                 placeholder="Search by report ID, target ID, reporter, or description..."
-                className="w-full pl-9 pr-8 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d]"
+                className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#0c1d2d] focus:ring-1 focus:ring-[#0c1d2d]"
               />
               {searchQuery && (
                 <button
@@ -463,7 +465,7 @@ export default function ModeratorModeration() {
                     setSearchQuery('')
                     setCurrentPage(1)
                   }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black/40 hover:text-black"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -471,7 +473,7 @@ export default function ModeratorModeration() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs font-mono text-black/60 pt-1 border-t border-[#0c1d2d]/10">
+          <div className="flex items-center justify-between text-xs font-mono text-slate-500 pt-1 border-t border-slate-100">
             <span>
               Showing {totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1} -{' '}
               {Math.min(currentPage * pageSize, totalCount)} of {totalCount} incidents
@@ -484,35 +486,35 @@ export default function ModeratorModeration() {
 
         {/* Error banner */}
         {errorMessage && (
-          <div className="bg-[#fee2e2] border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center justify-between gap-3 text-black">
+          <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-xl shadow-xs flex items-center justify-between gap-3 text-rose-800">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-[#ef4444] shrink-0" />
-              <span className="text-xs font-body font-bold">{errorMessage}</span>
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span className="text-xs font-medium">{errorMessage}</span>
             </div>
-            <button onClick={() => setErrorMessage(null)} className="text-black/60 hover:text-black">
+            <button onClick={() => setErrorMessage(null)} className="text-slate-400 hover:text-slate-600">
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
         {/* Incidents Table / Card Container */}
-        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs overflow-hidden">
           {loading ? (
-            <div className="p-12 text-center space-y-3">
-              <div className="w-8 h-8 border-2 border-[#0c1d2d] border-t-[#ffd43b] rounded-full animate-spin mx-auto" />
-              <div className="text-xs font-display font-black uppercase text-black/60">
-                LOADING INCIDENT QUEUE...
+            <div className="p-12 text-center space-y-2">
+              <div className="w-7 h-7 border-2 border-[#0c1d2d] border-t-[#ffd43b] rounded-full animate-spin mx-auto" />
+              <div className="text-xs font-medium text-slate-500">
+                Loading incident queue...
               </div>
             </div>
           ) : incidents.length === 0 ? (
-            <div className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 bg-black/5 rounded-xl flex items-center justify-center mx-auto text-black/40">
-                <CheckCircle2 className="w-6 h-6" />
+            <div className="p-12 text-center space-y-2">
+              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto text-slate-400">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
-              <h3 className="font-display font-black text-base uppercase text-black">
-                NO INCIDENTS FOUND
+              <h3 className="text-base font-semibold text-slate-900">
+                No Incidents Found
               </h3>
-              <p className="text-xs font-body font-semibold text-black/60 max-w-sm mx-auto">
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 {selectedStatus !== 'all' || selectedReason !== 'all' || searchQuery
                   ? 'No reports match your active filter combination. Try resetting your search filters.'
                   : 'The moderation triage queue is completely clear. No disputes or incident reports require staff attention.'}
@@ -523,62 +525,62 @@ export default function ModeratorModeration() {
               {/* Desktop Table View */}
               <div
                 data-lenis-prevent
-                className="hidden md:block question-list-scroll max-h-[520px] overflow-y-auto overflow-x-auto min-h-0"
+                className="hidden md:block question-list-scroll max-h-[540px] overflow-y-auto overflow-x-auto min-h-0"
               >
                 <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 z-10 shadow-[0_2px_0_#000000]">
-                    <tr className="bg-[#f8fafc] border-b-2 border-[#0c1d2d] text-[11px] font-display font-black uppercase text-black tracking-wider">
-                      <th className="py-3 px-4 w-28">REPORT ID</th>
-                      <th className="py-3 px-4 w-44">TARGET ENTITY</th>
-                      <th className="py-3 px-4 w-40">REASON</th>
-                      <th className="py-3 px-4 min-w-[240px]">DESCRIPTION SUMMARY</th>
-                      <th className="py-3 px-4 w-36">REPORTER</th>
-                      <th className="py-3 px-4 w-28 text-center">STATUS</th>
-                      <th className="py-3 px-4 w-28 text-right">ACTION</th>
+                  <thead className="sticky top-0 z-10">
+                    <tr className="bg-slate-50/90 backdrop-blur-xs border-b border-slate-200 text-[11px] font-semibold uppercase text-slate-500 tracking-wider">
+                      <th className="py-3 px-4 w-28">Report ID</th>
+                      <th className="py-3 px-4 w-44">Target Entity</th>
+                      <th className="py-3 px-4 w-40">Reason</th>
+                      <th className="py-3 px-4 min-w-[240px]">Description Summary</th>
+                      <th className="py-3 px-4 w-36">Reporter</th>
+                      <th className="py-3 px-4 w-28 text-center">Status</th>
+                      <th className="py-3 px-4 w-28 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y-2 divide-black/10">
+                  <tbody className="divide-y divide-slate-100">
                     {incidents.map((rep) => (
                       <tr
                         key={rep.id}
-                        className="hover:bg-[#f8fafc]/80 transition-colors cursor-pointer"
+                        className="hover:bg-slate-50/70 transition-colors cursor-pointer"
                         onClick={() => handleOpenDetail(rep)}
                       >
                         {/* Report ID */}
                         <td className="py-3.5 px-4 align-top">
-                          <span className="font-mono text-[11px] font-bold text-black bg-black/5 px-2 py-0.5 rounded border border-[#0c1d2d]/20">
+                          <span className="font-mono text-[11px] font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                             {rep.id.slice(0, 8)}
                           </span>
-                          <div className="text-[10px] font-mono text-black/50 mt-1">
+                          <div className="text-[10px] font-mono text-slate-400 mt-1">
                             {formatDate(rep.created_at)}
                           </div>
                         </td>
 
                         {/* Target Entity */}
                         <td className="py-3.5 px-4 align-top">
-                          <div className="flex items-center gap-1.5 font-display font-black text-xs text-black">
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
                             {getTargetIcon(rep.target_type)}
-                            <span className="uppercase">{rep.target_type}</span>
+                            <span className="capitalize">{rep.target_type}</span>
                           </div>
-                          <div className="font-mono text-xs font-bold text-black/70 mt-0.5 truncate">
+                          <div className="font-mono text-xs text-slate-500 mt-0.5 truncate">
                             {rep.target_id}
                           </div>
                         </td>
 
                         {/* Reason */}
                         <td className="py-3.5 px-4 align-top">
-                          <span className="inline-block px-2 py-0.5 bg-black/5 text-black border border-[#0c1d2d]/20 rounded text-[10px] font-display font-bold">
+                          <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 rounded text-[10px] font-medium">
                             {REASON_LABELS[rep.reason] || rep.reason}
                           </span>
                         </td>
 
                         {/* Description Summary */}
                         <td className="py-3.5 px-4 align-top">
-                          <p className="font-body text-xs font-semibold text-black/80 line-clamp-2 leading-snug">
+                          <p className="text-xs text-slate-700 line-clamp-2 leading-snug">
                             {rep.description}
                           </p>
                           {rep.moderator_notes && (
-                            <div className="mt-1 text-[10px] font-mono text-[#0284c7] font-bold flex items-center gap-1">
+                            <div className="mt-1 text-[10px] font-mono text-sky-600 font-medium flex items-center gap-1">
                               <FileText className="w-3 h-3" />
                               <span>Notes logged</span>
                             </div>
@@ -587,10 +589,10 @@ export default function ModeratorModeration() {
 
                         {/* Reporter */}
                         <td className="py-3.5 px-4 align-top">
-                          <div className="font-display font-black text-xs text-black truncate">
+                          <div className="text-xs font-semibold text-slate-900 truncate">
                             {rep.reporter?.display_name || rep.reporter?.username || 'Player'}
                           </div>
-                          <div className="font-mono text-[10px] text-black/50 truncate">
+                          <div className="font-mono text-[10px] text-slate-400 truncate">
                             @{rep.reporter?.username || 'unnamed'}
                           </div>
                         </td>
@@ -598,7 +600,7 @@ export default function ModeratorModeration() {
                         {/* Status */}
                         <td className="py-3.5 px-4 align-top text-center">
                           <span
-                            className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-display font-black uppercase border ${getStatusBadge(
+                            className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase border ${getStatusBadge(
                               rep.status
                             )}`}
                           >
@@ -610,9 +612,9 @@ export default function ModeratorModeration() {
                         <td className="py-3.5 px-4 align-top text-right" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleOpenDetail(rep)}
-                            className="px-3 py-1 bg-white hover:bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase shadow-[1.5px_1.5px_0_#0c1d2d] transition-colors"
+                            className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md text-xs font-semibold shadow-2xs transition-colors"
                           >
-                            REVIEW
+                            Review
                           </button>
                         </td>
                       </tr>
@@ -624,27 +626,27 @@ export default function ModeratorModeration() {
               {/* Mobile Card List View */}
               <div
                 data-lenis-prevent
-                className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y-2 divide-black/10"
+                className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y divide-slate-100"
               >
                 {incidents.map((rep) => (
                   <div
                     key={rep.id}
                     onClick={() => handleOpenDetail(rep)}
-                    className="p-4 space-y-3 hover:bg-[#f8fafc] transition-colors cursor-pointer"
+                    className="p-4 space-y-2.5 hover:bg-slate-50/70 transition-colors cursor-pointer"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] font-bold bg-black/5 px-2 py-0.5 rounded border border-[#0c1d2d]/20">
+                        <span className="font-mono text-[10px] font-medium bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-slate-700">
                           {rep.id.slice(0, 8)}
                         </span>
-                        <div className="flex items-center gap-1 text-[11px] font-display font-bold text-black">
+                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-800">
                           {getTargetIcon(rep.target_type)}
-                          <span className="uppercase">{rep.target_type}</span>
+                          <span className="capitalize">{rep.target_type}</span>
                         </div>
                       </div>
 
                       <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-display font-black uppercase border ${getStatusBadge(
+                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase border ${getStatusBadge(
                           rep.status
                         )}`}
                       >
@@ -653,24 +655,24 @@ export default function ModeratorModeration() {
                     </div>
 
                     <div>
-                      <div className="text-[11px] font-display font-black text-black">
+                      <div className="text-xs font-semibold text-slate-900">
                         {REASON_LABELS[rep.reason] || rep.reason}
                       </div>
-                      <p className="font-body text-xs font-semibold text-black/80 line-clamp-2 mt-0.5 leading-snug">
+                      <p className="text-xs text-slate-700 line-clamp-2 mt-0.5 leading-snug">
                         {rep.description}
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1 border-t border-[#0c1d2d]/5 text-xs font-mono text-black/60">
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs font-mono text-slate-500">
                       <span>Target: {rep.target_id}</span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           handleOpenDetail(rep)
                         }}
-                        className="px-2.5 py-1 bg-white hover:bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-lg font-display font-black text-[11px] uppercase shadow-[1.5px_1.5px_0_#0c1d2d]"
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md text-[11px] font-semibold shadow-2xs"
                       >
-                        REVIEW →
+                        Review →
                       </button>
                     </div>
                   </div>
@@ -681,26 +683,26 @@ export default function ModeratorModeration() {
 
           {/* Pagination Footer */}
           {totalPages > 1 && (
-            <div className="p-4 border-t-3 border-[#0c1d2d] bg-[#f8fafc] flex items-center justify-between">
+            <div className="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span>PREV</span>
+                <span>Prev</span>
               </button>
 
-              <div className="text-xs font-mono font-bold text-black/70">
+              <div className="text-xs font-mono text-slate-600">
                 Page {currentPage} of {totalPages}
               </div>
 
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border-2 border-[#0c1d2d] rounded-xl font-display font-bold text-xs uppercase disabled:opacity-40 hover:bg-black hover:text-white transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 disabled:opacity-40 hover:bg-slate-100 transition-colors shadow-2xs"
               >
-                <span>NEXT</span>
+                <span>Next</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -714,43 +716,43 @@ export default function ModeratorModeration() {
       {selectedIncident && (
         <div
           data-lenis-prevent
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden animate-fade-in"
           onClick={(e) => {
             if (e.target === e.currentTarget) setSelectedIncident(null)
           }}
         >
           <div
             data-lenis-prevent
-            className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-2xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative"
+            className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full h-[90vh] sm:h-[86vh] max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Pinned Modal Header (Never scrolls) */}
-            <div className="p-4 sm:p-5 border-b-2 sm:border-b-2 border-[#0c1d2d] shrink-0 flex-none relative pr-12 bg-white">
+            <div className="p-4 sm:p-5 border-b border-slate-200 shrink-0 flex-none relative pr-12 bg-white">
               <button
                 onClick={() => setSelectedIncident(null)}
                 aria-label="Close review modal"
-                className="absolute top-4 right-4 p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-xl border border-transparent hover:border-[#0c1d2d]/20 transition-all"
+                className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-xs font-black px-2 py-0.5 bg-black text-white rounded">
+                  <span className="font-mono text-xs font-semibold px-2 py-0.5 bg-slate-900 text-white rounded">
                     ID: {selectedIncident.id.slice(0, 8)}
                   </span>
                   <span
-                    className={`inline-block px-2 py-0.5 rounded text-[11px] font-display font-black uppercase border ${getStatusBadge(
+                    className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold uppercase border ${getStatusBadge(
                       selectedIncident.status
                     )}`}
                   >
                     {selectedIncident.status}
                   </span>
-                  <span className="text-xs font-mono text-black/60">
+                  <span className="text-xs font-mono text-slate-500">
                     Logged: {formatDate(selectedIncident.created_at)}
                   </span>
                 </div>
-                <h2 className="font-display font-black text-lg sm:text-xl uppercase text-black pt-1 break-words">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 pt-1 break-words">
                   {REASON_LABELS[selectedIncident.reason] || selectedIncident.reason}
                 </h2>
               </div>
@@ -759,59 +761,59 @@ export default function ModeratorModeration() {
             {/* Scrollable Modal Body (Single Primary Scroll Container) */}
             <div
               data-lenis-prevent
-              className="question-list-scroll flex-1 min-h-0 h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-5 overscroll-contain"
+              className="question-list-scroll flex-1 min-h-0 h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-4 overscroll-contain"
             >
               {actionError && (
-                <div className="p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-[#b91c1c] shrink-0" />
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-medium text-rose-800 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{actionError}</span>
                 </div>
               )}
 
               {/* Target Entity Summary Card */}
-              <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-4 rounded-xl space-y-2">
-                <div className="flex items-center justify-between text-xs font-display font-black uppercase text-black/60">
+              <div className="bg-slate-50 border border-slate-200/80 p-3.5 rounded-xl space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold uppercase text-slate-500">
                   <div className="flex items-center gap-1.5">
                     {getTargetIcon(selectedIncident.target_type)}
-                    <span>TARGET ENTITY: {TARGET_LABELS[selectedIncident.target_type]}</span>
+                    <span>Target Entity: {TARGET_LABELS[selectedIncident.target_type]}</span>
                   </div>
-                  <span className="font-mono text-black">{selectedIncident.target_id}</span>
+                  <span className="font-mono text-slate-700">{selectedIncident.target_id}</span>
                 </div>
 
                 {detailLoading ? (
-                  <div className="py-3 text-center text-xs font-mono text-black/50">
+                  <div className="py-3 text-center text-xs font-mono text-slate-400">
                     <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-1" />
                     Loading target details...
                   </div>
                 ) : selectedIncident.target_context ? (
-                  <div className="pt-1 text-xs font-body text-black">
+                  <div className="pt-1 text-xs text-slate-800">
                     {selectedIncident.target_context.missing ? (
-                      <div className="text-[#b91c1c] font-bold">
+                      <div className="text-rose-600 font-medium">
                         Target entity appears to be deleted or no longer accessible in the database.
                       </div>
                     ) : selectedIncident.target_context.type === 'question' ? (
                       <div className="space-y-1">
-                        <div className="font-display font-bold text-sm text-black">
+                        <div className="font-semibold text-sm text-slate-900">
                           {selectedIncident.target_context.title}
                         </div>
-                        <div className="text-black/60 font-mono text-[11px]">
+                        <div className="text-slate-500 font-mono text-[11px]">
                           Category: {selectedIncident.target_context.category} • Topic:{' '}
                           {selectedIncident.target_context.topic} • Difficulty:{' '}
                           {selectedIncident.target_context.difficulty} • Active:{' '}
                           {selectedIncident.target_context.is_active ? 'YES' : 'NO'}
                         </div>
                         {selectedIncident.target_context.prompt && (
-                          <div className="p-2.5 bg-white border border-[#0c1d2d]/20 rounded-lg text-black/80 font-mono text-[11px] max-h-24 overflow-y-auto whitespace-pre-wrap mt-1">
+                          <div className="p-2.5 bg-white border border-slate-200 rounded-lg text-slate-700 font-mono text-[11px] max-h-24 overflow-y-auto whitespace-pre-wrap mt-1">
                             {selectedIncident.target_context.prompt}
                           </div>
                         )}
                       </div>
                     ) : selectedIncident.target_context.type === 'contest' ? (
                       <div className="space-y-1">
-                        <div className="font-display font-bold text-sm text-black">
+                        <div className="font-semibold text-sm text-slate-900">
                           {selectedIncident.target_context.title}
                         </div>
-                        <div className="text-black/60 font-mono text-[11px]">
+                        <div className="text-slate-500 font-mono text-[11px]">
                           Slug: {selectedIncident.target_context.slug} • Status:{' '}
                           {selectedIncident.target_context.status} • Category:{' '}
                           {selectedIncident.target_context.category}
@@ -819,40 +821,40 @@ export default function ModeratorModeration() {
                       </div>
                     ) : selectedIncident.target_context.type === 'user' ? (
                       <div className="space-y-1">
-                        <div className="font-display font-bold text-sm text-black">
+                        <div className="font-semibold text-sm text-slate-900">
                           {selectedIncident.target_context.display_name ||
                             selectedIncident.target_context.username}
                         </div>
-                        <div className="text-black/60 font-mono text-[11px]">
+                        <div className="text-slate-500 font-mono text-[11px]">
                           Username: @{selectedIncident.target_context.username} • Role:{' '}
                           {selectedIncident.target_context.role}
                         </div>
                       </div>
                     ) : (
-                      <div className="font-mono text-black/70">Platform / Core System Context</div>
+                      <div className="font-mono text-slate-600">Platform / Core System Context</div>
                     )}
                   </div>
                 ) : null}
               </div>
 
               {/* Reporter Info & Reported Description */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-display font-black uppercase text-black/60">
-                  <span>INCIDENT DESCRIPTION</span>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-semibold uppercase text-slate-500">
+                  <span>Incident Description</span>
                   <span>
-                    REPORTER: @{selectedIncident.reporter?.username || 'player'}
+                    Reporter: @{selectedIncident.reporter?.username || 'player'}
                   </span>
                 </div>
-                <div className="p-4 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl text-xs sm:text-sm font-body font-semibold text-black/90 leading-relaxed whitespace-pre-wrap break-words">
+                <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap break-words">
                   {selectedIncident.description}
                 </div>
               </div>
 
               {/* Resolution Info (if resolved or dismissed) */}
               {selectedIncident.resolved_at && (
-                <div className="p-3 bg-[#f0fdf4] border-2 border-[#86efac] rounded-xl text-xs font-mono text-[#15803d] space-y-1">
-                  <div className="font-bold uppercase flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" />
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-mono text-emerald-800 space-y-1">
+                  <div className="font-semibold uppercase flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>Resolution Record</span>
                   </div>
                   <div>
@@ -865,23 +867,23 @@ export default function ModeratorModeration() {
               )}
 
               {/* Moderator / Staff Internal Notes */}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <label
                       htmlFor="moderator-notes"
-                      className="text-xs font-display font-black uppercase text-black/70"
+                      className="text-xs font-semibold uppercase text-slate-600"
                     >
-                      STAFF AUDIT & TRIAGE NOTES
+                      Staff Audit & Triage Notes
                     </label>
                     {(selectedIncident.status === 'resolved' || selectedIncident.status === 'dismissed') && (
-                      <span className="text-[10px] font-mono font-bold bg-black/10 text-black/70 px-2 py-0.5 rounded border border-[#0c1d2d]/20 uppercase">
-                        LOCKED — TERMINAL INCIDENT
+                      <span className="text-[10px] font-mono font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 uppercase">
+                        Locked — Terminal Incident
                       </span>
                     )}
                   </div>
                   {notesSaveSuccess && (
-                    <span className="text-[11px] font-mono text-[#15803d] font-bold flex items-center gap-1">
+                    <span className="text-[11px] font-mono text-emerald-600 font-semibold flex items-center gap-1">
                       <Check className="w-3.5 h-3.5" /> Notes Saved!
                     </span>
                   )}
@@ -897,10 +899,10 @@ export default function ModeratorModeration() {
                       ? 'No notes logged for this terminal incident.'
                       : 'Document triage observations, verification findings, errata corrections, or reasons for resolution...'
                   }
-                  className={`w-full p-3 border-2 border-[#0c1d2d] rounded-xl text-xs font-body font-bold text-black placeholder:text-black/40 shadow-[2px_2px_0_#0c1d2d] focus:outline-none ${
+                  className={`w-full p-3 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 shadow-2xs focus:outline-none ${
                     selectedIncident.status === 'resolved' || selectedIncident.status === 'dismissed'
-                      ? 'bg-black/5 cursor-not-allowed opacity-80'
-                      : 'bg-[#f8fafc] focus:bg-white focus:border-[#0c1d2d]'
+                      ? 'bg-slate-100 cursor-not-allowed opacity-80'
+                      : 'bg-white focus:border-[#0c1d2d] focus:ring-1 focus:ring-[#0c1d2d]'
                   }`}
                 />
                 {selectedIncident.status !== 'resolved' && selectedIncident.status !== 'dismissed' && (
@@ -909,10 +911,10 @@ export default function ModeratorModeration() {
                       type="button"
                       onClick={handleSaveNotes}
                       disabled={notesSaving}
-                      className="px-3.5 py-1.5 bg-black text-white hover:bg-[#ffd43b] hover:text-black border-2 border-[#0c1d2d] rounded-lg font-display font-black text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      className="px-3 py-1.5 bg-[#0c1d2d] text-white hover:bg-slate-800 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5 shadow-2xs"
                     >
                       {notesSaving && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                      <span>SAVE NOTES</span>
+                      <span>Save Notes</span>
                     </button>
                   </div>
                 )}
@@ -920,13 +922,13 @@ export default function ModeratorModeration() {
             </div>
 
             {/* Pinned Action Footer (Never scrolls) */}
-            <div className="p-3 sm:p-4 border-t-2 sm:border-t-3 border-[#0c1d2d] bg-[#f8fafc] shrink-0 flex-none flex items-center justify-between gap-3 flex-wrap">
+            <div className="p-3 sm:p-4 border-t border-slate-200 bg-slate-50 shrink-0 flex-none flex items-center justify-between gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={() => setSelectedIncident(null)}
-                className="px-4 py-2 bg-white text-black hover:bg-black/5 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-colors"
+                className="px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 rounded-lg text-xs font-semibold transition-colors shadow-2xs"
               >
-                CLOSE
+                Close
               </button>
 
               <div className="flex items-center gap-2">
@@ -936,9 +938,9 @@ export default function ModeratorModeration() {
                     type="button"
                     disabled={actionLoading}
                     onClick={() => handleExecuteStatusTransition('reviewing')}
-                    className="px-4 py-2 bg-[#eff6ff] text-[#1d4ed8] hover:bg-[#1d4ed8] hover:text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#0c1d2d]"
+                    className="px-3.5 py-1.5 bg-sky-600 text-white hover:bg-sky-700 rounded-lg text-xs font-semibold transition-colors shadow-xs"
                   >
-                    {actionLoading ? 'UPDATING...' : 'MARK IN REVIEW'}
+                    {actionLoading ? 'Updating...' : 'Mark in Review'}
                   </button>
                 )}
 
@@ -953,9 +955,9 @@ export default function ModeratorModeration() {
                         incident: selectedIncident,
                       })
                     }
-                    className="px-4 py-2 bg-white hover:bg-[#fee2e2] text-black hover:text-[#b91c1c] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#0c1d2d]"
+                    className="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-300 rounded-lg text-xs font-semibold transition-colors shadow-2xs"
                   >
-                    DISMISS REPORT
+                    Dismiss Report
                   </button>
                 )}
 
@@ -970,15 +972,15 @@ export default function ModeratorModeration() {
                         incident: selectedIncident,
                       })
                     }
-                    className="px-4 py-2 bg-[#ffd43b] hover:bg-[#15803d] text-black hover:text-white border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase transition-all shadow-[2px_2px_0_#0c1d2d]"
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-xs"
                   >
-                    MARK RESOLVED →
+                    Mark Resolved →
                   </button>
                 )}
 
                 {/* Terminal status notice */}
                 {(selectedIncident.status === 'resolved' || selectedIncident.status === 'dismissed') && (
-                  <span className="font-mono text-xs text-black/50 uppercase font-bold">
+                  <span className="font-mono text-xs text-slate-500 capitalize font-medium">
                     Terminal Status ({selectedIncident.status})
                   </span>
                 )}
@@ -994,16 +996,16 @@ export default function ModeratorModeration() {
       {confirmAction && (
         <div
           data-lenis-prevent
-          className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden animate-fade-in"
+          className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-hidden animate-fade-in"
         >
           <div
             data-lenis-prevent
-            className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-md w-full p-6 shadow-[8px_8px_0_#000000] relative space-y-4"
+            className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative space-y-4"
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-xl border-2 border-[#0c1d2d] flex items-center justify-center text-white ${
-                  confirmAction.type === 'resolve' ? 'bg-[#10b981]' : 'bg-[#64748b]'
+                className={`w-9 h-9 rounded-xl flex items-center justify-center text-white ${
+                  confirmAction.type === 'resolve' ? 'bg-emerald-600' : 'bg-slate-600'
                 }`}
               >
                 {confirmAction.type === 'resolve' ? (
@@ -1013,16 +1015,16 @@ export default function ModeratorModeration() {
                 )}
               </div>
               <div>
-                <h3 className="font-display font-black text-lg uppercase text-black">
-                  {confirmAction.type === 'resolve' ? 'RESOLVE INCIDENT?' : 'DISMISS INCIDENT?'}
+                <h3 className="text-base font-bold text-slate-900">
+                  {confirmAction.type === 'resolve' ? 'Resolve Incident?' : 'Dismiss Incident?'}
                 </h3>
-                <div className="font-mono text-xs font-bold text-black/60">
+                <div className="font-mono text-xs text-slate-500">
                   Target: {confirmAction.incident.id.slice(0, 8)}
                 </div>
               </div>
             </div>
 
-            <p className="text-xs font-body font-semibold text-black/70 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               {confirmAction.type === 'resolve'
                 ? 'This action will mark the incident as resolved, attributing resolution to your staff account. Terminal states cannot be reverted.'
                 : 'This action will dismiss this report as invalid or unactionable. Terminal states cannot be reverted.'}
@@ -1033,9 +1035,9 @@ export default function ModeratorModeration() {
                 type="button"
                 disabled={actionLoading}
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 bg-white text-black hover:bg-black/5 border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase"
+                className="px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 rounded-lg text-xs font-semibold shadow-2xs"
               >
-                CANCEL
+                Cancel
               </button>
 
               <button
@@ -1046,13 +1048,13 @@ export default function ModeratorModeration() {
                     confirmAction.type === 'resolve' ? 'resolved' : 'dismissed'
                   )
                 }
-                className={`px-5 py-2 text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase shadow-[2px_2px_0_#0c1d2d] ${
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold shadow-xs ${
                   confirmAction.type === 'resolve'
-                    ? 'bg-[#10b981] text-white hover:bg-[#059669]'
-                    : 'bg-[#ffd43b] hover:bg-black hover:text-white'
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    : 'bg-[#0c1d2d] text-white hover:bg-slate-800'
                 }`}
               >
-                {actionLoading ? 'SAVING...' : 'CONFIRM'}
+                {actionLoading ? 'Saving...' : 'Confirm'}
               </button>
             </div>
           </div>

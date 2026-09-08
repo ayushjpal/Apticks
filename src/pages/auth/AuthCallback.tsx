@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -166,21 +166,21 @@ export default function AuthCallback() {
   }, [navigate])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#071a2b] text-black px-4 arena-bg-grid">
-      <div className="w-full max-w-sm bg-white border-4 border-[#0c1d2d] shadow-[8px_8px_0_#ffd43b] p-8 text-center">
-        <div className="w-14 h-14 mx-auto mb-5 bg-[#ffd43b] border-3 border-[#0c1d2d] shadow-[3px_3px_0_#0c1d2d] flex items-center justify-center">
-          <Loader2 className="w-7 h-7 text-black animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-[#071a2b] text-slate-900 px-4 arena-bg-grid">
+      <div className="w-full max-w-sm bg-white border border-slate-200/80 rounded-2xl shadow-2xl p-8 text-center">
+        <div className="w-12 h-12 mx-auto mb-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-center">
+          <Loader2 className="w-6 h-6 text-amber-600 animate-spin" />
         </div>
 
-        <div className="inline-block bg-[#38aef0] border-2 border-[#0c1d2d] px-2.5 py-0.5 text-[10px] font-mono font-black uppercase mb-3 shadow-[2px_2px_0_#0c1d2d]">
-          AUTHENTICATING
+        <div className="inline-block bg-sky-50 border border-sky-200 rounded-md px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 uppercase mb-2">
+          Authenticating
         </div>
 
-        <h1 className="font-display font-black text-2xl uppercase tracking-tight text-black">
-          ENTERING ARENA...
+        <h1 className="font-bold text-xl tracking-tight text-slate-900">
+          Entering Arena...
         </h1>
 
-        <p className="mt-2 text-xs font-body font-semibold text-black/70">
+        <p className="mt-2 text-xs text-slate-500 leading-relaxed">
           Verifying session credentials and loading your Apticks profile.
         </p>
       </div>

@@ -24,11 +24,11 @@ interface StaffNavItem {
 }
 
 const STAFF_NAV_ITEMS: StaffNavItem[] = [
-  { id: 'overview', label: 'OVERVIEW', path: '/moderator', icon: LayoutDashboard },
-  { id: 'questions', label: 'QUESTIONS', path: '/moderator/questions', icon: BookOpen },
-  { id: 'contests', label: 'CONTESTS', path: '/moderator/contests', icon: Trophy },
-  { id: 'moderation', label: 'MODERATION', path: '/moderator/moderation', icon: AlertCircle },
-  { id: 'users', label: 'USERS & ROLES', path: '/moderator/users', icon: Users, adminOnly: true },
+  { id: 'overview', label: 'Overview', path: '/moderator', icon: LayoutDashboard },
+  { id: 'questions', label: 'Questions', path: '/moderator/questions', icon: BookOpen },
+  { id: 'contests', label: 'Contests', path: '/moderator/contests', icon: Trophy },
+  { id: 'moderation', label: 'Moderation', path: '/moderator/moderation', icon: AlertCircle },
+  { id: 'users', label: 'Users & Roles', path: '/moderator/users', icon: Users, adminOnly: true },
 ]
 
 export default function StaffLayout({ children }: StaffLayoutProps) {
@@ -41,32 +41,32 @@ export default function StaffLayout({ children }: StaffLayoutProps) {
   return (
     <div className="min-h-screen bg-[#071a2b] text-[#050505] flex flex-col relative arena-bg-grid">
       {/* Staff Control Center Header */}
-      <header className="sticky top-0 z-40 bg-[#071a2b]/95 backdrop-blur-md border-b-2 border-[#1a3047] px-4 py-2.5 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-40 bg-[#071a2b]/95 backdrop-blur-md border-b border-white/10 px-4 py-2.5 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           {/* Brand & Control Center Title */}
           <div className="flex items-center gap-3">
             <Link to="/dashboard" className="flex items-center gap-2 group shrink-0" aria-label="Apticks Dashboard">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#ffd43b] border-2 border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d] rounded-xl flex items-center justify-center transition-transform group-hover:-translate-y-0.5">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#ffd43b] border border-[#0c1d2d]/20 shadow-xs rounded-xl flex items-center justify-center transition-colors">
                 <span className="font-display font-black text-sm text-[#0c1d2d]">A</span>
               </div>
             </Link>
 
-            <div className="border-l-2 border-white/15 pl-3">
+            <div className="border-l border-white/15 pl-3">
               <div className="flex items-center gap-2">
-                <span className="font-display font-black text-base sm:text-lg tracking-tight text-white leading-none">
-                  CONTROL CENTER
+                <span className="font-display font-bold text-base sm:text-lg tracking-tight text-white leading-none">
+                  Control Center
                 </span>
                 <span
                   className={`
-                    inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-display font-black uppercase tracking-wider rounded-full border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d]
-                    ${isAdmin ? 'bg-[#ffd43b] text-[#0c1d2d]' : 'bg-[#38aef0] text-[#0c1d2d]'}
+                    inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-display font-bold uppercase tracking-wider rounded-full border
+                    ${isAdmin ? 'bg-[#ffd43b]/20 text-[#ffd43b] border-[#ffd43b]/40' : 'bg-[#38aef0]/20 text-[#38aef0] border-[#38aef0]/40'}
                   `}
                 >
                   <Shield className="w-2.5 h-2.5 fill-current" />
                   {role.toUpperCase()}
                 </span>
               </div>
-              <p className="hidden sm:block text-[11px] font-body font-semibold text-white/50 mt-0.5">
+              <p className="hidden sm:block text-[11px] font-body text-white/50 mt-0.5">
                 Manage content, competitions and platform governance.
               </p>
             </div>
@@ -76,17 +76,17 @@ export default function StaffLayout({ children }: StaffLayoutProps) {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-[#0c1d2d] border-2 border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider hover:bg-[#ffd43b] hover:-translate-y-0.5 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 hover:bg-white/15 text-white border border-white/15 rounded-xl font-display font-bold text-xs uppercase tracking-wider transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">ARENA</span>
+              <span className="hidden sm:inline">Arena</span>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Staff Navigation Tabs */}
-      <div className="bg-[#0b243b] border-b-2 border-[#1a3047] px-4 sm:px-6 lg:px-8 py-2 sticky top-[49px] sm:top-[53px] z-30">
+      <div className="bg-[#0b243b] border-b border-white/10 px-4 sm:px-6 lg:px-8 py-2 sticky top-[49px] sm:top-[53px] z-30">
         <div className="max-w-7xl mx-auto flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5">
           {visibleNavItems.map((item) => {
             const isActive =
@@ -100,11 +100,11 @@ export default function StaffLayout({ children }: StaffLayoutProps) {
                 key={item.id}
                 to={item.path}
                 className={`
-                  inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border-[1.5px] font-display font-black text-xs uppercase tracking-wider shrink-0 transition-all select-none
+                  inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold shrink-0 transition-colors select-none
                   ${
                     isActive
-                      ? 'bg-[#ffd43b] text-[#0c1d2d] border-[#0c1d2d] shadow-[2px_2px_0_#0c1d2d] -translate-y-0.5'
-                      : 'bg-white/8 text-white/70 border-transparent hover:bg-white/15 hover:text-white'
+                      ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-xs'
+                      : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
                   }
                 `}
               >

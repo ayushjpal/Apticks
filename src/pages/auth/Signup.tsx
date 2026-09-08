@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, ArrowRight, User, Lock, CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -230,22 +230,22 @@ export default function Signup() {
 
   return (
     <AuthShell
-      eyebrow="JOIN APTICKS"
-      title="CREATE ACCOUNT"
+      eyebrow="Join Apticks"
+      title="Create Account"
       subtitle="Create your username and start competing in the arena."
     >
       {/* Error notification */}
       {error && (
-        <div className="mb-4 p-3 bg-[#fee2e2] border-2 border-[#0c1d2d] rounded-xl text-[#991b1b] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-[#991b1b]" />
+        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-medium flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Success notification */}
       {success && (
-        <div className="mb-4 p-3 bg-[#d1fae5] border-2 border-[#0c1d2d] rounded-xl text-[#065f46] font-display font-black text-xs shadow-[2.5px_2.5px_0_#000000] flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
           <span>{success}</span>
         </div>
       )}
@@ -255,13 +255,13 @@ export default function Signup() {
         <div>
           <label
             htmlFor="signup-username"
-            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+            className="block mb-1.5 text-xs font-semibold tracking-wider text-slate-700 uppercase"
           >
-            CHOOSE USERNAME
+            Choose Username
           </label>
-          <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
-            <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black font-display font-black text-sm flex items-center">
-              <User className="w-4 h-4 text-black mr-1" />
+          <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden transition-all">
+            <span className="px-3 py-2.5 border-r border-slate-200 bg-slate-50 text-slate-500 font-semibold text-xs flex items-center">
+              <User className="w-3.5 h-3.5 text-slate-400 mr-1" />
               @
             </span>
             <input
@@ -278,7 +278,7 @@ export default function Signup() {
               maxLength={20}
               autoComplete="username"
               autoFocus
-              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+              className="w-full py-2.5 px-3 outline-none font-medium text-sm bg-transparent placeholder:text-slate-400 text-slate-900"
             />
           </div>
 
@@ -286,33 +286,33 @@ export default function Signup() {
           {username.trim() && (
             <div className="mt-2">
               {checkingUsername ? (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#fef3c7] border-2 border-[#0c1d2d] rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#0c1d2d]">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 font-medium text-xs">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />
                   <span>Checking handle availability...</span>
                 </div>
               ) : usernameStatus ? (
                 <div
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 border-2 border-[#0c1d2d] rounded-full font-display font-bold text-xs shadow-[1.5px_1.5px_0_#0c1d2d] ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 border rounded-lg font-medium text-xs ${
                     !usernameStatus.isValid
-                      ? 'bg-[#fee2e2] text-[#991b1b]'
+                      ? 'bg-rose-50 border-rose-200 text-rose-700'
                       : usernameStatus.isAvailable
-                      ? 'bg-[#d1fae5] text-[#065f46]'
-                      : 'bg-[#fee2e2] text-[#991b1b]'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      : 'bg-rose-50 border-rose-200 text-rose-700'
                   }`}
                 >
                   {!usernameStatus.isValid ? (
                     <>
-                      <XCircle className="w-3.5 h-3.5 shrink-0" />
+                      <XCircle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
                       <span>{usernameStatus.message}</span>
                     </>
                   ) : usernameStatus.isAvailable ? (
                     <>
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
                       <span>Handle is available!</span>
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-3.5 h-3.5 shrink-0" />
+                      <XCircle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
                       <span>Username is taken</span>
                     </>
                   )}
@@ -321,7 +321,7 @@ export default function Signup() {
             </div>
           )}
 
-          <p className="mt-1 font-mono text-[10px] text-black/60 font-semibold">
+          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">
             3–20 characters • letters, numbers, _, -, .
           </p>
         </div>
@@ -330,13 +330,13 @@ export default function Signup() {
         <div>
           <label
             htmlFor="signup-confirm-password"
-            className="block mb-1 text-xs font-display font-black tracking-wider text-black uppercase"
+            className="block mb-1.5 text-xs font-semibold tracking-wider text-slate-700 uppercase"
           >
-            CONFIRM PASSWORD
+            Password
           </label>
-          <div className="flex items-center bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] focus-within:shadow-[3px_3px_0_#38aef0] overflow-hidden transition-shadow">
-            <span className="px-3.5 py-3 border-r-2 border-[#0c1d2d] bg-[#f1f5f9] text-black flex items-center">
-              <Lock className="w-4 h-4 text-black" />
+          <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden transition-all">
+            <span className="px-3 py-2.5 border-r border-slate-200 bg-slate-50 text-slate-400 flex items-center">
+              <Lock className="w-4 h-4 text-slate-400" />
             </span>
             <input
               id="signup-confirm-password"
@@ -345,18 +345,18 @@ export default function Signup() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
-              className="w-full py-3 px-3 outline-none font-display font-bold text-sm bg-transparent placeholder:text-black/35"
+              className="w-full py-2.5 px-3 outline-none font-medium text-sm bg-transparent placeholder:text-slate-400 text-slate-900"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
-              className="px-3 text-black/60 hover:text-black transition-colors cursor-pointer"
+              className="px-3 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          <p className="mt-1 font-mono text-[10px] text-black/60 font-semibold">
+          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">
             Min 8 chars with uppercase, lowercase, number & special char
           </p>
         </div>
@@ -365,31 +365,31 @@ export default function Signup() {
         <button
           type="submit"
           disabled={loading || oauthLoading !== null || checkingUsername}
-          className="w-full py-3.5 bg-[#ffd43b] hover:bg-[#facc15] border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3.5px_3.5px_0_#000000] font-display font-black text-sm tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+          className="w-full py-2.5 sm:py-3 bg-[#ffd43b] hover:bg-[#fcc419] text-[#0c1d2d] border border-amber-400/60 rounded-xl font-semibold text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
         >
-          <span>{loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}</span>
+          <span>{loading ? 'Creating Account...' : 'Create Account'}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </form>
 
       {/* Divider */}
       <div className="my-5 flex items-center gap-3">
-        <div className="flex-1 h-[2px] bg-black/15" />
-        <span className="font-mono text-[10px] font-black tracking-widest text-black/50 uppercase">
-          OR SIGN UP WITH
+        <div className="flex-1 h-px bg-slate-200" />
+        <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+          Or sign up with
         </span>
-        <div className="flex-1 h-[2px] bg-black/15" />
+        <div className="flex-1 h-px bg-slate-200" />
       </div>
 
       {/* OAuth Buttons */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <button
           type="button"
           onClick={handleGoogleSignup}
           disabled={loading || oauthLoading !== null}
-          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl font-medium text-xs text-slate-700 shadow-2xs transition-colors cursor-pointer flex items-center justify-between"
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="#4285F4"
@@ -408,37 +408,37 @@ export default function Signup() {
                 d="M12 6.05c1.43 0 2.72.49 3.74 1.46l2.8-2.8C16.84 3.15 14.63 2.18 12 2.18a9.74 9.74 0 0 0-8.75 5.39L6.5 10.09C7.28 7.77 9.45 6.05 12 6.05z"
               />
             </svg>
-            <span>{oauthLoading === 'google' ? 'CONNECTING...' : 'CONTINUE WITH GOOGLE'}</span>
+            <span>{oauthLoading === 'google' ? 'Connecting...' : 'Continue with Google'}</span>
           </div>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
         </button>
 
         <button
           type="button"
           onClick={handleGithubSignup}
           disabled={loading || oauthLoading !== null}
-          className="w-full py-2.5 px-4 bg-white hover:bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-xl shadow-[2.5px_2.5px_0_#000000] font-display font-black text-xs tracking-wider uppercase transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-between"
+          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl font-medium text-xs text-slate-700 shadow-2xs transition-colors cursor-pointer flex items-center justify-between"
         >
-          <div className="flex items-center gap-3">
-            <svg className="w-4 h-4 shrink-0 text-black fill-current" viewBox="0 0 24 24" aria-hidden="true">
+          <div className="flex items-center gap-2.5">
+            <svg className="w-4 h-4 shrink-0 text-slate-900 fill-current" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.25c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.17.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z" />
             </svg>
-            <span>{oauthLoading === 'github' ? 'CONNECTING...' : 'CONTINUE WITH GITHUB'}</span>
+            <span>{oauthLoading === 'github' ? 'Connecting...' : 'Continue with GitHub'}</span>
           </div>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
         </button>
       </div>
 
       {/* Switch to Login */}
-      <div className="mt-6 pt-4 border-t-2 border-[#0c1d2d]/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <span className="text-xs font-display font-bold text-black/60">
+      <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
+        <span className="text-xs text-slate-500">
           Already on Apticks?
         </span>
         <Link
           to="/login"
-          className="text-xs font-display font-black text-[#071a2b] hover:text-[#2563eb] border-2 border-[#0c1d2d] rounded-lg bg-[#ffd43b] px-3.5 py-1.5 shadow-[2px_2px_0_#0c1d2d] uppercase tracking-wider transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+          className="text-xs font-semibold text-[#0c1d2d] hover:text-blue-600 transition-colors flex items-center gap-1"
         >
-          SIGN IN →
+          Sign in →
         </Link>
       </div>
     </AuthShell>

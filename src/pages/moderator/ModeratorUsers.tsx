@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Users,
@@ -208,28 +208,28 @@ export default function ModeratorUsers() {
 
   return (
     <StaffLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-5">
         {/* Top Breadcrumb & Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <Link
               to="/moderator"
-              className="inline-flex items-center gap-1.5 text-xs font-display font-black text-white/80 hover:text-white uppercase tracking-wider transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-white/70 hover:text-white transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>BACK TO OVERVIEW</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Control Center</span>
             </Link>
 
             <div className="flex items-center gap-2.5">
-              <h1 className="font-display font-black text-2xl sm:text-3xl uppercase text-white tracking-tight">
-                USER & ROLE GOVERNANCE
+              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                Users & Role Governance
               </h1>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-full font-display font-black text-[11px] shadow-[1.5px_1.5px_0_#0c1d2d]">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-full text-[11px] font-medium">
                 <ShieldCheck className="w-3 h-3" />
-                ADMIN ONLY
+                Admin Only
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-body font-semibold text-white/70">
+            <p className="text-xs sm:text-sm font-medium text-white/70">
               Manage platform privileges, review registered players, and designate staff roles.
             </p>
           </div>
@@ -237,135 +237,139 @@ export default function ModeratorUsers() {
           <button
             onClick={refreshUsers}
             disabled={refreshing || loading}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black border-2 sm:border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] hover:bg-[#ffd43b] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all self-start sm:self-auto disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-white/10 hover:bg-white/15 text-white border border-white/20 rounded-xl font-medium text-xs shadow-xs transition-colors self-start sm:self-auto disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-            <span>{refreshing ? 'REFRESHING...' : 'REFRESH LIST'}</span>
+            <span>{refreshing ? 'Refreshing...' : 'Refresh List'}</span>
           </button>
         </div>
 
         {/* Global Success / Error Feedback */}
         {successMessage && (
-          <div className="bg-[#dcfce7] border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center gap-3 text-black">
-            <CheckCircle2 className="w-5 h-5 text-[#15803d] shrink-0" />
-            <p className="text-xs sm:text-sm font-body font-bold">{successMessage}</p>
+          <div className="bg-emerald-50 border border-emerald-200/80 p-3.5 rounded-xl shadow-xs flex items-center gap-3 text-emerald-900">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <p className="text-xs sm:text-sm font-medium">{successMessage}</p>
           </div>
         )}
 
         {error && (
-          <div className="bg-[#fee2e2] border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] flex items-center gap-3 text-black">
-            <AlertTriangle className="w-5 h-5 text-[#b91c1c] shrink-0" />
-            <p className="text-xs sm:text-sm font-body font-bold">{error}</p>
+          <div className="bg-rose-50 border border-rose-200/80 p-3.5 rounded-xl shadow-xs flex items-center gap-3 text-rose-900">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <p className="text-xs sm:text-sm font-medium">{error}</p>
           </div>
         )}
 
-        {/* Metric Cards / Inventory Distribution */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] p-4 sm:p-5 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
+        {/* Metric Cards / Inventory Distribution (Compact, neutral, non-dominating) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-white border border-slate-200/80 p-3.5 rounded-xl shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="font-display font-black text-xs text-black/60 uppercase">TOTAL PLAYERS</span>
-              <Users className="w-4 h-4 text-black/40" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Players</span>
+              <Users className="w-4 h-4 text-slate-400" />
             </div>
-            <div className="mt-2 font-display font-black text-2xl sm:text-3xl text-black">
+            <div className="mt-1.5 text-2xl font-bold text-slate-900">
               {roleCounts.all}
             </div>
-            <div className="mt-1 text-[11px] font-mono text-black/50 font-bold">Registered Accounts</div>
+            <div className="mt-0.5 text-[11px] font-medium text-slate-400">Registered Accounts</div>
           </div>
 
-          <div className="bg-[#ffd43b] border-2 sm:border-2 border-[#0c1d2d] p-4 sm:p-5 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
+          <div className="bg-white border border-slate-200/80 p-3.5 rounded-xl shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="font-display font-black text-xs text-black uppercase">ADMINISTRATORS</span>
-              <ShieldCheck className="w-4 h-4 text-black" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Administrators</span>
+              <span className="w-6 h-6 rounded-lg bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-600">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </span>
             </div>
-            <div className="mt-2 font-display font-black text-2xl sm:text-3xl text-black">
+            <div className="mt-1.5 text-2xl font-bold text-amber-600">
               {roleCounts.admin}
             </div>
-            <div className="mt-1 text-[11px] font-mono text-black/70 font-bold">Full Authority</div>
+            <div className="mt-0.5 text-[11px] font-medium text-slate-400">Full Authority</div>
           </div>
 
-          <div className="bg-[#38aef0] border-2 sm:border-2 border-[#0c1d2d] p-4 sm:p-5 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
+          <div className="bg-white border border-slate-200/80 p-3.5 rounded-xl shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="font-display font-black text-xs text-black uppercase">MODERATORS</span>
-              <Shield className="w-4 h-4 text-black" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Moderators</span>
+              <span className="w-6 h-6 rounded-lg bg-sky-50 border border-sky-200/60 flex items-center justify-center text-sky-600">
+                <Shield className="w-3.5 h-3.5" />
+              </span>
             </div>
-            <div className="mt-2 font-display font-black text-2xl sm:text-3xl text-black">
+            <div className="mt-1.5 text-2xl font-bold text-sky-600">
               {roleCounts.moderator}
             </div>
-            <div className="mt-1 text-[11px] font-mono text-black/70 font-bold">Content Staff</div>
+            <div className="mt-0.5 text-[11px] font-medium text-slate-400">Content Staff</div>
           </div>
 
-          <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] p-4 sm:p-5 rounded-xl shadow-[3px_3px_0_#0c1d2d]">
+          <div className="bg-white border border-slate-200/80 p-3.5 rounded-xl shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="font-display font-black text-xs text-black/60 uppercase">STANDARD USERS</span>
-              <User className="w-4 h-4 text-black/40" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Standard Users</span>
+              <User className="w-4 h-4 text-slate-400" />
             </div>
-            <div className="mt-2 font-display font-black text-2xl sm:text-3xl text-black">
+            <div className="mt-1.5 text-2xl font-bold text-slate-900">
               {roleCounts.user}
             </div>
-            <div className="mt-1 text-[11px] font-mono text-black/50 font-bold">Standard Clearance</div>
+            <div className="mt-0.5 text-[11px] font-medium text-slate-400">Standard Clearance</div>
           </div>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-white border-2 border-[#0c1d2d] p-4 rounded-xl shadow-[3px_3px_0_#0c1d2d] space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div className="bg-white border border-slate-200/80 p-3 rounded-xl shadow-xs space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
           {/* Role Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => setRoleFilter('all')}
-              className={`px-3 py-1.5 text-xs font-display font-black uppercase rounded-lg border-2 border-[#0c1d2d] transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 roleFilter === 'all'
-                  ? 'bg-black text-white shadow-[2px_2px_0_#0c1d2d]'
-                  : 'bg-white text-black hover:bg-black/5'
+                  ? 'bg-[#0c1d2d] text-white shadow-xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              ALL ({roleCounts.all})
+              All ({roleCounts.all})
             </button>
             <button
               onClick={() => setRoleFilter('admin')}
-              className={`px-3 py-1.5 text-xs font-display font-black uppercase rounded-lg border-2 border-[#0c1d2d] transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 roleFilter === 'admin'
-                  ? 'bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d]'
-                  : 'bg-white text-black hover:bg-[#ffd43b]/20'
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-amber-50 hover:text-amber-800'
               }`}
             >
-              ADMINS ({roleCounts.admin})
+              Admins ({roleCounts.admin})
             </button>
             <button
               onClick={() => setRoleFilter('moderator')}
-              className={`px-3 py-1.5 text-xs font-display font-black uppercase rounded-lg border-2 border-[#0c1d2d] transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 roleFilter === 'moderator'
-                  ? 'bg-[#38aef0] text-black shadow-[2px_2px_0_#0c1d2d]'
-                  : 'bg-white text-black hover:bg-[#38aef0]/20'
+                  ? 'bg-sky-600 text-white shadow-xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-sky-50 hover:text-sky-800'
               }`}
             >
-              MODERATORS ({roleCounts.moderator})
+              Moderators ({roleCounts.moderator})
             </button>
             <button
               onClick={() => setRoleFilter('user')}
-              className={`px-3 py-1.5 text-xs font-display font-black uppercase rounded-lg border-2 border-[#0c1d2d] transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 roleFilter === 'user'
-                  ? 'bg-black text-white shadow-[2px_2px_0_#0c1d2d]'
-                  : 'bg-white text-black hover:bg-black/5'
+                  ? 'bg-[#0c1d2d] text-white shadow-xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              USERS ({roleCounts.user})
+              Users ({roleCounts.user})
             </button>
           </div>
 
           {/* Search Input */}
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search username or name..."
-              className="w-full pl-9 pr-8 py-2 bg-[#f8fafc] border-2 border-[#0c1d2d] rounded-lg text-xs font-body font-bold text-black placeholder:text-black/40 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#ffd43b]"
+              className="w-full pl-9 pr-8 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#0c1d2d] focus:ring-1 focus:ring-[#0c1d2d] transition-colors"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black/40 hover:text-black"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -374,31 +378,31 @@ export default function ModeratorUsers() {
         </div>
 
         {/* Users Table (Desktop & Tablet) */}
-        <div className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl shadow-[3px_3px_0_#0c1d2d] overflow-hidden">
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-xs overflow-hidden">
           {loading ? (
-            <div className="p-12 text-center space-y-3">
-              <RefreshCw className="w-8 h-8 mx-auto animate-spin text-black/60" />
-              <div className="font-display font-black text-sm uppercase text-black">
-                RETRIEVING REGISTERED PLAYERS...
+            <div className="p-12 text-center space-y-2">
+              <RefreshCw className="w-6 h-6 mx-auto animate-spin text-slate-400" />
+              <div className="text-xs font-semibold text-slate-600">
+                Retrieving registered players...
               </div>
             </div>
           ) : users.length === 0 ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 mx-auto bg-black/5 border-2 border-[#0c1d2d] rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-black/40" />
+              <div className="w-10 h-10 mx-auto bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                <Users className="w-5 h-5" />
               </div>
-              <div className="font-display font-black text-base uppercase text-black">
-                NO USERS FOUND
+              <div className="text-sm font-semibold text-slate-900">
+                No Users Found
               </div>
-              <p className="text-xs font-body font-semibold text-black/60 max-w-sm mx-auto">
+              <p className="text-xs font-medium text-slate-500 max-w-sm mx-auto">
                 No registered accounts match the active search query or role filter.
               </p>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="px-4 py-2 bg-black text-white rounded-lg text-xs font-display font-black uppercase hover:bg-[#ffd43b] hover:text-black border-2 border-[#0c1d2d] transition-colors"
+                  className="px-3 py-1.5 bg-[#0c1d2d] text-white rounded-lg text-xs font-medium hover:bg-[#152e46] transition-colors shadow-xs"
                 >
-                  CLEAR SEARCH
+                  Clear Search
                 </button>
               )}
             </div>
@@ -410,26 +414,26 @@ export default function ModeratorUsers() {
                 className="hidden md:block question-list-scroll max-h-[520px] overflow-y-auto overflow-x-auto min-h-0"
               >
                 <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 z-10 shadow-[0_2px_0_#000000]">
-                    <tr className="border-b-2 border-[#0c1d2d] bg-[#f8fafc] text-[11px] font-display font-black uppercase text-black/70 tracking-wider">
-                      <th className="py-3.5 px-4 sm:px-6">USER</th>
-                      <th className="py-3.5 px-4">CLEARANCE / ROLE</th>
-                      <th className="py-3.5 px-4">JOINED</th>
-                      <th className="py-3.5 px-4 text-right">ACTION</th>
+                  <thead className="sticky top-0 z-10">
+                    <tr className="border-b border-slate-200 bg-slate-50/90 backdrop-blur-xs text-[11px] font-semibold uppercase text-slate-500 tracking-wider">
+                      <th className="py-2.5 px-4 sm:px-5">User</th>
+                      <th className="py-2.5 px-4">Clearance / Role</th>
+                      <th className="py-2.5 px-4">Joined</th>
+                      <th className="py-2.5 px-4 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y-2 divide-black/10">
+                  <tbody className="divide-y divide-slate-100">
                     {users.map((user) => {
                       const isSelf = user.id === currentUserId
                       return (
                         <tr
                           key={user.id}
-                          className="hover:bg-[#f1f5f9]/60 transition-colors"
+                          className="hover:bg-slate-50/70 transition-colors"
                         >
                           {/* User Avatar + Identity */}
-                          <td className="py-4 px-4 sm:px-6">
+                          <td className="py-3 px-4 sm:px-5">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl border-2 border-[#0c1d2d] bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center font-display font-black text-sm shrink-0 overflow-hidden">
+                              <div className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
                                 {user.avatar_url ? (
                                   <img
                                     src={user.avatar_url}
@@ -441,17 +445,17 @@ export default function ModeratorUsers() {
                                 )}
                               </div>
                               <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-display font-black text-sm text-black truncate">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-semibold text-xs text-slate-900 truncate">
                                     {user.display_name || user.username}
                                   </span>
                                   {isSelf && (
-                                    <span className="px-1.5 py-0.5 bg-black text-[#ffd43b] border border-[#0c1d2d] rounded text-[9px] font-mono font-black uppercase tracking-wider">
-                                      YOU
+                                    <span className="px-1.5 py-0.2 bg-[#ffd43b]/20 text-[#855d00] border border-[#ffd43b]/40 rounded text-[9px] font-mono font-bold uppercase tracking-wider">
+                                      You
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-xs font-mono font-bold text-black/50 truncate">
+                                <div className="text-[11px] font-mono text-slate-400 truncate">
                                   @{user.username || 'unnamed'}
                                 </div>
                               </div>
@@ -459,40 +463,40 @@ export default function ModeratorUsers() {
                           </td>
 
                           {/* Role Badge */}
-                          <td className="py-4 px-4">
+                          <td className="py-3 px-4">
                             {user.role === 'admin' ? (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded-lg text-xs font-display font-black shadow-[2px_2px_0_#0c1d2d]">
-                                <ShieldCheck className="w-3.5 h-3.5" />
-                                <span>ADMIN</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200/80 rounded text-[11px] font-medium">
+                                <ShieldCheck className="w-3 h-3 text-amber-600" />
+                                <span>Admin</span>
                               </span>
                             ) : user.role === 'moderator' ? (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#38aef0] text-black border-2 border-[#0c1d2d] rounded-lg text-xs font-display font-black shadow-[2px_2px_0_#0c1d2d]">
-                                <Shield className="w-3.5 h-3.5" />
-                                <span>MODERATOR</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-50 text-sky-700 border border-sky-200/80 rounded text-[11px] font-medium">
+                                <Shield className="w-3 h-3 text-sky-600" />
+                                <span>Moderator</span>
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-black/5 text-black/80 border-2 border-[#0c1d2d]/30 rounded-lg text-xs font-display font-bold">
-                                <User className="w-3.5 h-3.5 text-black/50" />
-                                <span>USER</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200/80 rounded text-[11px] font-medium">
+                                <User className="w-3 h-3 text-slate-400" />
+                                <span>User</span>
                               </span>
                             )}
                           </td>
 
                           {/* Joined Date */}
-                          <td className="py-4 px-4 text-xs font-mono text-black/70 font-semibold">
+                          <td className="py-3 px-4 text-xs font-mono text-slate-500 font-medium">
                             <div className="flex items-center gap-1.5">
-                              <Calendar className="w-3.5 h-3.5 text-black/40" />
+                              <Calendar className="w-3.5 h-3.5 text-slate-400" />
                               <span>{formatDate(user.created_at)}</span>
                             </div>
                           </td>
 
                           {/* Action Button */}
-                          <td className="py-4 px-4 text-right">
+                          <td className="py-3 px-4 text-right">
                             <button
                               onClick={() => handleOpenRoleModal(user)}
-                              className="px-3.5 py-1.5 bg-white text-black hover:bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
+                              className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg font-medium text-xs shadow-xs transition-colors"
                             >
-                              CHANGE ROLE
+                              Change Role
                             </button>
                           </td>
                         </tr>
@@ -505,15 +509,15 @@ export default function ModeratorUsers() {
               {/* Mobile Card View */}
               <div
                 data-lenis-prevent
-                className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y-2 divide-black/10"
+                className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y divide-slate-100"
               >
                 {users.map((user) => {
                   const isSelf = user.id === currentUserId
                   return (
-                    <div key={user.id} className="p-4 space-y-3">
+                    <div key={user.id} className="p-3.5 space-y-2.5">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-xl border-2 border-[#0c1d2d] bg-[#ffd43b] text-black shadow-[2px_2px_0_#0c1d2d] flex items-center justify-center font-display font-black text-sm shrink-0 overflow-hidden">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
                             {user.avatar_url ? (
                               <img
                                 src={user.avatar_url}
@@ -526,16 +530,16 @@ export default function ModeratorUsers() {
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-display font-black text-sm text-black truncate">
+                              <span className="font-semibold text-xs text-slate-900 truncate">
                                 {user.display_name || user.username}
                               </span>
                               {isSelf && (
-                                <span className="px-1.5 py-0.5 bg-black text-[#ffd43b] border border-[#0c1d2d] rounded text-[9px] font-mono font-black uppercase">
-                                  YOU
+                                <span className="px-1.5 py-0.2 bg-[#ffd43b]/20 text-[#855d00] border border-[#ffd43b]/40 rounded text-[9px] font-mono font-bold uppercase">
+                                  You
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs font-mono font-bold text-black/50">
+                            <div className="text-[11px] font-mono text-slate-400">
                               @{user.username || 'unnamed'}
                             </div>
                           </div>
@@ -544,32 +548,32 @@ export default function ModeratorUsers() {
                         {/* Role Badge */}
                         <div className="shrink-0">
                           {user.role === 'admin' ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#ffd43b] text-black border-2 border-[#0c1d2d] rounded text-[11px] font-display font-black shadow-[1.5px_1.5px_0_#0c1d2d]">
-                              ADMIN
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200/80 rounded text-[11px] font-medium">
+                              Admin
                             </span>
                           ) : user.role === 'moderator' ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#38aef0] text-black border-2 border-[#0c1d2d] rounded text-[11px] font-display font-black shadow-[1.5px_1.5px_0_#0c1d2d]">
-                              MODERATOR
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-50 text-sky-700 border border-sky-200/80 rounded text-[11px] font-medium">
+                              Moderator
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-black/5 text-black/80 border border-[#0c1d2d]/30 rounded text-[11px] font-display font-bold">
-                              USER
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200/80 rounded text-[11px] font-medium">
+                              User
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-1 text-xs font-mono text-black/60 border-t border-[#0c1d2d]/5">
+                      <div className="flex items-center justify-between pt-1 text-xs font-mono text-slate-500 border-t border-slate-100">
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-black/40" />
+                          <Calendar className="w-3 h-3 text-slate-400" />
                           <span>{formatDate(user.created_at)}</span>
                         </div>
 
                         <button
                           onClick={() => handleOpenRoleModal(user)}
-                          className="px-3 py-1 bg-white text-black hover:bg-[#ffd43b] border-2 border-[#0c1d2d] rounded-lg font-display font-black text-[11px] uppercase tracking-wider shadow-[2px_2px_0_#0c1d2d]"
+                          className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg font-medium text-[11px] shadow-xs"
                         >
-                          CHANGE ROLE
+                          Change Role
                         </button>
                       </div>
                     </div>
@@ -583,24 +587,24 @@ export default function ModeratorUsers() {
         {/* Role Change Modal */}
         {selectedUser && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-sm overflow-hidden data-lenis-prevent animate-fadeIn"
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-xs overflow-hidden data-lenis-prevent animate-fadeIn"
             data-lenis-prevent
           >
             <div
-              className="bg-white border-2 sm:border-2 border-[#0c1d2d] rounded-xl max-w-lg w-full max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-[8px_8px_0_#000000] relative data-lenis-prevent animate-scaleUp"
+              className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full max-h-[90vh] sm:max-h-[86vh] flex flex-col overflow-hidden shadow-2xl relative data-lenis-prevent animate-scaleUp"
               data-lenis-prevent
             >
               {/* Modal Header */}
-              <div className="p-4 sm:p-5 border-b-2 sm:border-b-2 border-[#0c1d2d] shrink-0 flex-none flex items-start justify-between gap-3 bg-white">
+              <div className="p-4 sm:p-5 border-b border-slate-100 shrink-0 flex-none flex items-start justify-between gap-3 bg-white">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-black text-[#ffd43b] border-2 border-[#0c1d2d] flex items-center justify-center shadow-[2px_2px_0_#0c1d2d]">
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-700 flex items-center justify-center shadow-xs">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-display font-black text-lg uppercase text-black leading-tight">
-                      CHANGE USER ROLE
+                    <h3 className="text-base font-bold text-slate-900 leading-tight">
+                      Change User Role
                     </h3>
-                    <p className="text-xs font-body font-semibold text-black/60">
+                    <p className="text-xs font-medium text-slate-500">
                       Update platform authorization clearance.
                     </p>
                   </div>
@@ -610,46 +614,46 @@ export default function ModeratorUsers() {
                   onClick={handleCloseRoleModal}
                   disabled={isSubmittingRole}
                   aria-label="Close role modal"
-                  className="w-8 h-8 rounded-lg border-2 border-[#0c1d2d] flex items-center justify-center text-black/60 hover:text-black hover:bg-black/5"
+                  className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Scrollable Modal Body */}
               <div
-                className="question-list-scroll flex-1 min-h-0 h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-4 data-lenis-prevent overscroll-contain"
+                className="question-list-scroll flex-1 min-h-0 h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-5 space-y-3.5 data-lenis-prevent overscroll-contain"
                 data-lenis-prevent
               >
                 {/* Target User Info Summary */}
-                <div className="bg-[#f8fafc] border-2 border-[#0c1d2d] p-3.5 rounded-xl flex items-center justify-between gap-3">
+                <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-display font-black text-sm text-black truncate">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-xs text-slate-900 truncate">
                         {selectedUser.display_name || selectedUser.username}
                       </span>
                       {selectedUser.id === currentUserId && (
-                        <span className="px-1.5 py-0.5 bg-black text-[#ffd43b] border border-[#0c1d2d] rounded text-[9px] font-mono font-black">
-                          YOU
+                        <span className="px-1.5 py-0.2 bg-[#ffd43b]/20 text-[#855d00] border border-[#ffd43b]/40 rounded text-[9px] font-mono font-bold uppercase">
+                          You
                         </span>
                       )}
                     </div>
-                    <div className="text-xs font-mono font-bold text-black/50">
+                    <div className="text-[11px] font-mono text-slate-400">
                       @{selectedUser.username}
                     </div>
                   </div>
 
                   <div className="shrink-0 text-right">
-                    <span className="text-[10px] font-display font-black text-black/50 uppercase block">
-                      CURRENT ROLE
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                      Current Role
                     </span>
                     <span
-                      className={`inline-block px-2 py-0.5 rounded text-xs font-display font-black uppercase border border-[#0c1d2d] ${
+                      className={`inline-block px-2 py-0.5 rounded text-xs font-medium uppercase border ${
                         selectedUser.role === 'admin'
-                          ? 'bg-[#ffd43b] text-black'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200/80'
                           : selectedUser.role === 'moderator'
-                          ? 'bg-[#38aef0] text-black'
-                          : 'bg-black/5 text-black'
+                          ? 'bg-sky-50 text-sky-700 border-sky-200/80'
+                          : 'bg-slate-100 text-slate-600 border-slate-200/80'
                       }`}
                     >
                       {selectedUser.role}
@@ -659,16 +663,16 @@ export default function ModeratorUsers() {
 
                 {/* Modal Error Display */}
                 {modalError && (
-                  <div className="bg-[#fee2e2] border-2 border-[#0c1d2d] p-3.5 rounded-xl text-black flex items-start gap-2.5 text-xs font-body font-bold">
-                    <AlertTriangle className="w-4 h-4 text-[#b91c1c] shrink-0 mt-0.5" />
+                  <div className="bg-rose-50 border border-rose-200/80 p-3 rounded-xl text-rose-900 flex items-start gap-2.5 text-xs font-medium">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                     <span>{modalError}</span>
                   </div>
                 )}
 
                 {/* Sole Admin Warning if applicable */}
                 {isTargetSoleAdmin && (
-                  <div className="bg-[#fef9c3] border-2 border-[#0c1d2d] p-3.5 rounded-xl text-black flex items-start gap-2.5 text-xs font-body font-bold">
-                    <ShieldAlert className="w-4 h-4 text-[#a16207] shrink-0 mt-0.5" />
+                  <div className="bg-amber-50 border border-amber-200/80 p-3 rounded-xl text-amber-900 flex items-start gap-2.5 text-xs font-medium">
+                    <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <span>
                       You are the sole platform Administrator. You cannot demote yourself unless another Administrator is appointed first.
                     </span>
@@ -676,9 +680,9 @@ export default function ModeratorUsers() {
                 )}
 
                 {/* Role Options Selection */}
-                <div className="space-y-2.5">
-                  <label className="block text-xs font-display font-black uppercase text-black/70">
-                    SELECT NEW CLEARANCE LEVEL:
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Select New Clearance Level:
                   </label>
 
                   {/* Option: USER */}
@@ -686,21 +690,21 @@ export default function ModeratorUsers() {
                     onClick={() => {
                       if (!isTargetSoleAdmin) setTargetRole('user')
                     }}
-                    className={`p-3.5 rounded-xl border-2 border-[#0c1d2d] cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
                       targetRole === 'user'
-                        ? 'bg-[#f1f5f9] ring-2 ring-black shadow-[3px_3px_0_#0c1d2d]'
-                        : 'bg-white hover:bg-black/5'
+                        ? 'border-[#0c1d2d] bg-slate-50/80 ring-1 ring-[#0c1d2d]'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
                     } ${isTargetSoleAdmin ? 'opacity-40 cursor-not-allowed' : ''}`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-black/5 border border-[#0c1d2d] flex items-center justify-center shrink-0 mt-0.5">
-                        <User className="w-4 h-4 text-black" />
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 mt-0.5">
+                        <User className="w-3.5 h-3.5 text-slate-600" />
                       </div>
                       <div>
-                        <div className="font-display font-black text-xs uppercase text-black">
-                          STANDARD USER
+                        <div className="font-semibold text-xs text-slate-900">
+                          Standard User
                         </div>
-                        <p className="text-[11px] font-body text-black/60 mt-0.5">
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
                           Standard player clearance. Can solve questions, join contests, earn streak XP, and participate on public leaderboards.
                         </p>
                       </div>
@@ -713,7 +717,7 @@ export default function ModeratorUsers() {
                         if (!isTargetSoleAdmin) setTargetRole('user')
                       }}
                       disabled={isTargetSoleAdmin}
-                      className="mt-1"
+                      className="mt-1 accent-[#0c1d2d]"
                     />
                   </div>
 
@@ -722,21 +726,21 @@ export default function ModeratorUsers() {
                     onClick={() => {
                       if (!isTargetSoleAdmin) setTargetRole('moderator')
                     }}
-                    className={`p-3.5 rounded-xl border-2 border-[#0c1d2d] cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
                       targetRole === 'moderator'
-                        ? 'bg-[#38aef0]/20 ring-2 ring-black shadow-[3px_3px_0_#0c1d2d]'
-                        : 'bg-white hover:bg-[#38aef0]/10'
+                        ? 'border-sky-600 bg-sky-50/60 ring-1 ring-sky-600'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
                     } ${isTargetSoleAdmin ? 'opacity-40 cursor-not-allowed' : ''}`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[#38aef0] border border-[#0c1d2d] flex items-center justify-center shrink-0 mt-0.5">
-                        <Shield className="w-4 h-4 text-black" />
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0 mt-0.5">
+                        <Shield className="w-3.5 h-3.5 text-sky-600" />
                       </div>
                       <div>
-                        <div className="font-display font-black text-xs uppercase text-black">
-                          MODERATOR
+                        <div className="font-semibold text-xs text-slate-900">
+                          Moderator
                         </div>
-                        <p className="text-[11px] font-body text-black/60 mt-0.5">
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
                           Trusted staff clearance. Can access Control Center to author questions, stage content, and review contest submissions. Cannot alter user roles.
                         </p>
                       </div>
@@ -749,29 +753,29 @@ export default function ModeratorUsers() {
                         if (!isTargetSoleAdmin) setTargetRole('moderator')
                       }}
                       disabled={isTargetSoleAdmin}
-                      className="mt-1"
+                      className="mt-1 accent-sky-600"
                     />
                   </div>
 
                   {/* Option: ADMIN */}
                   <div
                     onClick={() => setTargetRole('admin')}
-                    className={`p-3.5 rounded-xl border-2 border-[#0c1d2d] cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
                       targetRole === 'admin'
-                        ? 'bg-[#ffd43b]/30 ring-2 ring-black shadow-[3px_3px_0_#0c1d2d]'
-                        : 'bg-white hover:bg-[#ffd43b]/10'
+                        ? 'border-amber-500 bg-amber-50/60 ring-1 ring-amber-500'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[#ffd43b] border border-[#0c1d2d] flex items-center justify-center shrink-0 mt-0.5">
-                        <ShieldCheck className="w-4 h-4 text-black" />
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
                       </div>
                       <div>
-                        <div className="font-display font-black text-xs uppercase text-black flex items-center gap-1.5">
-                          <span>ADMINISTRATOR</span>
-                          <Sparkles className="w-3 h-3 text-[#b45309]" />
+                        <div className="font-semibold text-xs text-slate-900 flex items-center gap-1.5">
+                          <span>Administrator</span>
+                          <Sparkles className="w-3 h-3 text-amber-600" />
                         </div>
-                        <p className="text-[11px] font-body text-black/60 mt-0.5">
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
                           Highest platform authority. Has all moderator privileges plus user clearance management and sole-governance authority.
                         </p>
                       </div>
@@ -781,18 +785,18 @@ export default function ModeratorUsers() {
                       name="role-select"
                       checked={targetRole === 'admin'}
                       onChange={() => setTargetRole('admin')}
-                      className="mt-1"
+                      className="mt-1 accent-amber-500"
                     />
                   </div>
                 </div>
 
                 {/* High-Privilege Promotion Warning */}
                 {targetRole === 'admin' && selectedUser.role !== 'admin' && (
-                  <div className="bg-[#fffbeb] border-2 border-[#0c1d2d] p-3 rounded-xl flex items-start gap-2.5 text-xs text-black font-body font-bold">
-                    <AlertTriangle className="w-4 h-4 text-[#d97706] shrink-0 mt-0.5" />
+                  <div className="bg-amber-50 border border-amber-200/80 p-3 rounded-xl flex items-start gap-2 text-xs text-amber-900 font-medium">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="uppercase font-display font-black text-[11px] text-[#b45309] block">
-                        HIGH-PRIVILEGE ASSIGNMENT:
+                      <span className="font-bold block">
+                        High-Privilege Assignment:
                       </span>
                       Promoting @{selectedUser.username} to Administrator gives them complete authority over all platform questions, competitions, and user clearance levels.
                     </div>
@@ -801,29 +805,29 @@ export default function ModeratorUsers() {
               </div>
 
               {/* Confirmation Action Buttons Footer */}
-              <div className="p-4 border-t-2 sm:border-t-3 border-[#0c1d2d] bg-[#f8fafc] shrink-0 flex-none flex items-center justify-end gap-3">
+              <div className="p-3.5 sm:p-4 border-t border-slate-100 bg-slate-50 shrink-0 flex-none flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={handleCloseRoleModal}
                   disabled={isSubmittingRole}
-                  className="px-4 py-2 bg-white text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider hover:bg-black/5 disabled:opacity-50"
+                  className="px-3.5 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg font-medium text-xs hover:bg-slate-50 shadow-xs disabled:opacity-50 transition-colors"
                 >
-                  CANCEL
+                  Cancel
                 </button>
 
                 <button
                   type="button"
                   onClick={handleConfirmRoleChange}
                   disabled={isSubmittingRole || targetRole === selectedUser.role || (isTargetSoleAdmin && targetRole !== 'admin')}
-                  className="px-5 py-2.5 bg-black text-[#ffd43b] hover:bg-[#ffd43b] hover:text-black border-2 border-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#0c1d2d] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 bg-[#ffd43b] hover:bg-[#fcc419] text-black font-semibold rounded-lg text-xs shadow-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
                 >
                   {isSubmittingRole ? (
-                    <span className="flex items-center gap-1.5">
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      UPDATING...
-                    </span>
+                    <>
+                      <RefreshCw className="w-3 h-3 animate-spin" />
+                      <span>Updating...</span>
+                    </>
                   ) : (
-                    `CONFIRM TO ${targetRole?.toUpperCase()}`
+                    <span>Confirm to {targetRole?.toUpperCase()}</span>
                   )}
                 </button>
               </div>
