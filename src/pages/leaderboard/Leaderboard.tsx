@@ -4,8 +4,6 @@ import {
   Search,
   Sparkles,
   Zap,
-  ChevronLeft,
-  ChevronRight,
   RefreshCw,
   AlertCircle,
   Medal,
@@ -23,7 +21,7 @@ import type {
 } from '../../types/leaderboard'
 import type { Contest, ContestLeaderboardEntry } from '../../types/contests'
 
-const PAGE_SIZE = 25
+const TOP_LIMIT = 10
 
 export default function Leaderboard() {
   // Mode: Global Arena Standings vs Tournament Standings
@@ -34,10 +32,8 @@ export default function Leaderboard() {
   const [currentUserHandle, setCurrentUserHandle] = useState<string>('')
   const [userRankData, setUserRankData] = useState<UserGlobalRankResult | null>(null)
 
-  // Global Leaderboard State
+  // Global Leaderboard State (Top 10 competitors)
   const [globalEntries, setGlobalEntries] = useState<GlobalLeaderboardEntry[]>([])
-  const [totalCompetitors, setTotalCompetitors] = useState(0)
-  const [currentPage, setCurrentPage] = useState(1)
   const [globalLoading, setGlobalLoading] = useState(true)
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -85,21 +81,19 @@ export default function Leaderboard() {
       setGlobalLoading(true)
       setGlobalError(null)
 
-      const offset = (currentPage - 1) * PAGE_SIZE
-      const response = await LeaderboardService.getGlobalLeaderboard(PAGE_SIZE, offset)
+      // Request only Top 10 competitors
+      const response = await LeaderboardService.getGlobalLeaderboard(TOP_LIMIT, 0)
 
       if (!isMounted) return
 
       if (response.success) {
         setGlobalEntries(response.leaderboard)
-        setTotalCompetitors(response.totalCount)
       } else {
         setGlobalError(
           response.error ||
             'Unable to load global rankings. Please refresh or try again.'
         )
         setGlobalEntries([])
-        setTotalCompetitors(0)
       }
 
       setGlobalLoading(false)
@@ -110,7 +104,7 @@ export default function Leaderboard() {
     return () => {
       isMounted = false
     }
-  }, [viewMode, currentPage, refreshKey])
+  }, [viewMode, refreshKey])
 
   // Fetch current user's individual rank standing (for the sticky HUD card)
   useEffect(() => {
@@ -200,9 +194,7 @@ export default function Leaderboard() {
   // ---------------------------------------------------------------------------
   // Helper calculations
   // ---------------------------------------------------------------------------
-  const totalPages = Math.max(1, Math.ceil(totalCompetitors / PAGE_SIZE))
-
-  // Filtered entries on current page (client-side search across loaded chunk)
+  // Filtered entries in Top 10
   const filteredGlobalEntries = globalEntries.filter((p) => {
     if (!searchQuery.trim()) return true
     const q = searchQuery.toLowerCase()
@@ -212,11 +204,18 @@ export default function Leaderboard() {
     )
   })
 
-  // Top 3 Podium (Only displayed on Page 1 when not searching and at least 1 competitor exists)
+  // Top 3 Podium (Only displayed when not searching and at least 2 competitors exist)
   const topThree =
-    currentPage === 1 && !searchQuery.trim() && globalEntries.length > 0
+    !searchQuery.trim() && globalEntries.length > 0
       ? globalEntries.slice(0, 3)
       : []
+
+  // Below the podium: show only ranks #4 through #10 (or matching search results)
+  const displayTableEntries = searchQuery.trim()
+    ? filteredGlobalEntries
+    : topThree.length >= 2
+    ? globalEntries.slice(3, 10)
+    : globalEntries
 
   const formatSeconds = (sec: number) => {
     const m = Math.floor(sec / 60)
@@ -508,16 +507,26 @@ export default function Leaderboard() {
                     Retry Loading
                   </button>
                 </div>
-              ) : filteredGlobalEntries.length === 0 ? (
+              ) : globalEntries.length === 0 ? (
                 <div className="p-10 text-center">
                   <Trophy className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                   <h4 className="font-bold text-sm text-slate-900">
-                    {searchQuery ? 'No matching competitors' : 'No Ranked Competitors Yet'}
+                    No Ranked Competitors Yet
+                  </h4>
+                  <p className="text-xs font-mono text-slate-500 mt-1 max-w-md mx-auto">
+                    Global rankings populate dynamically as competitors solve practice questions, daily challenges, and tournaments.
+                  </p>
+                </div>
+              ) : displayTableEntries.length === 0 ? (
+                <div className="p-10 text-center">
+                  <Trophy className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <h4 className="font-bold text-sm text-slate-900">
+                    {searchQuery ? 'No matching competitors' : 'Top 3 Featured Above'}
                   </h4>
                   <p className="text-xs font-mono text-slate-500 mt-1 max-w-md mx-auto">
                     {searchQuery
-                      ? `No competitor matches "${searchQuery}". Try a different handle.`
-                      : 'Global rankings populate dynamically as competitors solve practice questions, daily challenges, and tournaments.'}
+                      ? `No competitor matches "${searchQuery}" in the Top 10.`
+                      : 'All ranked competitors are featured on the podium above. Ranks #4 through #10 will appear here as more competitors join.'}
                   </p>
                 </div>
               ) : (
@@ -535,7 +544,7 @@ export default function Leaderboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
-                      {filteredGlobalEntries.map((entry) => {
+                      {displayTableEntries.map((entry) => {
                         const isCurrentUser =
                           currentUserId && entry.userId === currentUserId
 
@@ -632,52 +641,14 @@ export default function Leaderboard() {
                 </div>
               )}
 
-              {/* Scalable Server-Side Pagination Bar */}
-              {totalCompetitors > 0 && (
-                <div className="p-3 bg-slate-50 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs font-mono text-slate-500">
-                  <div>
-                    Showing{' '}
-                    <span className="font-bold text-slate-700">
-                      {(currentPage - 1) * PAGE_SIZE + 1}
-                    </span>{' '}
-                    to{' '}
-                    <span className="font-bold text-slate-700">
-                      {Math.min(currentPage * PAGE_SIZE, totalCompetitors)}
-                    </span>{' '}
-                    of{' '}
-                    <span className="font-bold text-slate-700">
-                      {totalCompetitors}
-                    </span>{' '}
-                    ranked competitors
-                  </div>
-
-                  <div className="flex items-center gap-2 self-end sm:self-auto">
-                    <button
-                      type="button"
-                      disabled={currentPage <= 1 || globalLoading}
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      className="px-2.5 py-1 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white border border-slate-200 rounded text-xs font-semibold text-slate-700 flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed transition-colors"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                      <span>Prev</span>
-                    </button>
-
-                    <span className="font-medium text-slate-700 px-1">
-                      Page {currentPage} of {totalPages}
-                    </span>
-
-                    <button
-                      type="button"
-                      disabled={currentPage >= totalPages || globalLoading}
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      className="px-2.5 py-1 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white border border-slate-200 rounded text-xs font-semibold text-slate-700 flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed transition-colors"
-                    >
-                      <span>Next</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              )}
+              {/* Standings Summary Footer */}
+              <div className="p-3 bg-slate-50 border-t border-slate-200/80 flex items-center justify-between text-xs font-mono text-slate-500">
+                <span className="flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Top 10 Global Arena Standings</span>
+                </span>
+                <span>Tie-break: XP &gt; Solved &gt; Accuracy &gt; Seniority</span>
+              </div>
             </div>
           </div>
         )}

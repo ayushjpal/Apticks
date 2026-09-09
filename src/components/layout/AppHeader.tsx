@@ -10,7 +10,6 @@ import {
   Trophy,
   BookOpen,
   BarChart2,
-  User,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UserProfile } from '../../services/profileService'
@@ -31,7 +30,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'practice', label: 'PRACTICE', path: '/questions', icon: BookOpen },
   { id: 'contests', label: 'CONTESTS', path: '/contests', icon: Trophy },
   { id: 'rank', label: 'RANK', path: '/leaderboard', icon: BarChart2 },
-  { id: 'profile', label: 'PROFILE', path: '/profile', icon: User },
 ]
 
 export default function AppHeader() {
