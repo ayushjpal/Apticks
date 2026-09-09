@@ -20,6 +20,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
 import { ChallengeService } from '../../services/challengeService'
+import { GamificationService } from '../../services/gamificationService'
 import type { Question, UserQuestionProgress } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
 import { StatusBadge, NeoBadge } from '../../components/ui'
@@ -258,6 +259,8 @@ export default function QuestionSolver() {
             correctCount: stats.correctCount,
             incorrectCount: stats.incorrectCount,
           })
+          // Asynchronously trigger badge evaluation
+          GamificationService.evaluateUserBadges().catch(() => null)
         }
       } catch (err) {
         console.warn('Daily challenge submit error:', err)
@@ -293,6 +296,8 @@ export default function QuestionSolver() {
           correctCount: stats.correctCount,
           incorrectCount: stats.incorrectCount,
         })
+        // Asynchronously trigger badge evaluation
+        GamificationService.evaluateUserBadges().catch(() => null)
       }
     } catch (err) {
       console.warn('Progress save notice:', err)

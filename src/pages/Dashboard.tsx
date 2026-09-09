@@ -19,6 +19,7 @@ import { StreakService } from '../services/streakService'
 import { ChallengeService } from '../services/challengeService'
 import { ContestService } from '../services/contestService'
 import { LeaderboardService } from '../services/leaderboardService'
+import { calculateLevelProgress, type LevelProgress } from '../utils/levelEngine'
 import type { UserStreak, DailyChallenge } from '../types/questions'
 import type { Contest } from '../types/contests'
 import AppLayout from '../components/layout/AppLayout'
@@ -37,6 +38,7 @@ export default function Dashboard() {
     accuracyRate: number
     totalPoints: number
   } | null>(null)
+  const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -112,6 +114,11 @@ export default function Dashboard() {
               rankRes.found ? rankRes.totalXp : undefined
             )
             setQuestionStats(stats)
+            if (rankRes.found && rankRes.levelProgress) {
+              setLevelProgress(rankRes.levelProgress)
+            } else {
+              setLevelProgress(calculateLevelProgress(stats.totalPoints))
+            }
           }
         } catch (qErr) {
           console.warn('Could not load dashboard metrics:', qErr)
@@ -176,6 +183,33 @@ export default function Dashboard() {
               <p className="mt-1 text-xs sm:text-sm font-body text-[#0c1d2d]/70 leading-relaxed">
                 Sharpen quantitative speed, beat the clock, and climb Season 01 rankings.
               </p>
+
+              {/* Compact Level & Progression Tracker */}
+              {levelProgress && (
+                <div className="mt-3 pt-3 border-t border-[#0c1d2d]/8 max-w-md">
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <div className="flex items-center gap-1.5 font-display font-bold text-[#0c1d2d]">
+                      <span className="bg-[#0c1d2d] text-[#ffd43b] px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider">
+                        LVL {levelProgress.level}
+                      </span>
+                      <span className="text-slate-600 font-semibold">{levelProgress.title}</span>
+                    </div>
+                    <div className="font-mono text-[11px] text-slate-500 font-medium">
+                      <span>{levelProgress.xpInLevel}</span>
+                      <span className="text-slate-400"> / </span>
+                      <span>{levelProgress.nextLevelXp - levelProgress.currentLevelXp} XP</span>
+                      <span className="text-slate-400 ml-1.5">({levelProgress.xpRequired} to Lvl {levelProgress.level + 1})</span>
+                    </div>
+                  </div>
+                  {/* Mini progress bar */}
+                  <div className="w-full h-1.5 bg-slate-100 border border-[#0c1d2d]/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#ffd43b] transition-all duration-300"
+                      style={{ width: `${levelProgress.progressPercentage}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}

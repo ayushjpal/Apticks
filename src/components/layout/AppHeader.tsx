@@ -16,6 +16,7 @@ import { ProfileService, type UserProfile } from '../../services/profileService'
 import { QuestionService } from '../../services/questionService'
 import { StreakService } from '../../services/streakService'
 import { LeaderboardService } from '../../services/leaderboardService'
+import { calculateLevelProgress } from '../../utils/levelEngine'
 import type { UserStreak } from '../../types/questions'
 
 interface NavItem {
@@ -37,6 +38,8 @@ export default function AppHeader() {
   const location = useLocation()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [totalXP, setTotalXP] = useState(0)
+  const [userLevel, setUserLevel] = useState<number | null>(null)
+  const [levelTitle, setLevelTitle] = useState<string | null>(null)
   const [streakData, setStreakData] = useState<UserStreak | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -79,6 +82,8 @@ export default function AppHeader() {
             setStreakData(userStreak)
             if (rankRes.found && typeof rankRes.totalXp === 'number') {
               setTotalXP(rankRes.totalXp)
+              setUserLevel(rankRes.level ?? 1)
+              setLevelTitle(rankRes.levelTitle ?? 'Novice')
             } else {
               // Fallback calculation if rank RPC not found
               const { questions, progressMap, challengeBonusXp, contestXp } =
@@ -86,6 +91,9 @@ export default function AppHeader() {
               if (isMounted) {
                 const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp, contestXp)
                 setTotalXP(stats.totalPoints)
+                const prog = calculateLevelProgress(stats.totalPoints)
+                setUserLevel(prog.level)
+                setLevelTitle(prog.title)
               }
             }
           }
@@ -189,6 +197,17 @@ export default function AppHeader() {
             >
               <Flame className="w-3 h-3 text-white/40 shrink-0" />
               <span>0D</span>
+            </div>
+          )}
+
+          {/* Level pill */}
+          {userLevel !== null && (
+            <div
+              className="hidden min-[480px]:flex items-center gap-1 bg-[#0c1d2d] text-white/90 border-[1.5px] border-[#1a3047] rounded-full px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-display font-black"
+              title={`Level ${userLevel} • ${levelTitle || 'Novice'}`}
+            >
+              <span className="text-[#38aef0]">LVL</span>
+              <span>{userLevel}</span>
             </div>
           )}
 

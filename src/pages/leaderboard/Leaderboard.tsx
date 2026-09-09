@@ -354,10 +354,12 @@ export default function Leaderboard() {
                     You
                   </span>
                 </div>
-                <div className="font-mono text-xs text-slate-600 flex items-center gap-2 mt-0.5">
+                <div className="font-mono text-xs text-slate-600 flex items-center gap-2 mt-0.5 flex-wrap">
                   <span>@{userRankData.username || currentUserHandle}</span>
                   <span>•</span>
-                  <span>Lvl {userRankData.level}</span>
+                  <span className="font-semibold text-slate-800">
+                    Lvl {userRankData.level} ({userRankData.levelTitle || 'Novice'})
+                  </span>
                   <span>•</span>
                   <span>{userRankData.solvedCount} Solved</span>
                   <span>•</span>
@@ -609,6 +611,11 @@ export default function Leaderboard() {
                               <NeoBadge variant="outline" density="xs">
                                 Lvl {entry.level}
                               </NeoBadge>
+                              {entry.levelTitle && (
+                                <div className="text-[9px] font-mono font-bold text-slate-500 uppercase mt-0.5">
+                                  {entry.levelTitle}
+                                </div>
+                              )}
                             </td>
 
                             {/* Solved */}

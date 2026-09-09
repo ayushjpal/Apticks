@@ -1,3 +1,5 @@
+import type { LevelTierTitle, LevelProgress } from '../utils/levelEngine'
+
 export interface GlobalLeaderboardEntry {
   rank: number
   userId: string
@@ -9,6 +11,7 @@ export interface GlobalLeaderboardEntry {
   accuracyPercentage: number
   contestsCount: number
   level: number
+  levelTitle?: LevelTierTitle | string
 }
 
 export interface UserGlobalRankResult {
@@ -23,6 +26,13 @@ export interface UserGlobalRankResult {
   accuracyPercentage?: number
   contestsCount?: number
   level?: number
+  levelTitle?: LevelTierTitle | string
+  currentLevelXp?: number
+  nextLevelXp?: number
+  xpInLevel?: number
+  xpRequired?: number
+  progressPercentage?: number
+  levelProgress?: LevelProgress
   totalCompetitors?: number
 }
 
