@@ -24,9 +24,9 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
 }) => {
   const variantStyles = {
     primary:
-      'bg-[#ffd43b] hover:bg-[#fcc828] text-[#0c1d2d] border border-[#0c1d2d]/20 shadow-xs active:translate-y-[1px]',
+      'bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 shadow-[0_0_15px_rgba(255,212,59,0.2)] hover:shadow-[0_0_20px_rgba(255,212,59,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all',
     secondary:
-      'bg-white hover:bg-slate-50 text-[#0c1d2d] border border-[#0c1d2d]/15 shadow-xs active:translate-y-[1px]',
+      'bg-white/10 hover:bg-white/15 text-white border border-white/15 shadow-xs hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all',
     dark:
       'bg-[#0c1d2d] hover:bg-[#162a3d] text-white border border-[#0c1d2d] shadow-xs active:translate-y-[1px]',
     accent:

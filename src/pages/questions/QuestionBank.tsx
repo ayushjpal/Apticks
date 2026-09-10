@@ -19,7 +19,7 @@ import type {
   UserQuestionProgress,
 } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
-import { PageHeader, StatusBadge, NeoButton } from '../../components/ui'
+import { PageHeader, NeoButton } from '../../components/ui'
 
 interface CategoryTab {
   id: Category | 'all'
@@ -307,7 +307,7 @@ export default function QuestionBank() {
         {/* ================================================= */}
         <PageHeader
           eyebrow="Speed Practice"
-          eyebrowIcon={<BookOpen className="w-3.5 h-3.5 text-[#0c1d2d]/70" />}
+          eyebrowIcon={<BookOpen className="w-3.5 h-3.5 text-[#ffd43b]" />}
           title="Question Bank"
           description="Master quantitative, logical, and data aptitude patterns with progressive speed challenges."
           actions={
@@ -320,8 +320,8 @@ export default function QuestionBank() {
               >
                 Random Problem
               </NeoButton>
-              <div className="px-2.5 py-1.5 bg-slate-100 text-[#0c1d2d] border border-[#0c1d2d]/15 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <div className="px-2.5 py-1.5 bg-amber-400/[0.08] text-amber-300 border border-amber-400/25 rounded-xl text-xs font-mono font-semibold flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 <span>{stats.totalPoints} XP</span>
               </div>
             </>
@@ -331,30 +331,30 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* DENSE PROGRESS & DIFFICULTY SUMMARY STRIP         */}
         {/* ================================================= */}
-        <section className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-xs p-3">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-2.5 items-center">
+        <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-3 sm:p-4 text-white">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-center">
             {/* Solved Summary */}
-            <div className="p-2.5 bg-slate-50 border border-[#0c1d2d]/8 rounded-lg">
-              <div className="flex items-center justify-between font-mono text-[10px] text-slate-500">
+            <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
+              <div className="flex items-center justify-between font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 <span>SOLVED</span>
-                <span className="bg-sky-50 text-sky-700 px-1.5 py-0.2 rounded border border-sky-200 text-[9px] font-semibold">
+                <span className="bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded border border-sky-500/30 text-[9px] font-mono font-semibold">
                   {stats.accuracyRate}% ACC
                 </span>
               </div>
-              <div className="font-display font-bold text-base text-[#0c1d2d] mt-0.5">
-                {stats.solvedCount} <span className="text-xs font-normal text-slate-500">/ {stats.totalQuestions}</span>
+              <div className="font-display font-black text-base text-white mt-1">
+                {stats.solvedCount} <span className="text-xs font-normal text-slate-400 font-mono">/ {stats.totalQuestions}</span>
               </div>
             </div>
 
             {/* Easy Progress */}
-            <div className="p-2.5 bg-slate-50 border border-[#0c1d2d]/8 rounded-lg">
-              <div className="flex justify-between items-center text-[11px] font-semibold mb-1">
-                <span className="text-emerald-700">Easy</span>
-                <span className="font-mono text-[10px] text-slate-500">{stats.easySolved}/{stats.easyTotal}</span>
+            <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
+              <div className="flex justify-between items-center text-[11px] font-bold mb-1.5">
+                <span className="text-emerald-400">Easy</span>
+                <span className="font-mono text-[10px] text-slate-400">{stats.easySolved}/{stats.easyTotal}</span>
               </div>
-              <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-emerald-500 rounded-full"
+                  className="h-full bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                   style={{
                     width: `${stats.easyTotal > 0 ? (stats.easySolved / stats.easyTotal) * 100 : 0}%`,
                   }}
@@ -363,14 +363,14 @@ export default function QuestionBank() {
             </div>
 
             {/* Medium Progress */}
-            <div className="p-2.5 bg-slate-50 border border-[#0c1d2d]/8 rounded-lg">
-              <div className="flex justify-between items-center text-[11px] font-semibold mb-1">
-                <span className="text-amber-700">Medium</span>
-                <span className="font-mono text-[10px] text-slate-500">{stats.mediumSolved}/{stats.mediumTotal}</span>
+            <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
+              <div className="flex justify-between items-center text-[11px] font-bold mb-1.5">
+                <span className="text-amber-400">Medium</span>
+                <span className="font-mono text-[10px] text-slate-400">{stats.mediumSolved}/{stats.mediumTotal}</span>
               </div>
-              <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-amber-500 rounded-full"
+                  className="h-full bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.4)]"
                   style={{
                     width: `${stats.mediumTotal > 0 ? (stats.mediumSolved / stats.mediumTotal) * 100 : 0}%`,
                   }}
@@ -379,14 +379,14 @@ export default function QuestionBank() {
             </div>
 
             {/* Hard Progress */}
-            <div className="p-2.5 bg-slate-50 border border-[#0c1d2d]/8 rounded-lg">
-              <div className="flex justify-between items-center text-[11px] font-semibold mb-1">
-                <span className="text-rose-700">Hard</span>
-                <span className="font-mono text-[10px] text-slate-500">{stats.hardSolved}/{stats.hardTotal}</span>
+            <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
+              <div className="flex justify-between items-center text-[11px] font-bold mb-1.5">
+                <span className="text-rose-400">Hard</span>
+                <span className="font-mono text-[10px] text-slate-400">{stats.hardSolved}/{stats.hardTotal}</span>
               </div>
-              <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-rose-500 rounded-full"
+                  className="h-full bg-rose-500 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.4)]"
                   style={{
                     width: `${stats.hardTotal > 0 ? (stats.hardSolved / stats.hardTotal) * 100 : 0}%`,
                   }}
@@ -401,22 +401,22 @@ export default function QuestionBank() {
                   selectedStatus === 'bookmarked' ? 'all' : 'bookmarked'
                 )
               }
-              className={`p-2.5 border rounded-lg cursor-pointer transition-colors col-span-2 md:col-span-1 flex items-center justify-between ${
+              className={`p-3 border rounded-xl cursor-pointer transition-all col-span-2 md:col-span-1 flex items-center justify-between ${
                 selectedStatus === 'bookmarked'
-                  ? 'bg-amber-50 border-amber-300'
-                  : 'bg-white border-[#0c1d2d]/12 hover:bg-slate-50'
+                  ? 'bg-amber-400/[0.12] border-amber-400/50 shadow-[0_0_15px_rgba(255,212,59,0.15)] text-white'
+                  : 'bg-white/[0.04] border-white/10 hover:bg-white/[0.08] text-white'
               }`}
             >
               <div>
-                <div className="flex items-center gap-1 text-xs font-semibold text-[#0c1d2d]">
-                  <Bookmark className={`w-3 h-3 ${selectedStatus === 'bookmarked' ? 'fill-amber-500 text-amber-500' : 'text-slate-400'}`} />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                  <Bookmark className={`w-3.5 h-3.5 ${selectedStatus === 'bookmarked' ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
                   <span>Saved</span>
                 </div>
-                <div className="font-mono text-[9px] text-slate-500">
+                <div className="font-mono text-[9px] text-slate-400 mt-0.5">
                   {selectedStatus === 'bookmarked' ? 'Filtering' : 'Click to filter'}
                 </div>
               </div>
-              <span className="font-display font-bold text-sm text-[#0c1d2d]">{stats.bookmarkedCount}</span>
+              <span className="font-display font-black text-base text-white">{stats.bookmarkedCount}</span>
             </div>
           </div>
         </section>
@@ -424,7 +424,7 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* CATEGORY TABS WITH ACCURATE DATASET COUNTS        */}
         {/* ================================================= */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           {CATEGORY_TABS.map((cat) => {
             const isActive = selectedCategory === cat.id
             const count = categoryCounts[cat.id] ?? 0
@@ -436,20 +436,20 @@ export default function QuestionBank() {
                 onClick={() => handleSelectCategory(cat.id)}
                 aria-pressed={isActive}
                 className={`
-                  px-3 py-1.5 border rounded-lg text-xs font-medium whitespace-nowrap cursor-pointer transition-colors flex items-center gap-1.5 select-none
+                  px-3.5 py-2 border rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition-all flex items-center gap-2 select-none
                   ${
                     isActive
-                      ? 'bg-[#0c1d2d] text-white border-[#0c1d2d]'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      ? 'bg-[#ffd43b] text-[#0c1d2d] font-black border-amber-400/60 shadow-[0_0_15px_rgba(255,212,59,0.25)]'
+                      : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
                   }
                 `}
               >
                 <span>{cat.label}</span>
                 <span
-                  className={`font-mono text-[10px] px-1.5 py-0.2 rounded-full ${
+                  className={`font-mono text-[10px] px-1.5 py-0.5 rounded-md ${
                     isActive
-                      ? 'bg-white/20 text-white font-medium'
-                      : 'bg-slate-100 text-slate-600'
+                      ? 'bg-black/20 text-[#0c1d2d] font-black'
+                      : 'bg-white/10 text-slate-400'
                   }`}
                 >
                   {count}
@@ -462,10 +462,10 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* SEARCH & FILTERS BAR                              */}
         {/* ================================================= */}
-        <div className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-xs p-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+        <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-3 flex flex-col md:flex-row md:items-center justify-between gap-3 text-white">
           {/* Search Input */}
-          <div className="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
-            <span className="px-2.5 text-slate-400">
+          <div className="flex-1 flex items-center bg-black/40 border border-white/10 rounded-xl overflow-hidden focus-within:border-[#ffd43b]/60 transition-colors">
+            <span className="px-3 text-slate-400">
               <Search className="w-3.5 h-3.5" />
             </span>
             <input
@@ -473,18 +473,18 @@ export default function QuestionBank() {
               placeholder="Search problems by title, topic, or pattern..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-1.5 px-1 outline-none text-xs bg-transparent text-[#0c1d2d] placeholder:text-slate-400"
+              className="w-full py-2 px-1 outline-none text-xs bg-transparent text-white placeholder:text-slate-500"
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             {/* Topic Filter */}
             <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[11px] text-slate-500 uppercase">Topic:</span>
+              <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider">Topic:</span>
               <select
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="py-1.5 px-2 bg-white border border-slate-200 rounded-lg text-xs text-[#0c1d2d] outline-none cursor-pointer"
+                className="py-1.5 px-2.5 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 outline-none cursor-pointer focus:border-[#ffd43b]/60"
               >
                 <option value="all">All Topics ({availableTopics.length})</option>
                 {availableTopics.map((top) => (
@@ -496,12 +496,12 @@ export default function QuestionBank() {
             </div>
 
             {/* Difficulty Chips */}
-            <div className="flex items-center gap-0.5 bg-slate-100 border border-slate-200 rounded-lg p-0.5 text-xs">
+            <div className="flex items-center gap-0.5 bg-black/40 border border-white/10 rounded-xl p-1 text-xs">
               <button
                 type="button"
                 onClick={() => setSelectedDifficulty('all')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium cursor-pointer transition-colors ${
-                  selectedDifficulty === 'all' ? 'bg-white text-[#0c1d2d] shadow-xs' : 'text-slate-600 hover:text-black'
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-all ${
+                  selectedDifficulty === 'all' ? 'bg-white/15 text-white shadow-xs' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 All
@@ -509,8 +509,8 @@ export default function QuestionBank() {
               <button
                 type="button"
                 onClick={() => setSelectedDifficulty('easy')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium cursor-pointer transition-colors ${
-                  selectedDifficulty === 'easy' ? 'bg-emerald-50 text-emerald-700 shadow-xs' : 'text-slate-600 hover:text-black'
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-all ${
+                  selectedDifficulty === 'easy' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'text-slate-400 hover:text-emerald-400'
                 }`}
               >
                 Easy
@@ -518,8 +518,8 @@ export default function QuestionBank() {
               <button
                 type="button"
                 onClick={() => setSelectedDifficulty('medium')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium cursor-pointer transition-colors ${
-                  selectedDifficulty === 'medium' ? 'bg-amber-50 text-amber-800 shadow-xs' : 'text-slate-600 hover:text-black'
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-all ${
+                  selectedDifficulty === 'medium' ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' : 'text-slate-400 hover:text-amber-400'
                 }`}
               >
                 Med
@@ -527,8 +527,8 @@ export default function QuestionBank() {
               <button
                 type="button"
                 onClick={() => setSelectedDifficulty('hard')}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium cursor-pointer transition-colors ${
-                  selectedDifficulty === 'hard' ? 'bg-rose-50 text-rose-700 shadow-xs' : 'text-slate-600 hover:text-black'
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-all ${
+                  selectedDifficulty === 'hard' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'text-slate-400 hover:text-rose-400'
                 }`}
               >
                 Hard
@@ -541,7 +541,7 @@ export default function QuestionBank() {
                 type="button"
                 onClick={handleResetFilters}
                 title="Reset all active filters"
-                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium cursor-pointer flex items-center gap-1 transition-colors"
+                className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 rounded-xl text-xs font-semibold cursor-pointer flex items-center gap-1.5 transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset</span>
@@ -553,19 +553,19 @@ export default function QuestionBank() {
         {/* ================================================= */}
         {/* PROBLEMS TABLE (DESKTOP) / CARDS (MOBILE)         */}
         {/* ================================================= */}
-        <div className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-xs overflow-hidden">
+        <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl overflow-hidden text-white">
           {/* Header Strip with Result Count */}
-          <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs font-mono text-slate-600">
+          <div className="px-4 py-2.5 bg-black/40 border-b border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
               <span>
-                Showing <strong className="text-[#0c1d2d]">{filteredQuestions.length}</strong> of{' '}
-                <strong className="text-[#0c1d2d]">{questions.length}</strong> problems
+                Showing <strong className="text-white">{filteredQuestions.length}</strong> of{' '}
+                <strong className="text-white">{questions.length}</strong> problems
               </span>
             </div>
 
             {selectedCategory !== 'all' && (
-              <span className="bg-slate-200 text-slate-700 rounded-full px-2 py-0.5 text-[10px] font-medium">
+              <span className="bg-white/10 text-slate-300 border border-white/10 rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold">
                 {selectedCategory}
               </span>
             )}
@@ -577,32 +577,32 @@ export default function QuestionBank() {
             className="hidden md:block question-list-scroll max-h-[480px] lg:max-h-[520px] overflow-y-auto overflow-x-auto min-h-0"
           >
             <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 font-mono text-[11px] font-semibold tracking-wider">
-                  <th className="py-2.5 px-3 text-center w-12">STATUS</th>
-                  <th className="py-2.5 px-2 text-center w-10">SAVE</th>
-                  <th className="py-2.5 px-3">TITLE</th>
-                  <th className="py-2.5 px-3">TOPIC</th>
-                  <th className="py-2.5 px-3 text-center w-24">DIFFICULTY</th>
-                  <th className="py-2.5 px-3 text-center w-20">ACCURACY</th>
-                  <th className="py-2.5 px-4 text-right w-28">ACTION</th>
+              <thead className="sticky top-0 z-20">
+                <tr className="text-slate-400 font-mono text-[11px] font-bold tracking-wider uppercase">
+                  <th className="py-3 px-3 text-center w-12 bg-[#0c1d2d] border-b border-white/10">STATUS</th>
+                  <th className="py-3 px-2 text-center w-10 bg-[#0c1d2d] border-b border-white/10">SAVE</th>
+                  <th className="py-3 px-3 bg-[#0c1d2d] border-b border-white/10">TITLE</th>
+                  <th className="py-3 px-3 bg-[#0c1d2d] border-b border-white/10">TOPIC</th>
+                  <th className="py-3 px-3 text-center w-24 bg-[#0c1d2d] border-b border-white/10">DIFFICULTY</th>
+                  <th className="py-3 px-3 text-center w-20 bg-[#0c1d2d] border-b border-white/10">ACCURACY</th>
+                  <th className="py-3 px-4 text-right w-28 bg-[#0c1d2d] border-b border-white/10">ACTION</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-body text-xs">
+              <tbody className="divide-y divide-white/5 font-body text-xs">
                 {filteredQuestions.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-10 px-4 text-center">
+                    <td colSpan={7} className="py-12 px-4 text-center">
                       <div className="max-w-md mx-auto">
-                        <div className="font-display font-bold text-base text-[#0c1d2d]">
+                        <div className="font-display font-black text-base text-white">
                           No questions found
                         </div>
-                        <p className="mt-1 text-xs font-body text-slate-500">
+                        <p className="mt-1 text-xs font-body text-slate-400">
                           No problems match your current combination of category, topic, difficulty, and search filters.
                         </p>
                         <button
                           type="button"
                           onClick={handleResetFilters}
-                          className="mt-3 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-xs font-medium cursor-pointer inline-flex items-center gap-1.5 text-slate-700 transition-colors"
+                          className="mt-3.5 px-4 py-1.5 bg-white/10 hover:bg-white/15 border border-white/15 rounded-xl text-xs font-semibold cursor-pointer inline-flex items-center gap-1.5 text-white transition-colors"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           <span>Reset All Filters</span>
@@ -620,41 +620,41 @@ export default function QuestionBank() {
                       <tr
                         key={q.id}
                         onClick={() => navigate(`/questions/${q.id}`)}
-                        className="hover:bg-slate-50/80 transition-colors cursor-pointer"
+                        className="hover:bg-white/[0.04] transition-colors cursor-pointer group"
                       >
                         {/* Status Checkmark */}
-                        <td className="py-2.5 px-3 text-center">
+                        <td className="py-3 px-3 text-center">
                           <div className="flex justify-center">
                             {isSolved ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
                             ) : (
-                              <span className="w-3.5 h-3.5 rounded-full border border-slate-300 inline-block" />
+                              <span className="w-3.5 h-3.5 rounded-full border border-white/20 inline-block group-hover:border-white/40 transition-colors" />
                             )}
                           </div>
                         </td>
 
                         {/* Bookmark Button */}
-                        <td className="py-2.5 px-2 text-center">
+                        <td className="py-3 px-2 text-center">
                           <button
                             type="button"
                             onClick={(e) => handleToggleBookmark(e, q.id)}
-                            className="p-1 rounded text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
+                            className="p-1 rounded text-slate-500 hover:text-amber-400 transition-colors cursor-pointer"
                             title={isBookmarked ? 'Remove Bookmark' : 'Bookmark Problem'}
                           >
-                            <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-amber-500 text-amber-500' : ''}`} />
+                            <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}`} />
                           </button>
                         </td>
 
                         {/* Title & Tags */}
-                        <td className="py-2.5 px-3">
-                          <div className="font-semibold text-sm text-[#0c1d2d] hover:text-sky-600 transition-colors">
+                        <td className="py-3 px-3">
+                          <div className="font-semibold text-sm text-white group-hover:text-[#ffd43b] transition-colors">
                             {q.title}
                           </div>
-                          <div className="flex flex-wrap gap-1 mt-0.5">
+                          <div className="flex flex-wrap gap-1 mt-1">
                             {q.tags.map((tag: string) => (
                               <span
                                 key={tag}
-                                className="text-[10px] font-mono text-slate-500 bg-slate-100 rounded px-1.5 py-0.2"
+                                className="text-[10px] font-mono text-slate-400 bg-white/5 border border-white/5 rounded px-1.5 py-0.2"
                               >
                                 #{tag}
                               </span>
@@ -663,37 +663,45 @@ export default function QuestionBank() {
                         </td>
 
                         {/* Category & Topic */}
-                        <td className="py-2.5 px-3">
-                          <div className="font-medium text-xs text-[#0c1d2d]">
+                        <td className="py-3 px-3">
+                          <div className="font-medium text-xs text-slate-200">
                             {q.topic}
                           </div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-slate-400 font-mono">
                             {q.category}
                           </div>
                         </td>
 
-                        {/* Difficulty */}
-                        <td className="py-2.5 px-3 text-center">
-                          <StatusBadge status={q.difficulty} density="xs" />
+                        {/* Difficulty - Pure Colored Text, No Badges */}
+                        <td className="py-3 px-3 text-center">
+                          <span className={`font-mono text-xs font-bold uppercase tracking-wider ${
+                            q.difficulty.toLowerCase() === 'easy'
+                              ? 'text-emerald-400'
+                              : q.difficulty.toLowerCase() === 'medium'
+                              ? 'text-amber-400'
+                              : 'text-rose-400'
+                          }`}>
+                            {q.difficulty}
+                          </span>
                         </td>
 
                         {/* Acceptance */}
-                        <td className="py-2.5 px-3 text-center font-mono text-xs text-slate-600">
+                        <td className="py-3 px-3 text-center font-mono text-xs text-slate-400">
                           {q.acceptanceRate ?? 75}%
                         </td>
 
                         {/* Solve Button */}
-                        <td className="py-2.5 px-4 text-right">
+                        <td className="py-3 px-4 text-right">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation()
                               navigate(`/questions/${q.id}`)
                             }}
-                            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                               isSolved
-                                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                                : 'bg-[#ffd43b] hover:bg-[#fcc828] text-[#0c1d2d] shadow-xs'
+                                ? 'bg-white/10 hover:bg-white/15 text-slate-200 border border-white/10'
+                                : 'bg-[#ffd43b] hover:bg-[#fcc828] text-[#0c1d2d] font-black shadow-[0_0_10px_rgba(255,212,59,0.2)]'
                             }`}
                           >
                             {isSolved ? 'Review' : 'Solve'}
@@ -710,20 +718,20 @@ export default function QuestionBank() {
           {/* Mobile Card List View */}
           <div
             data-lenis-prevent
-            className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y divide-slate-100"
+            className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y divide-white/10"
           >
             {filteredQuestions.length === 0 ? (
               <div className="p-6 text-center">
-                <div className="font-display font-bold text-base text-[#0c1d2d]">
+                <div className="font-display font-black text-base text-white">
                   No questions found
                 </div>
-                <p className="mt-1 text-xs font-body text-slate-500">
+                <p className="mt-1 text-xs font-body text-slate-400">
                   Try changing your category, topic, difficulty, or search.
                 </p>
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="mt-3 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 text-slate-700 transition-colors"
+                  className="mt-3 px-4 py-1.5 bg-white/10 hover:bg-white/15 border border-white/15 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 text-white transition-colors"
                 >
                   <RotateCcw className="w-3 h-3" />
                   <span>Reset Filters</span>
@@ -739,36 +747,48 @@ export default function QuestionBank() {
                   <div
                     key={q.id}
                     onClick={() => navigate(`/questions/${q.id}`)}
-                    className="p-3 bg-white active:bg-slate-50 cursor-pointer"
+                    className="p-3.5 bg-slate-900/40 hover:bg-white/[0.04] transition-colors cursor-pointer"
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
                         {isSolved ? (
-                          <StatusBadge status="solved" density="xs" label="Solved" />
+                          <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full px-2 py-0.5 text-[10px] font-mono font-semibold">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Solved
+                          </span>
                         ) : (
-                          <StatusBadge status="unsolved" density="xs" label="Unsolved" />
+                          <span className="inline-flex items-center gap-1 bg-white/5 text-slate-400 border border-white/10 rounded-full px-2 py-0.5 text-[10px] font-mono font-semibold">
+                            Unsolved
+                          </span>
                         )}
-                        <StatusBadge status={q.difficulty} density="xs" />
+                        <span className={`font-mono text-xs font-bold uppercase tracking-wider ${
+                          q.difficulty.toLowerCase() === 'easy'
+                            ? 'text-emerald-400'
+                            : q.difficulty.toLowerCase() === 'medium'
+                            ? 'text-amber-400'
+                            : 'text-rose-400'
+                        }`}>
+                          {q.difficulty}
+                        </span>
                       </div>
 
                       <button
                         type="button"
                         onClick={(e) => handleToggleBookmark(e, q.id)}
-                        className="p-1 text-slate-400 hover:text-amber-500"
+                        className="p-1 text-slate-400 hover:text-amber-400 transition-colors"
                       >
-                        <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-amber-500 text-amber-500' : ''}`} />
+                        <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}`} />
                       </button>
                     </div>
 
-                    <h3 className="font-semibold text-sm text-[#0c1d2d] leading-snug">
+                    <h3 className="font-semibold text-sm text-white leading-snug">
                       {q.title}
                     </h3>
 
-                    <div className="mt-1.5 flex items-center justify-between text-xs">
-                      <span className="font-mono text-[10px] text-slate-500">
+                    <div className="mt-2 flex items-center justify-between text-xs">
+                      <span className="font-mono text-[10px] text-slate-400">
                         {q.topic} • {q.category}
                       </span>
-                      <span className="font-semibold text-sky-600">
+                      <span className="font-bold text-[#ffd43b]">
                         {isSolved ? 'Review →' : 'Solve →'}
                       </span>
                     </div>

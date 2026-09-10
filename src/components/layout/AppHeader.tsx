@@ -179,49 +179,55 @@ export default function AppHeader() {
 
         {/* Right Section: HUD Metrics, Staff & Profile */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Streak pill */}
+          {/* Streak Indicator */}
           {(streakData?.currentStreak ?? 0) > 0 ? (
             <div
-              className={`hidden min-[400px]:flex items-center gap-1.5 ${
-                streakData?.isActiveToday ? 'bg-[#ff5b5b]' : 'bg-[#e05252]'
-              } text-white border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 py-0.5 text-[11px] font-display font-black`}
-              title={`${streakData?.currentStreak} Day Streak`}
+              className={`hidden min-[400px]:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono font-bold transition-all ${
+                streakData?.isActiveToday
+                  ? 'bg-rose-950/40 border-rose-500/40 text-rose-300'
+                  : 'bg-white/5 border-white/10 text-white/70'
+              }`}
+              title={`${streakData?.currentStreak}-Day Active Solving Streak`}
             >
-              <Flame className="w-3.5 h-3.5 fill-white shrink-0" />
+              <Flame className={`w-3.5 h-3.5 shrink-0 ${streakData?.isActiveToday ? 'text-rose-400 fill-rose-400' : 'text-slate-400'}`} />
               <span>{streakData?.currentStreak}D</span>
             </div>
           ) : (
             <div
-              className="hidden min-[400px]:flex items-center gap-1.5 bg-white/10 text-white/50 border-[1.5px] border-white/20 rounded-full px-2 py-0.5 text-[10px] font-display font-bold"
-              title="0 Day Streak - Solve today to start streak"
+              className="hidden min-[400px]:flex items-center gap-1.5 bg-white/5 text-white/40 border border-white/10 rounded-lg px-2 py-1 text-[11px] font-mono font-medium"
+              title="0-Day Streak • Solve a question today to ignite your streak"
             >
-              <Flame className="w-3 h-3 text-white/40 shrink-0" />
+              <Flame className="w-3 h-3 text-white/30 shrink-0" />
               <span>0D</span>
             </div>
           )}
 
-          {/* Level pill */}
-          {userLevel !== null && (
+          {/* Unified Competitive Status HUD (LVL 02  •  XP 204) */}
+          <div className="flex items-center bg-[#0c1d2d] border border-white/15 rounded-lg overflow-hidden shadow-xs divide-x divide-white/10 font-mono">
+            {userLevel !== null && (
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-white/90 hover:bg-white/5 transition-colors cursor-default"
+                title={`Rank Tier: ${levelTitle || 'Novice'} • Level ${userLevel}`}
+              >
+                <span className="text-[10px] font-display font-bold text-white/40 tracking-wider uppercase">LVL</span>
+                <span className="font-bold text-[#ffd43b]">{String(userLevel).padStart(2, '0')}</span>
+              </div>
+            )}
             <div
-              className="hidden min-[480px]:flex items-center gap-1 bg-[#0c1d2d] text-white/90 border-[1.5px] border-[#1a3047] rounded-full px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-display font-black"
-              title={`Level ${userLevel} • ${levelTitle || 'Novice'}`}
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-white font-bold hover:bg-white/5 transition-colors cursor-default"
+              title="Authoritative Unified XP"
             >
-              <span className="text-[#38aef0]">LVL</span>
-              <span>{userLevel}</span>
+              <Zap className="w-3 h-3 text-[#ffd43b] fill-[#ffd43b] shrink-0" />
+              <span>{totalXP}</span>
+              <span className="text-[10px] font-display font-bold text-white/40 tracking-wider uppercase">XP</span>
             </div>
-          )}
-
-          {/* XP pill */}
-          <div className="flex items-center gap-1.5 bg-[#ffd43b] text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-0.5 text-[11px] sm:text-xs font-display font-black">
-            <Zap className="w-3.5 h-3.5 fill-[#0c1d2d] shrink-0" />
-            <span>{totalXP} XP</span>
           </div>
 
           {/* Staff Control Center Button (Staff Only) */}
           {(profile?.role === 'admin' || profile?.role === 'moderator') && (
             <Link
               to="/moderator"
-              className="flex items-center gap-1.5 bg-[#0c1d2d] text-[#ffd43b] hover:bg-[#ffd43b] hover:text-[#0c1d2d] border-[1.5px] border-[#0c1d2d] shadow-[1.5px_1.5px_0_#0c1d2d] rounded-full px-2.5 sm:px-3 py-0.5 text-[11px] sm:text-xs font-display font-black hover:-translate-y-0.5 transition-all shrink-0"
+              className="flex items-center gap-1.5 bg-white/5 text-[#ffd43b] hover:bg-[#ffd43b] hover:text-[#0c1d2d] border border-[#ffd43b]/40 rounded-lg px-2.5 py-1 text-xs font-mono font-bold transition-all shrink-0"
               title="Enter Staff Control Center"
             >
               <Shield className="w-3.5 h-3.5 fill-current shrink-0" />

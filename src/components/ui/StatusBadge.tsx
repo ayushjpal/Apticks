@@ -70,28 +70,28 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     },
     open: {
       defaultLabel: 'Open',
-      style: 'bg-sky-50 text-sky-700 border border-sky-200/80',
+      style: 'bg-sky-500/10 text-sky-400 border border-sky-500/30',
     },
     master: {
       defaultLabel: 'Master',
-      style: 'bg-purple-50 text-purple-700 border border-purple-200/80',
+      style: 'bg-purple-500/10 text-purple-400 border border-purple-500/30',
     },
 
     // Contest States
     live: {
       defaultLabel: 'LIVE NOW',
-      style: 'bg-rose-600 text-white border border-rose-600',
-      icon: <Radio className="w-3 h-3 animate-pulse" />,
+      style: 'bg-rose-500/20 text-rose-300 border border-rose-500/40',
+      icon: <Radio className="w-3 h-3 animate-pulse text-rose-400" />,
     },
     upcoming: {
       defaultLabel: 'Upcoming',
-      style: 'bg-sky-50 text-sky-700 border border-sky-200/80',
-      icon: <Clock className="w-3 h-3" />,
+      style: 'bg-sky-500/10 text-sky-400 border border-sky-500/30',
+      icon: <Clock className="w-3 h-3 text-sky-400" />,
     },
     completed: {
       defaultLabel: 'Archived',
-      style: 'bg-slate-100 text-slate-600 border border-slate-200',
-      icon: <Archive className="w-3 h-3" />,
+      style: 'bg-slate-800/60 text-slate-400 border border-slate-700/60',
+      icon: <Archive className="w-3 h-3 text-slate-400" />,
     },
     draft: {
       defaultLabel: 'Draft',

@@ -104,45 +104,64 @@ const renderBadgeIcon = (iconName: string, className?: string) => {
 }
 
 // Helper for tier color themes
+// Helper for tier color themes (Bronze: restrained earth/metallic, Silver: cool neutral, Gold: Apticks amber/yellow, Platinum: high-contrast premium neutral)
 const getTierStyle = (tier: BadgeTier, isUnlocked: boolean) => {
   if (!isUnlocked) {
     return {
-      card: 'bg-slate-50/50 border-slate-200/70 opacity-80 hover:opacity-100 transition-opacity',
-      pill: 'bg-slate-100 text-slate-500 border-slate-200',
-      iconBox: 'bg-slate-100 border-slate-200 text-slate-400',
+      card: 'bg-white/[0.03] border-white/10 hover:border-white/20 transition-all text-slate-400 backdrop-blur-sm',
+      pill: 'bg-white/5 text-slate-400 border-white/10',
+      iconBox: 'bg-white/5 border-white/10 text-slate-500',
+      badgeText: 'text-slate-400',
+      trackBg: 'bg-white/10',
+      barBg: 'bg-slate-500',
     }
   }
 
   switch (tier) {
     case 'bronze':
       return {
-        card: 'bg-gradient-to-br from-amber-50/40 to-orange-50/20 border-amber-200/80 shadow-xs hover:border-amber-300 transition-colors',
-        pill: 'bg-amber-100/80 text-amber-900 border-amber-300/80',
-        iconBox: 'bg-amber-100 border-amber-200 text-amber-800',
+        card: 'bg-gradient-to-b from-amber-950/40 to-slate-900/80 border-amber-700/40 hover:border-amber-600/60 shadow-[0_0_15px_rgba(180,83,9,0.06)] backdrop-blur-sm transition-all',
+        pill: 'bg-amber-950/60 text-amber-300 border-amber-700/50',
+        iconBox: 'bg-amber-900/30 border-amber-700/50 text-amber-300',
+        badgeText: 'text-amber-200',
+        trackBg: 'bg-white/10',
+        barBg: 'bg-amber-600',
       }
     case 'silver':
       return {
-        card: 'bg-gradient-to-br from-slate-50 to-gray-50/60 border-slate-300/80 shadow-xs hover:border-slate-400 transition-colors',
-        pill: 'bg-slate-100 text-slate-800 border-slate-300',
-        iconBox: 'bg-slate-100 border-slate-300 text-slate-700',
+        card: 'bg-gradient-to-b from-slate-800/40 to-slate-900/80 border-slate-400/30 hover:border-slate-300/50 shadow-[0_0_15px_rgba(148,163,184,0.06)] backdrop-blur-sm transition-all',
+        pill: 'bg-slate-800/60 text-slate-200 border-slate-400/40',
+        iconBox: 'bg-slate-700/30 border-slate-500/40 text-slate-200',
+        badgeText: 'text-slate-200',
+        trackBg: 'bg-white/10',
+        barBg: 'bg-slate-300',
       }
     case 'gold':
       return {
-        card: 'bg-gradient-to-br from-yellow-50/50 to-amber-50/30 border-amber-300/90 shadow-xs hover:border-amber-400 transition-colors',
-        pill: 'bg-amber-100 text-amber-950 border-amber-400',
-        iconBox: 'bg-yellow-100 border-yellow-300 text-yellow-800',
+        card: 'bg-gradient-to-b from-amber-500/10 to-slate-900/80 border-2 border-[#ffd43b]/70 hover:border-[#ffd43b] shadow-[0_0_20px_rgba(255,212,59,0.12)] ring-1 ring-[#ffd43b]/30 backdrop-blur-sm transition-all',
+        pill: 'bg-[#ffd43b]/20 text-[#ffd43b] border-amber-400/50',
+        iconBox: 'bg-amber-400/20 border-amber-400/50 text-[#ffd43b]',
+        badgeText: 'text-[#ffd43b]',
+        trackBg: 'bg-white/10',
+        barBg: 'bg-[#ffd43b]',
       }
     case 'platinum':
       return {
-        card: 'bg-gradient-to-br from-purple-50/50 to-indigo-50/30 border-purple-300/90 shadow-xs hover:border-purple-400 transition-colors',
-        pill: 'bg-purple-100 text-purple-950 border-purple-300',
-        iconBox: 'bg-purple-100 border-purple-300 text-purple-800',
+        card: 'bg-gradient-to-b from-cyan-500/10 to-slate-900/80 border-2 border-cyan-400/60 hover:border-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.12)] ring-1 ring-cyan-400/30 backdrop-blur-sm transition-all',
+        pill: 'bg-cyan-400/20 text-cyan-300 border-cyan-400/50',
+        iconBox: 'bg-cyan-400/20 border-cyan-400/50 text-cyan-300',
+        badgeText: 'text-cyan-200',
+        trackBg: 'bg-white/10',
+        barBg: 'bg-cyan-400',
       }
     default:
       return {
-        card: 'bg-slate-50 border-slate-200 shadow-xs',
-        pill: 'bg-slate-100 text-slate-700 border-slate-200',
-        iconBox: 'bg-slate-100 border-slate-200 text-slate-600',
+        card: 'bg-white/[0.04] border-white/10 shadow-xs text-slate-200 backdrop-blur-sm',
+        pill: 'bg-white/5 text-slate-300 border-white/10',
+        iconBox: 'bg-white/5 border-white/10 text-slate-400',
+        badgeText: 'text-slate-200',
+        trackBg: 'bg-white/10',
+        barBg: 'bg-slate-400',
       }
   }
 }
@@ -708,16 +727,16 @@ export default function Profile() {
         {/* ================================================= */}
         {/* TOP TABBED NAVIGATION CONTROLS                    */}
         {/* ================================================= */}
-        <div className="flex items-center gap-2 border-b border-[#0c1d2d]/10 pb-3">
+        <div className="flex items-center gap-2 border-b border-white/10 pb-3">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
             className={`
-              px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 cursor-pointer
+              px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer
               ${
                 activeTab === 'overview'
-                  ? 'bg-[#0c1d2d] text-white shadow-xs'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                  ? 'bg-[#ffd43b] text-[#0c1d2d] font-black shadow-[0_0_15px_rgba(255,212,59,0.3)]'
+                  : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
               }
             `}
           >
@@ -729,11 +748,11 @@ export default function Profile() {
             type="button"
             onClick={() => setActiveTab('edit')}
             className={`
-              px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 cursor-pointer
+              px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer
               ${
                 activeTab === 'edit'
-                  ? 'bg-[#0c1d2d] text-white shadow-xs'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                  ? 'bg-[#ffd43b] text-[#0c1d2d] font-black shadow-[0_0_15px_rgba(255,212,59,0.3)]'
+                  : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
               }
             `}
           >
@@ -745,11 +764,11 @@ export default function Profile() {
             type="button"
             onClick={() => setActiveTab('settings')}
             className={`
-              px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 cursor-pointer
+              px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer
               ${
                 activeTab === 'settings'
-                  ? 'bg-[#0c1d2d] text-white shadow-xs'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                  ? 'bg-[#ffd43b] text-[#0c1d2d] font-black shadow-[0_0_15px_rgba(255,212,59,0.3)]'
+                  : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
               }
             `}
           >
@@ -762,509 +781,527 @@ export default function Profile() {
         {/* TAB 1: PROFILE OVERVIEW & PERFORMANCE             */}
         {/* ================================================= */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-5 items-start">
+          <div className="space-y-5 sm:space-y-6">
             {/* ================================================= */}
-            {/* LEFT COLUMN: Profile Identity + Earned Badges     */}
+            {/* ROW 1: ATHLETE DOSSIER & PROGRESSION METER        */}
             {/* ================================================= */}
-            <div className="space-y-5">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-5 items-stretch">
               {/* 1. Primary Profile Identity Card */}
-              <div className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs overflow-hidden">
-                <div className="bg-[#0c1d2d] text-white px-4 py-3 border-b border-[#0c1d2d]/10 flex items-center justify-between">
-                  <span className="font-mono text-[11px] font-bold tracking-wider text-[#38aef0]">
-                    APTICKS ID: #{userId?.slice(0, 6).toUpperCase()}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full px-2.5 py-0.5 text-[10px] font-semibold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Online
-                  </span>
-                </div>
+              <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl overflow-hidden flex flex-col justify-between text-white">
+                <div>
+                  <div className="bg-black/40 text-white px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                    <span className="font-mono text-[11px] font-bold tracking-wider text-[#ffd43b]">
+                      COMPETITOR DOSSIER // #{userId?.slice(0, 6).toUpperCase()}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full px-2.5 py-0.5 text-[10px] font-semibold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Active
+                    </span>
+                  </div>
 
-                <div className="p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 sm:w-18 sm:h-18 bg-[#ffd43b] border border-[#0c1d2d]/15 rounded-2xl shadow-xs flex items-center justify-center font-display font-black text-2xl sm:text-3xl text-[#0c1d2d] overflow-hidden shrink-0">
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        firstLetter
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <div className="inline-block bg-slate-100 text-slate-700 border border-slate-200 rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold">
-                          Division 1
-                        </div>
-                        {userStreak && userStreak.currentStreak > 0 && (
-                          <div className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full px-2 py-0.5 text-[10px] font-mono font-semibold">
-                            <Flame className="w-3 h-3 text-amber-600" />
-                            <span>{userStreak.currentStreak}d Streak</span>
-                          </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 sm:w-18 sm:h-18 bg-[#ffd43b] border-2 border-amber-400/80 rounded-2xl shadow-lg flex items-center justify-center font-display font-black text-2xl sm:text-3xl text-[#0c1d2d] overflow-hidden shrink-0">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          firstLetter
                         )}
                       </div>
-                      <h2 className="font-display font-bold text-xl sm:text-2xl text-[#0c1d2d] tracking-tight truncate leading-tight">
-                        {effectiveDisplayName}
-                      </h2>
-                      <div className="font-mono text-xs sm:text-sm font-medium text-[#2563eb] mt-0.5 truncate">
-                        @{effectiveUsername}
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <div className="inline-block bg-white/10 text-slate-300 border border-white/15 rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold">
+                            Division 1
+                          </div>
+                          {userStreak && userStreak.currentStreak > 0 && (
+                            <div className="inline-flex items-center gap-1 bg-amber-950/40 text-amber-300 border border-amber-500/40 rounded-full px-2 py-0.5 text-[10px] font-mono font-semibold shadow-xs">
+                              <Flame className="w-3 h-3 text-amber-400 fill-amber-400" />
+                              <span>{userStreak.currentStreak}d Streak</span>
+                            </div>
+                          )}
+                        </div>
+                        <h2 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight truncate leading-tight">
+                          {effectiveDisplayName}
+                        </h2>
+                        <div className="font-mono text-xs sm:text-sm font-medium text-slate-400 mt-0.5 truncate">
+                          @{effectiveUsername}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bio / Operational Statement */}
+                    <div className="mt-4 p-3 bg-white/[0.04] border border-white/10 rounded-xl">
+                      <div className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        Operational Statement
+                      </div>
+                      <p className="font-body text-xs text-slate-300 italic leading-relaxed">
+                        {bio.trim()
+                          ? `"${bio.trim()}"`
+                          : '"Apticks competitor sharpening quantitative speed and logical reasoning daily."'}
+                      </p>
+                    </div>
+
+                    {/* Core Statistics Deck */}
+                    <div className="mt-4 grid grid-cols-3 gap-2.5 text-center">
+                      <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
+                        <div className="font-display font-black text-lg sm:text-xl text-white">
+                          {questionStats?.solvedCount ?? 0}
+                        </div>
+                        <div className="font-mono text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">
+                          Solved
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-amber-500/10 border border-amber-400/30 rounded-xl">
+                        <div className="font-display font-black text-lg sm:text-xl text-[#ffd43b]">
+                          {questionStats?.totalPoints ?? 0}
+                        </div>
+                        <div className="font-mono text-[10px] font-semibold text-amber-300/90 uppercase tracking-wider mt-0.5">
+                          Total XP
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-emerald-500/10 border border-emerald-400/30 rounded-xl">
+                        <div className="font-display font-black text-lg sm:text-xl text-emerald-400">
+                          {questionStats?.accuracyRate ?? 0}%
+                        </div>
+                        <div className="font-mono text-[10px] font-semibold text-emerald-300/90 uppercase tracking-wider mt-0.5">
+                          Accuracy
+                        </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Bio / About */}
-                  <div className="mt-4 p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
-                    <div className="font-mono text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                      About / Goal
-                    </div>
-                    <p className="font-body text-xs text-slate-700 italic leading-relaxed">
-                      {bio.trim()
-                        ? `"${bio.trim()}"`
-                        : '"Apticks competitor sharpening quantitative speed and logical reasoning daily."'}
-                    </p>
-                  </div>
-
-                  {/* Core Statistics Deck */}
-                  <div className="mt-4 grid grid-cols-3 gap-2.5 text-center">
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
-                      <div className="font-display font-bold text-lg sm:text-xl text-[#0c1d2d]">
-                        {questionStats?.solvedCount ?? 0}
-                      </div>
-                      <div className="font-mono text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">
-                        Solved
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl">
-                      <div className="font-display font-bold text-lg sm:text-xl text-[#0c1d2d]">
-                        {questionStats?.totalPoints ?? 0}
-                      </div>
-                      <div className="font-mono text-[10px] font-semibold text-amber-800 uppercase tracking-wider mt-0.5">
-                        Total XP
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl">
-                      <div className="font-display font-bold text-lg sm:text-xl text-[#0c1d2d]">
-                        {questionStats?.accuracyRate ?? 0}%
-                      </div>
-                      <div className="font-mono text-[10px] font-semibold text-emerald-800 uppercase tracking-wider mt-0.5">
-                        Accuracy
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="mt-4 flex gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('edit')}
-                      className="flex-1 py-2 px-3 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-[#0c1d2d]/20 rounded-xl font-display font-bold text-xs shadow-xs cursor-pointer text-center transition-colors"
-                    >
-                      Edit Profile →
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('settings')}
-                      className="py-2 px-4 bg-white hover:bg-slate-50 text-[#0c1d2d] border border-slate-200 rounded-xl font-display font-bold text-xs shadow-xs cursor-pointer text-center transition-colors"
-                    >
-                      Settings
-                    </button>
-                  </div>
+                {/* Action Buttons */}
+                <div className="p-5 pt-0 flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('edit')}
+                    className="flex-1 py-2.5 px-4 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-xl font-display font-bold text-xs shadow-[0_0_15px_rgba(255,212,59,0.25)] hover:shadow-[0_0_20px_rgba(255,212,59,0.4)] cursor-pointer text-center transition-all active:scale-[0.98]"
+                  >
+                    Edit Profile →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('settings')}
+                    className="py-2.5 px-4 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-xl font-display font-bold text-xs shadow-xs cursor-pointer text-center transition-all active:scale-[0.98]"
+                  >
+                    Settings
+                  </button>
                 </div>
               </div>
 
-              {/* 2. Level Progression Card */}
-              <div className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-5">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-[#0c1d2d]" />
-                    <h3 className="font-display font-bold text-sm text-[#0c1d2d]">
-                      Level & Progression
-                    </h3>
+              {/* 2. Competitive Level Progression Meter Card (KEY CARD) */}
+              <div className="bg-slate-900/60 backdrop-blur-md border-2 border-amber-400/60 ring-1 ring-amber-400/20 shadow-[0_0_25px_rgba(255,212,59,0.08)] rounded-2xl p-5 flex flex-col justify-between text-white">
+                <div>
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#ffd43b] ring-4 ring-[#ffd43b]/20" />
+                      <h3 className="font-display font-black text-xs sm:text-sm tracking-wider uppercase text-white">
+                        Level & Progression
+                      </h3>
+                    </div>
+                    <span className="font-mono text-[10px] font-bold tracking-wider text-amber-300 uppercase bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30">
+                      COMPETITIVE ENGINE
+                    </span>
                   </div>
-                  <span className="bg-[#0c1d2d] text-[#ffd43b] px-2 py-0.5 rounded text-[10px] font-display font-black tracking-wider uppercase">
-                    LVL {levelProgress?.level ?? 1}
-                  </span>
-                </div>
 
-                <div className="space-y-3">
-                  {/* Tier & XP Summary */}
-                  <div className="flex items-center justify-between">
+                  {/* Level & Rank Tier */}
+                  <div className="flex items-baseline justify-between gap-3 flex-wrap">
                     <div>
-                      <div className="text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">
-                        Rank Tier
+                      <div className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight leading-none">
+                        LEVEL {String(levelProgress?.level ?? 1).padStart(2, '0')}
                       </div>
-                      <div className="font-display font-black text-base text-[#0c1d2d]">
-                        {levelProgress?.title ?? 'Novice'}
+                      <div className="font-mono text-xs font-black tracking-[0.2em] text-amber-400 uppercase mt-1">
+                        {levelProgress?.title ?? 'NOVICE'}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] font-bold text-slate-500 font-mono uppercase tracking-wider">
-                        Authoritative XP
+                      <div className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        TOTAL ACCUMULATED
                       </div>
-                      <div className="font-display font-black text-base text-[#0c1d2d]">
-                        {levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0} XP
+                      <div className="font-display font-black text-2xl sm:text-3xl text-[#ffd43b] leading-none mt-0.5">
+                        <span>{levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0}</span>
+                        <span className="text-xs font-mono font-bold text-slate-400 ml-1">XP</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
-                  <div>
-                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-600 mb-1.5">
-                      <span>
-                        {levelProgress?.xpInLevel ?? 0} / {(levelProgress?.nextLevelXp ?? 100) - (levelProgress?.currentLevelXp ?? 0)} XP in Level
+                  {/* Numerical breakdown and progress bar */}
+                  <div className="mt-5">
+                    <div className="flex items-center justify-between text-xs font-mono mb-1.5">
+                      <span className="font-bold text-slate-300">
+                        {levelProgress?.xpInLevel ?? 0} / {(levelProgress?.nextLevelXp ?? 100) - (levelProgress?.currentLevelXp ?? 0)} XP
                       </span>
-                      <span className="font-semibold text-[#0c1d2d]">
+                      <span className="font-black text-[#ffd43b]">
                         {levelProgress?.progressPercentage ?? 0}%
                       </span>
                     </div>
-                    <div className="w-full h-2.5 bg-slate-100 border border-[#0c1d2d]/10 rounded-full overflow-hidden p-0.5">
+                    <div className="w-full h-3 bg-white/10 border border-white/15 rounded-full overflow-hidden p-0.5 shadow-inner">
                       <div
-                        className="h-full bg-[#ffd43b] rounded-full transition-all duration-300"
+                        className="h-full bg-[#ffd43b] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(255,212,59,0.5)] border border-amber-400/50"
                         style={{ width: `${levelProgress?.progressPercentage ?? 0}%` }}
                       />
                     </div>
                   </div>
-
-                  {/* XP Needed */}
-                  <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between text-xs">
-                    <span className="text-slate-600 font-medium">To Next Level:</span>
-                    <span className="font-mono font-bold text-[#0c1d2d]">
-                      {levelProgress?.xpRequired ?? 0} XP needed for Level {(levelProgress?.level ?? 1) + 1}
-                    </span>
-                  </div>
                 </div>
-              </div>
 
-              {/* 3. Badges Gallery Card */}
-              <div className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-5">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
-                    <h3 className="font-display font-bold text-sm text-[#0c1d2d]">
-                      Earned Badges
-                    </h3>
-                  </div>
-                  <span className="font-mono text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200/60">
-                    {unlockedBadgeCount} / {totalBadgeCount} unlocked
+                {/* Milestone Target Callout */}
+                <div className="mt-5 p-3 bg-white/[0.04] border border-white/10 rounded-xl flex items-center justify-between text-xs font-mono">
+                  <span className="text-slate-400 font-medium">NEXT MILESTONE</span>
+                  <span className="font-black text-[#ffd43b] tracking-wide">
+                    {levelProgress?.xpRequired ?? 0} XP TO LEVEL {String((levelProgress?.level ?? 1) + 1).padStart(2, '0')}
                   </span>
                 </div>
-
-                {/* Filter Tabs */}
-                <div className="flex items-center gap-1.5 mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setBadgeFilter('all')}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-display font-bold transition-all cursor-pointer ${
-                      badgeFilter === 'all'
-                        ? 'bg-[#0c1d2d] text-white shadow-xs'
-                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
-                    }`}
-                  >
-                    All ({totalBadgeCount})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBadgeFilter('unlocked')}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-display font-bold transition-all cursor-pointer ${
-                      badgeFilter === 'unlocked'
-                        ? 'bg-[#0c1d2d] text-white shadow-xs'
-                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
-                    }`}
-                  >
-                    Unlocked ({unlockedBadgeCount})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBadgeFilter('locked')}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-display font-bold transition-all cursor-pointer ${
-                      badgeFilter === 'locked'
-                        ? 'bg-[#0c1d2d] text-white shadow-xs'
-                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
-                    }`}
-                  >
-                    In Progress ({Math.max(0, totalBadgeCount - unlockedBadgeCount)})
-                  </button>
-                </div>
-
-                {/* Badges Gallery */}
-                {badgesLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div
-                        key={i}
-                        className="p-3 bg-slate-50 border border-slate-200/70 rounded-xl animate-pulse flex flex-col gap-2"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="w-8 h-8 rounded-lg bg-slate-200" />
-                          <div className="w-12 h-3.5 bg-slate-200 rounded" />
-                        </div>
-                        <div className="w-20 h-3 bg-slate-200 rounded" />
-                        <div className="w-full h-2 bg-slate-200 rounded" />
-                      </div>
-                    ))}
-                  </div>
-                ) : badges.length === 0 ? (
-                  <div className="p-6 text-center bg-slate-50 border border-dashed border-slate-200 rounded-xl">
-                    <p className="text-xs text-slate-500 font-medium">
-                      No achievements catalog loaded.
-                    </p>
-                  </div>
-                ) : badges.filter((b) => {
-                    if (badgeFilter === 'unlocked') return b.isUnlocked
-                    if (badgeFilter === 'locked') return !b.isUnlocked
-                    return true
-                  }).length === 0 ? (
-                  <div className="p-6 text-center bg-slate-50 border border-dashed border-slate-200 rounded-xl">
-                    <p className="text-xs text-slate-500 font-medium">
-                      {badgeFilter === 'unlocked'
-                        ? 'No unlocked badges yet. Solve problems and build streaks to earn your first badge!'
-                        : 'All badges are already unlocked! Amazing achievement!'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[620px] overflow-y-auto pr-1">
-                    {badges
-                      .filter((b) => {
-                        if (badgeFilter === 'unlocked') return b.isUnlocked
-                        if (badgeFilter === 'locked') return !b.isUnlocked
-                        return true
-                      })
-                      .map((badge) => {
-                        const style = getTierStyle(badge.tier, badge.isUnlocked)
-                        return (
-                          <div
-                            key={badge.id}
-                            className={`p-3 border rounded-xl flex flex-col justify-between transition-all ${style.card}`}
-                            title={`${badge.title}: ${badge.description}`}
-                          >
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div
-                                  className={`w-8 h-8 rounded-lg border flex items-center justify-center ${style.iconBox}`}
-                                >
-                                  {renderBadgeIcon(badge.icon, 'w-4 h-4')}
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                  <span
-                                    className={`text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${style.pill}`}
-                                  >
-                                    {badge.tier}
-                                  </span>
-                                  {badge.isUnlocked ? (
-                                    <span title="Unlocked">
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                    </span>
-                                  ) : (
-                                    <span title="Locked">
-                                      <Lock className="w-3 h-3 text-slate-400" />
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              <h4 className="font-display font-bold text-xs text-[#0c1d2d] leading-tight">
-                                {badge.title}
-                              </h4>
-                              <p className="text-[11px] text-slate-500 leading-snug line-clamp-2 mt-0.5">
-                                {badge.description}
-                              </p>
-                            </div>
-
-                            {/* Footer: Date or Progress Bar */}
-                            <div className="mt-2.5 pt-2 border-t border-slate-100/80">
-                              {badge.isUnlocked ? (
-                                <div className="flex items-center justify-between text-[10px] font-mono text-emerald-700">
-                                  <span className="font-semibold flex items-center gap-1">
-                                    <Sparkles className="w-3 h-3 text-amber-500" /> Unlocked
-                                  </span>
-                                  <span className="text-slate-500">
-                                    {badge.unlockedAt
-                                      ? new Date(badge.unlockedAt).toLocaleDateString('en-US', {
-                                          month: 'short',
-                                          day: 'numeric',
-                                        })
-                                      : 'Achieved'}
-                                  </span>
-                                </div>
-                              ) : (
-                                <div>
-                                  <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
-                                    <div
-                                      className="h-full bg-slate-400 rounded-full transition-all duration-300"
-                                      style={{ width: `${badge.progressPercentage}%` }}
-                                    />
-                                  </div>
-                                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 mt-1">
-                                    <span>
-                                      {badge.currentProgress} / {badge.criteriaThreshold}
-                                    </span>
-                                    <span className="font-semibold text-slate-600">
-                                      {badge.progressPercentage}%
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                  </div>
-                )}
               </div>
             </div>
 
             {/* ================================================= */}
-            {/* RIGHT COLUMN: Performance + Recent Attempts       */}
+            {/* ROW 2: COMPETITIVE PERFORMANCE KPIS               */}
             {/* ================================================= */}
-            <div className="space-y-5">
-              {/* 3. Competitive Performance Deck */}
-              <div className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-5">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-amber-500" />
-                    <h3 className="font-display font-bold text-sm text-[#0c1d2d]">
-                      Competitive Performance
-                    </h3>
+            <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-5 text-white">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-amber-400" />
+                  <h3 className="font-display font-bold text-sm text-white">
+                    Competitive Performance
+                  </h3>
+                </div>
+                <span className="font-mono text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                  XP Breakdown & Attempts
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 text-center">
+                <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
+                  <div className="font-display font-black text-lg text-white">
+                    {questionStats?.totalAttempts ?? 0}
                   </div>
-                  <span className="font-mono text-[10px] font-medium text-slate-500 uppercase tracking-wider">
-                    XP Breakdown & Attempts
-                  </span>
+                  <div className="font-mono text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">
+                    Attempts
+                  </div>
                 </div>
 
-                {/* 7 Performance KPI Blocks */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
-                  <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
-                    <div className="font-display font-bold text-lg sm:text-xl text-[#0c1d2d]">
-                      {questionStats?.totalAttempts ?? 0}
-                    </div>
-                    <div className="font-mono text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">
-                      Attempts
-                    </div>
+                <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
+                  <div className="font-display font-black text-lg text-emerald-400">
+                    {questionStats?.correctAttempts ?? 0}
                   </div>
-
-                  <div className="p-3 bg-emerald-50/60 border border-emerald-200/70 rounded-xl">
-                    <div className="font-display font-bold text-lg sm:text-xl text-emerald-800">
-                      {questionStats?.correctAttempts ?? 0}
-                    </div>
-                    <div className="font-mono text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mt-0.5">
-                      Correct
-                    </div>
+                  <div className="font-mono text-[10px] font-semibold text-emerald-400/80 uppercase tracking-wider mt-0.5">
+                    Correct
                   </div>
+                </div>
 
-                  <div className="p-3 bg-rose-50/60 border border-rose-200/70 rounded-xl">
-                    <div className="font-display font-bold text-lg sm:text-xl text-rose-800">
-                      {questionStats?.incorrectAttempts ?? 0}
-                    </div>
-                    <div className="font-mono text-[10px] font-semibold text-rose-700 uppercase tracking-wider mt-0.5">
-                      Incorrect
-                    </div>
+                <div className="p-3 bg-rose-950/20 border border-rose-500/20 rounded-xl">
+                  <div className="font-display font-black text-lg text-rose-400">
+                    {questionStats?.incorrectAttempts ?? 0}
                   </div>
-
-                  <div className="p-3 bg-amber-50/60 border border-amber-200/70 rounded-xl">
-                    <div className="font-display font-bold text-lg sm:text-xl text-amber-900">
-                      {questionStats?.accuracyRate ?? 0}%
-                    </div>
-                    <div className="font-mono text-[10px] font-semibold text-amber-800 uppercase tracking-wider mt-0.5">
-                      Accuracy
-                    </div>
+                  <div className="font-mono text-[10px] font-semibold text-rose-400/80 uppercase tracking-wider mt-0.5">
+                    Incorrect
                   </div>
+                </div>
 
-                  <div className="p-3 bg-emerald-50/40 border border-emerald-100 rounded-xl">
-                    <div className="font-display font-bold text-base sm:text-lg text-emerald-700">
-                      +{questionStats?.xpEarned ?? 0}
-                    </div>
-                    <div className="font-mono text-[10px] font-semibold text-emerald-600 uppercase tracking-wider mt-0.5">
-                      XP Earned
-                    </div>
+                <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-xl">
+                  <div className="font-display font-black text-lg text-[#ffd43b]">
+                    {questionStats?.accuracyRate ?? 0}%
                   </div>
-
-                  <div className="p-3 bg-rose-50/40 border border-rose-100 rounded-xl">
-                    <div className="font-display font-bold text-base sm:text-lg text-rose-700">
-                      -{questionStats?.xpLost ?? 0}
-                    </div>
-                    <div className="font-mono text-[10px] font-semibold text-rose-600 uppercase tracking-wider mt-0.5">
-                      XP Penalty
-                    </div>
+                  <div className="font-mono text-[10px] font-semibold text-amber-400/80 uppercase tracking-wider mt-0.5">
+                    Accuracy
                   </div>
+                </div>
 
-                  <div className="p-3 bg-[#0c1d2d] text-white border border-[#0c1d2d] rounded-xl col-span-2 flex items-center justify-between px-4">
-                    <div>
-                      <div className="font-mono text-[10px] font-medium text-white/60 uppercase tracking-wider">
-                        Net Arena XP
-                      </div>
-                      <div className="font-display font-bold text-lg sm:text-xl text-[#ffd43b]">
-                        {questionStats?.netXp ?? 0} XP
-                      </div>
-                    </div>
-                    <Zap className="w-5 h-5 text-[#ffd43b]/60" />
+                <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
+                  <div className="font-display font-black text-base text-emerald-400">
+                    +{questionStats?.xpEarned ?? 0}
+                  </div>
+                  <div className="font-mono text-[10px] font-semibold text-emerald-400/80 uppercase tracking-wider mt-0.5">
+                    XP Earned
+                  </div>
+                </div>
+
+                <div className="p-3 bg-rose-950/20 border border-rose-500/20 rounded-xl">
+                  <div className="font-display font-black text-base text-rose-400">
+                    -{questionStats?.xpLost ?? 0}
+                  </div>
+                  <div className="font-mono text-[10px] font-semibold text-rose-400/80 uppercase tracking-wider mt-0.5">
+                    XP Penalty
+                  </div>
+                </div>
+
+                <div className="p-3 bg-amber-500/10 text-white border border-amber-400/30 rounded-xl flex flex-col justify-center col-span-2 sm:col-span-1">
+                  <div className="font-mono text-[9px] font-medium text-amber-300/80 uppercase tracking-wider">
+                    Net Arena XP
+                  </div>
+                  <div className="font-display font-black text-lg text-[#ffd43b] mt-0.5">
+                    {questionStats?.netXp ?? 0} XP
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* 4. Recent Attempt History Deck */}
-              <div className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-5">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Trophy className="w-4 h-4 text-amber-500" />
-                    <h3 className="font-display font-bold text-sm text-[#0c1d2d]">
-                      Recent Attempt Log
+            {/* ================================================= */}
+            {/* ROW 3: EARNED BADGES ACHIEVEMENT GALLERY          */}
+            {/* ================================================= */}
+            <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-5 sm:p-6 text-white">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10 mb-4">
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <h3 className="font-display font-black text-base sm:text-lg text-white tracking-tight uppercase">
+                      Earned Badges
                     </h3>
+                    <span className="font-mono text-xs font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30">
+                      {unlockedBadgeCount} / {totalBadgeCount} UNLOCKED
+                    </span>
                   </div>
-                  <span className="font-mono text-[11px] font-medium text-slate-500">
-                    {userAttempts.length} Records
-                  </span>
+                  <p className="text-xs font-body text-slate-400 mt-1">
+                    Milestones earned across your Apticks journey.
+                  </p>
                 </div>
 
-                {userAttempts.length === 0 ? (
-                  <div className="p-6 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center font-body text-xs font-medium text-slate-500">
-                    No attempt history recorded yet. Solve problems in the Question Bank to build your competitive track record!
-                  </div>
-                ) : (
-                  <div
-                    data-lenis-prevent
-                    className="space-y-2 max-h-72 question-list-scroll overflow-y-auto min-h-0 pr-1"
+                {/* Competitive Filter Tabs */}
+                <div className="inline-flex p-0.5 bg-black/50 border border-white/10 rounded-lg shrink-0 self-start sm:self-auto font-mono">
+                  <button
+                    type="button"
+                    onClick={() => setBadgeFilter('all')}
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      badgeFilter === 'all'
+                        ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-xs'
+                        : 'text-white/60 hover:text-white'
+                    }`}
                   >
-                    {userAttempts.map((att) => (
-                      <div
-                        key={att.id}
-                        className="p-3 bg-slate-50/70 hover:bg-slate-100/70 border border-slate-200/70 rounded-xl flex items-center justify-between gap-3 transition-colors"
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="px-1.5 py-0.5 bg-[#0c1d2d] text-white rounded text-[9px] font-mono font-bold uppercase">
-                              {att.questionId}
-                            </span>
-                            <span className="font-display font-bold text-xs text-[#0c1d2d] truncate">
-                              {att.questionTitle || `Attempt #${att.attemptNumber}`}
-                            </span>
+                    ALL ({totalBadgeCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBadgeFilter('unlocked')}
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      badgeFilter === 'unlocked'
+                        ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-xs'
+                        : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    UNLOCKED ({unlockedBadgeCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBadgeFilter('locked')}
+                    aria-label="Filter In Progress Milestones"
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      badgeFilter === 'locked'
+                        ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-xs'
+                        : 'text-white/60 hover:text-white'
+                    }`}
+                  >
+                    IN PROGRESS ({Math.max(0, totalBadgeCount - unlockedBadgeCount)})
+                  </button>
+                </div>
+              </div>
+
+              {/* Gallery Grid */}
+              {badgesLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                    <div
+                      key={i}
+                      className="p-3.5 bg-white/[0.03] border border-white/10 rounded-xl animate-pulse min-h-[160px] flex flex-col justify-between"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="w-9 h-9 rounded-lg bg-white/10" />
+                        <div className="w-14 h-4 bg-white/10 rounded" />
+                      </div>
+                      <div className="space-y-1.5 my-2">
+                        <div className="w-24 h-3.5 bg-white/10 rounded" />
+                        <div className="w-full h-2.5 bg-white/10 rounded" />
+                      </div>
+                      <div className="w-full h-2 bg-white/10 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : badges.length === 0 ? (
+                <div className="p-8 text-center bg-white/[0.02] border border-dashed border-white/10 rounded-xl font-mono text-xs text-slate-400">
+                  No achievements catalog loaded.
+                </div>
+              ) : badges.filter((b) => {
+                  if (badgeFilter === 'unlocked') return b.isUnlocked
+                  if (badgeFilter === 'locked') return !b.isUnlocked
+                  return true
+                }).length === 0 ? (
+                <div className="p-8 text-center bg-white/[0.02] border border-dashed border-white/10 rounded-xl font-mono text-xs text-slate-400">
+                  {badgeFilter === 'unlocked'
+                    ? 'No unlocked badges yet. Solve problems, complete daily challenges, and maintain streaks to earn your milestones!'
+                    : 'All badges are unlocked! Master competitor status achieved!'}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+                  {badges
+                    .filter((b) => {
+                      if (badgeFilter === 'unlocked') return b.isUnlocked
+                      if (badgeFilter === 'locked') return !b.isUnlocked
+                      return true
+                    })
+                    .map((badge) => {
+                      const style = getTierStyle(badge.tier, badge.isUnlocked)
+                      return (
+                        <div
+                          key={badge.id}
+                          data-badge-card="true"
+                          className={`p-3.5 border rounded-xl flex flex-col justify-between min-h-[160px] relative transition-all duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:transform-none ${style.card}`}
+                          title={`${badge.title}: ${badge.description}`}
+                        >
+                          <div>
+                            {/* Card Top: Icon & Metadata Badges */}
+                            <div className="flex items-center justify-between gap-2 mb-2.5">
+                              <div
+                                className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 shadow-2xs ${style.iconBox}`}
+                              >
+                                {renderBadgeIcon(badge.icon, 'w-4 h-4')}
+                              </div>
+                              <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                                <span
+                                  className={`text-[9px] font-mono font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded border ${style.pill}`}
+                                >
+                                  {badge.tier}
+                                </span>
+                                {badge.isUnlocked ? (
+                                  <span
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-400/20 text-[#ffd43b] border border-amber-400/40 rounded font-mono font-bold text-[9px] uppercase tracking-wider"
+                                    title="Milestone Unlocked"
+                                  >
+                                    <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                                    <span>UNLOCKED</span>
+                                  </span>
+                                ) : (
+                                  <span
+                                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white/5 text-slate-400 border border-white/10 rounded font-mono font-bold text-[9px] uppercase tracking-wider"
+                                    title="Milestone Locked"
+                                  >
+                                    <Lock className="w-2.5 h-2.5 text-slate-400" />
+                                    <span>LOCKED</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Card Body: Title, Category, Description */}
+                            <h4 className="font-display font-bold text-xs sm:text-sm text-white leading-snug">
+                              {badge.title}
+                            </h4>
+                            <div className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                              {badge.category}
+                            </div>
+                            <p className="text-[11px] font-body text-slate-300 leading-snug line-clamp-2 mt-1">
+                              {badge.description}
+                            </p>
                           </div>
-                          <div className="font-mono text-[10px] text-slate-500 mt-0.5">
-                            Option {att.selectedOption} • Attempt #{att.attemptNumber}
+
+                          {/* Card Footer: Unlocked Date or Progress */}
+                          <div className="mt-3 pt-2 border-t border-white/10">
+                            {badge.isUnlocked ? (
+                              <div className="flex items-center justify-between text-[10px] font-mono text-amber-400">
+                                <span className="font-bold">Achieved</span>
+                                <span className="font-medium text-slate-400">
+                                  {badge.unlockedAt
+                                    ? new Date(badge.unlockedAt).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                      })
+                                    : 'Completed'}
+                                </span>
+                              </div>
+                            ) : (
+                              <div>
+                                <div className="flex items-center justify-between text-[10px] font-mono mb-1">
+                                  <span className="font-medium text-slate-400">
+                                    {badge.currentProgress} / {badge.criteriaThreshold}
+                                  </span>
+                                  <span className="font-bold text-[#ffd43b]">
+                                    {badge.progressPercentage}%
+                                  </span>
+                                </div>
+                                <div className={`w-full h-1.5 rounded-full overflow-hidden ${style.trackBg}`}>
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-300 ${style.barBg}`}
+                                    style={{ width: `${badge.progressPercentage}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
+                      )
+                    })}
+                </div>
+              )}
+            </div>
 
-                        <div className="shrink-0 text-right">
-                          <span
-                            className={`
-                              inline-flex items-center px-2 py-0.5 border rounded-md font-mono font-bold text-[10px]
-                              ${
-                                att.isCorrect
-                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                                  : 'bg-rose-50 text-rose-800 border-rose-200'
-                              }
-                            `}
-                          >
-                            {att.isCorrect ? `+${att.xpChange} XP` : `${att.xpChange} XP`}
+            {/* ================================================= */}
+            {/* ROW 4: RECENT ATTEMPT HISTORY LOG                 */}
+            {/* ================================================= */}
+            <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-5 text-white">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-amber-400" />
+                  <h3 className="font-display font-bold text-sm text-white">
+                    Recent Attempt Log
+                  </h3>
+                </div>
+                <span className="font-mono text-[11px] font-medium text-slate-400">
+                  {userAttempts.length} Records
+                </span>
+              </div>
+
+              {userAttempts.length === 0 ? (
+                <div className="p-6 bg-white/[0.02] border border-dashed border-white/10 rounded-xl text-center font-body text-xs font-medium text-slate-400">
+                  No attempt history recorded yet. Solve problems in the Question Bank to build your competitive track record!
+                </div>
+              ) : (
+                <div
+                  data-lenis-prevent
+                  className="space-y-2 max-h-72 question-list-scroll overflow-y-auto min-h-0 pr-1"
+                >
+                  {userAttempts.map((att) => (
+                    <div
+                      key={att.id}
+                      className="p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl flex items-center justify-between gap-3 transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 bg-amber-400/10 text-amber-300 border border-amber-400/30 rounded text-[9px] font-mono font-bold uppercase">
+                            {att.questionId}
                           </span>
-                          <div className="font-mono text-[9px] text-slate-400 mt-0.5">
-                            {new Date(att.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </div>
+                          <span className="font-display font-bold text-xs text-white truncate">
+                            {att.questionTitle || `Attempt #${att.attemptNumber}`}
+                          </span>
+                        </div>
+                        <div className="font-mono text-[10px] text-slate-400 mt-0.5">
+                          Option {att.selectedOption} • Attempt #{att.attemptNumber}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+
+                      <div className="shrink-0 text-right">
+                        <span
+                          className={`
+                            inline-flex items-center px-2 py-0.5 border rounded-md font-mono font-bold text-[10px]
+                            ${
+                              att.isCorrect
+                                ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30'
+                                : 'bg-rose-950/40 text-rose-300 border-rose-500/30'
+                            }
+                          `}
+                        >
+                          {att.isCorrect ? `+${att.xpChange} XP` : `${att.xpChange} XP`}
+                        </span>
+                        <div className="font-mono text-[9px] text-slate-400 mt-0.5">
+                          {new Date(att.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1273,15 +1310,15 @@ export default function Profile() {
         {/* TAB 2: EDIT PROFILE FORM                          */}
         {/* ================================================= */}
         {activeTab === 'edit' && (
-          <div className="max-w-2xl bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-6 sm:p-8">
-            <div className="border-b border-slate-100 pb-4 mb-6">
-              <div className="inline-block bg-sky-50 text-sky-700 border border-sky-200 rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold tracking-wider uppercase mb-2">
+          <div className="max-w-2xl bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
+            <div className="border-b border-white/10 pb-4 mb-6">
+              <div className="inline-block bg-sky-500/10 text-sky-400 border border-sky-400/30 rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold tracking-wider uppercase mb-2">
                 Customize Identity
               </div>
-              <h2 className="font-display font-bold text-xl sm:text-2xl tracking-tight text-[#0c1d2d] leading-tight">
+              <h2 className="font-display font-bold text-xl sm:text-2xl tracking-tight text-white leading-tight">
                 Edit Profile
               </h2>
-              <p className="mt-1 text-xs font-body text-slate-500">
+              <p className="mt-1 text-xs font-body text-slate-400">
                 Update your public handle, display name, avatar, and personal statement across Apticks.
               </p>
             </div>
@@ -1289,12 +1326,12 @@ export default function Profile() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* 1. Avatar Uploader & Presets */}
               <div>
-                <label className="block mb-2 text-xs font-display font-bold text-slate-700 uppercase tracking-wider">
+                <label className="block mb-2 text-xs font-display font-bold text-slate-300 uppercase tracking-wider">
                   Profile Avatar
                 </label>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="w-16 h-16 bg-[#ffd43b] border border-[#0c1d2d]/15 rounded-2xl shadow-xs flex items-center justify-center font-display font-bold text-2xl text-[#0c1d2d] overflow-hidden shrink-0">
+                  <div className="w-16 h-16 bg-[#ffd43b] border border-amber-400/50 rounded-2xl shadow-lg flex items-center justify-center font-display font-bold text-2xl text-[#0c1d2d] overflow-hidden shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -1316,7 +1353,7 @@ export default function Profile() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingAvatar}
-                        className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg font-display font-bold text-xs text-slate-700 shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                        className="px-3.5 py-2 bg-white/10 hover:bg-white/15 border border-white/15 rounded-lg font-display font-bold text-xs text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                       >
                         <Upload className="w-3.5 h-3.5" />
                         <span>{uploadingAvatar ? 'Uploading...' : 'Upload Photo'}</span>
@@ -1326,7 +1363,7 @@ export default function Profile() {
                         <button
                           type="button"
                           onClick={handleRemoveAvatar}
-                          className="px-3.5 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-lg font-display font-bold text-xs cursor-pointer transition-colors"
+                          className="px-3.5 py-2 bg-rose-950/40 text-rose-300 hover:bg-rose-950/60 border border-rose-500/30 rounded-lg font-display font-bold text-xs cursor-pointer transition-colors"
                         >
                           Remove
                         </button>
@@ -1339,7 +1376,7 @@ export default function Profile() {
                 </div>
 
                 {/* Avatar Presets */}
-                <div className="mt-4 pt-3 border-t border-slate-100">
+                <div className="mt-4 pt-3 border-t border-white/10">
                   <span className="block font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     Or select preset:
                   </span>
@@ -1351,8 +1388,8 @@ export default function Profile() {
                         onClick={() => handleSelectPresetAvatar(preset.url)}
                         className={`w-9 h-9 border rounded-xl shadow-xs transition-all cursor-pointer overflow-hidden ${
                           avatarUrl === preset.url
-                            ? 'border-[#0c1d2d] ring-2 ring-[#0c1d2d]/30'
-                            : 'border-slate-200 hover:border-slate-300'
+                            ? 'border-amber-400 ring-2 ring-amber-400/40'
+                            : 'border-white/15 hover:border-white/30'
                         }`}
                       >
                         <img src={preset.url} alt={preset.label} className="w-full h-full" />
@@ -1366,12 +1403,12 @@ export default function Profile() {
               <div>
                 <label
                   htmlFor="displayName"
-                  className="block mb-1.5 text-xs font-display font-bold tracking-wider text-slate-700 uppercase"
+                  className="block mb-1.5 text-xs font-display font-bold tracking-wider text-slate-300 uppercase"
                 >
                   Display Name
                 </label>
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden">
-                  <span className="px-3.5 py-2.5 border-r border-slate-100 bg-slate-50 text-slate-500 flex items-center">
+                <div className="flex items-center bg-black/40 border border-white/15 rounded-xl shadow-xs focus-within:border-amber-400 focus-within:ring-1 focus-within:ring-amber-400 overflow-hidden">
+                  <span className="px-3.5 py-2.5 border-r border-white/10 bg-white/5 text-slate-400 flex items-center">
                     <User className="w-4 h-4" />
                   </span>
                   <input
@@ -1381,7 +1418,7 @@ export default function Profile() {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     maxLength={50}
-                    className="w-full py-2.5 px-3 outline-none font-display font-semibold text-sm bg-transparent placeholder:text-slate-400"
+                    className="w-full py-2.5 px-3 outline-none font-display font-semibold text-sm bg-transparent text-white placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -1391,7 +1428,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-1.5">
                   <label
                     htmlFor="username"
-                    className="text-xs font-display font-bold tracking-wider text-slate-700 uppercase"
+                    className="text-xs font-display font-bold tracking-wider text-slate-300 uppercase"
                   >
                     Username (Handle)
                   </label>
@@ -1400,10 +1437,10 @@ export default function Profile() {
                     <span
                       className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${
                         usernameStatus.isCurrent
-                          ? 'bg-slate-100 text-slate-700 border-slate-200'
+                          ? 'bg-white/10 text-slate-300 border-white/15'
                           : usernameStatus.available
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
+                          ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30'
+                          : 'bg-rose-950/40 text-rose-300 border-rose-500/30'
                       }`}
                     >
                       {checkingUsername
@@ -1418,8 +1455,8 @@ export default function Profile() {
                 </div>
 
                 {!cooldown.canChange && (
-                  <div className="mb-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs font-body text-amber-900 flex items-start gap-2">
-                    <Lock className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
+                  <div className="mb-2 p-3 bg-amber-950/40 border border-amber-500/30 rounded-xl text-xs font-body text-amber-200 flex items-start gap-2">
+                    <Lock className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                     <div>
                       <strong>Handle locked:</strong> Usernames can only be changed once every 14 days. Available in{' '}
                       <strong>{cooldown.daysLeft} day(s)</strong> on{' '}
@@ -1428,8 +1465,8 @@ export default function Profile() {
                   </div>
                 )}
 
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden">
-                  <span className="px-3.5 py-2.5 border-r border-slate-100 bg-slate-50 text-slate-500 font-display font-bold text-sm">
+                <div className="flex items-center bg-black/40 border border-white/15 rounded-xl shadow-xs focus-within:border-amber-400 focus-within:ring-1 focus-within:ring-amber-400 overflow-hidden">
+                  <span className="px-3.5 py-2.5 border-r border-white/10 bg-white/5 text-slate-400 font-display font-bold text-sm">
                     @
                   </span>
                   <input
@@ -1440,7 +1477,7 @@ export default function Profile() {
                     disabled={!cooldown.canChange}
                     placeholder="your_handle"
                     maxLength={20}
-                    className="w-full py-2.5 px-3 outline-none font-display font-semibold text-sm bg-transparent placeholder:text-slate-400 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                    className="w-full py-2.5 px-3 outline-none font-display font-semibold text-sm bg-transparent text-white placeholder:text-slate-500 disabled:bg-white/5 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -1450,7 +1487,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-1.5">
                   <label
                     htmlFor="bio"
-                    className="text-xs font-display font-bold tracking-wider text-slate-700 uppercase"
+                    className="text-xs font-display font-bold tracking-wider text-slate-300 uppercase"
                   >
                     Bio / Statement
                   </label>
@@ -1465,7 +1502,7 @@ export default function Profile() {
                   placeholder="Share your target exams, college, or aptitude goals..."
                   maxLength={160}
                   rows={3}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl shadow-xs outline-none font-body text-sm placeholder:text-slate-400 focus:border-[#0c1d2d] focus:ring-1 focus:ring-[#0c1d2d]"
+                  className="w-full p-3 bg-black/40 border border-white/15 rounded-xl shadow-xs outline-none font-body text-sm text-white placeholder:text-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                 />
               </div>
 
@@ -1478,7 +1515,7 @@ export default function Profile() {
                     normalizeUsername(originalProfile?.username || '') &&
                     (!usernameStatus?.available || !cooldown.canChange))
                 }
-                className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-[#0c1d2d]/20 rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-xl shadow-[0_0_15px_rgba(255,212,59,0.25)] hover:shadow-[0_0_20px_rgba(255,212,59,0.4)] font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 <span>{saving ? 'Saving Changes...' : 'Save Profile Changes'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1493,32 +1530,32 @@ export default function Profile() {
         {activeTab === 'settings' && (
           <div className="max-w-3xl space-y-5">
             {/* 1. Account / Recovery Email */}
-            <section className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-6 sm:p-7">
-              <div className="border-b border-slate-100 pb-3 mb-5 flex items-center justify-between">
+            <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-6 sm:p-7 text-white">
+              <div className="border-b border-white/10 pb-3 mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Mail className="w-5 h-5 text-slate-700" />
-                  <h3 className="font-display font-bold text-lg text-[#0c1d2d]">
+                  <Mail className="w-5 h-5 text-amber-400" />
+                  <h3 className="font-display font-bold text-lg text-white">
                     Account Email
                   </h3>
                 </div>
                 {isEmailVerified ? (
-                  <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase">
+                  <span className="bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase">
                     Verified
                   </span>
                 ) : (
-                  <span className="bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase">
+                  <span className="bg-amber-950/40 text-amber-300 border border-amber-500/30 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase">
                     Unlinked
                   </span>
                 )}
               </div>
 
-              <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+              <div className="p-4 bg-white/[0.04] border border-white/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                 <div>
-                  <div className="font-display font-bold text-xs uppercase text-slate-700 mb-0.5">
+                  <div className="font-display font-bold text-xs uppercase text-slate-300 mb-0.5">
                     Recovery & Notification Email
                   </div>
-                  <div className="font-body font-medium text-sm text-slate-800 flex items-center gap-1.5">
-                    <Mail className="w-4 h-4 text-slate-500" />
+                  <div className="font-body font-medium text-sm text-slate-200 flex items-center gap-1.5">
+                    <Mail className="w-4 h-4 text-slate-400" />
                     <span>{isEmailVerified ? userEmail : 'No verified email linked yet'}</span>
                   </div>
                 </div>
@@ -1533,39 +1570,39 @@ export default function Profile() {
                     setEmailModalError(null)
                     setEmailModalSuccess(null)
                   }}
-                  className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg font-display font-bold text-xs text-[#0c1d2d] shadow-xs cursor-pointer transition-colors"
+                  className="px-3.5 py-2 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-lg font-display font-bold text-xs shadow-xs cursor-pointer transition-all active:scale-[0.98]"
                 >
                   {isEmailVerified ? 'Change Email' : '+ Link Email'}
                 </button>
               </div>
 
-              <p className="text-xs font-body text-slate-500">
+              <p className="text-xs font-body text-slate-400">
                 A verified email enables password recovery and official contest notifications.
               </p>
             </section>
 
             {/* 2. Security & Password */}
-            <section className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-6 sm:p-7">
-              <div className="border-b border-slate-100 pb-3 mb-5 flex items-center gap-2.5">
-                <Shield className="w-5 h-5 text-slate-700" />
-                <h3 className="font-display font-bold text-lg text-[#0c1d2d]">
+            <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-6 sm:p-7 text-white">
+              <div className="border-b border-white/10 pb-3 mb-5 flex items-center gap-2.5">
+                <Shield className="w-5 h-5 text-amber-400" />
+                <h3 className="font-display font-bold text-lg text-white">
                   Security Credentials
                 </h3>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 border border-slate-200/80 rounded-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-white/[0.04] border border-white/10 rounded-xl">
                 <div>
-                  <div className="font-display font-bold text-xs uppercase text-slate-700">
+                  <div className="font-display font-bold text-xs uppercase text-slate-300">
                     Account Password
                   </div>
-                  <div className="text-xs text-slate-500 mt-0.5">
+                  <div className="text-xs text-slate-400 mt-0.5">
                     Keep your account secure with regular updates.
                   </div>
                 </div>
 
                 <Link
                   to="/update-password"
-                  className="inline-flex items-center gap-2 text-xs font-display font-bold text-[#0c1d2d] hover:text-[#2563eb] border border-slate-200 rounded-lg bg-white px-3.5 py-2 shadow-xs transition-colors"
+                  className="inline-flex items-center gap-2 text-xs font-display font-bold text-white hover:text-[#ffd43b] border border-white/15 rounded-lg bg-white/5 hover:bg-white/10 px-3.5 py-2 shadow-xs transition-colors"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
                   <span>Change Password →</span>
@@ -1574,37 +1611,37 @@ export default function Profile() {
             </section>
 
             {/* 3. Preferences */}
-            <section className="bg-white border border-[#0c1d2d]/12 rounded-2xl shadow-xs p-6 sm:p-7">
-              <div className="border-b border-slate-100 pb-3 mb-5 flex items-center gap-2.5">
-                <Sliders className="w-5 h-5 text-slate-700" />
-                <h3 className="font-display font-bold text-lg text-[#0c1d2d]">
+            <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-6 sm:p-7 text-white">
+              <div className="border-b border-white/10 pb-3 mb-5 flex items-center gap-2.5">
+                <Sliders className="w-5 h-5 text-amber-400" />
+                <h3 className="font-display font-bold text-lg text-white">
                   Arena Preferences
                 </h3>
               </div>
 
-              <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between">
+              <div className="p-4 bg-white/[0.04] border border-white/10 rounded-xl flex items-center justify-between">
                 <div>
-                  <div className="font-display font-bold text-xs uppercase text-slate-700">
+                  <div className="font-display font-bold text-xs uppercase text-slate-300">
                     Reduced Motion Compliance
                   </div>
-                  <div className="text-xs text-slate-500 mt-0.5">
+                  <div className="text-xs text-slate-400 mt-0.5">
                     Automatically adapts to system prefers-reduced-motion settings.
                   </div>
                 </div>
-                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase">
+                <span className="bg-emerald-950/40 text-emerald-300 border border-emerald-500/30 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase">
                   Auto Enabled
                 </span>
               </div>
             </section>
 
             {/* 4. Session & Destructive Logout */}
-            <section className="bg-rose-50/40 border border-rose-200/70 rounded-2xl shadow-xs p-6 sm:p-7">
+            <section className="bg-rose-950/20 border border-rose-500/30 rounded-2xl shadow-xl p-6 sm:p-7 text-white">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <div className="font-display font-bold text-base text-rose-900">
+                  <div className="font-display font-bold text-base text-rose-300">
                     Log out of Arena Session
                   </div>
-                  <div className="text-xs text-slate-600 mt-0.5">
+                  <div className="text-xs text-slate-400 mt-0.5">
                     End your current session on this browser device.
                   </div>
                 </div>
@@ -1613,7 +1650,7 @@ export default function Profile() {
                   type="button"
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0 active:scale-[0.98]"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>{loggingOut ? 'Logging out...' : 'Log Out Now'}</span>
@@ -1631,55 +1668,55 @@ export default function Profile() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setEmailModalOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-white border border-[#0c1d2d]/15 rounded-2xl shadow-xl p-6 sm:p-7 relative"
+            className="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-white/15 rounded-2xl shadow-2xl p-6 sm:p-7 relative text-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-5">
-              <div className="font-display font-bold text-base text-[#0c1d2d]">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-5">
+              <div className="font-display font-bold text-base text-white">
                 {otpStep ? 'Verify Email Code' : 'Link Recovery Email'}
               </div>
               <button
                 type="button"
                 onClick={() => setEmailModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 flex items-center justify-center cursor-pointer transition-colors"
+                className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {emailModalError && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <div className="mb-4 p-3 bg-rose-950/40 border border-rose-500/30 rounded-xl text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
                 <span>{emailModalError}</span>
               </div>
             )}
 
             {emailModalSuccess && (
-              <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <div className="mb-4 p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
                 <span>{emailModalSuccess}</span>
               </div>
             )}
 
             {!otpStep ? (
               <form onSubmit={handleInitiateEmailLink} className="space-y-4">
-                <p className="text-xs font-body text-slate-600">
+                <p className="text-xs font-body text-slate-300">
                   Enter your real email address. We will send a 6-digit OTP code to verify ownership.
                 </p>
 
                 <div>
                   <label
                     htmlFor="modal-email-input"
-                    className="block mb-1.5 text-xs font-display font-bold tracking-wider text-slate-700 uppercase"
+                    className="block mb-1.5 text-xs font-display font-bold tracking-wider text-slate-300 uppercase"
                   >
                     Email Address
                   </label>
-                  <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden">
-                    <span className="px-3.5 py-2.5 border-r border-slate-100 bg-slate-50 text-slate-500 flex items-center">
+                  <div className="flex items-center bg-black/40 border border-white/15 rounded-xl shadow-xs focus-within:border-amber-400 focus-within:ring-1 focus-within:ring-amber-400 overflow-hidden">
+                    <span className="px-3.5 py-2.5 border-r border-white/10 bg-white/5 text-slate-400 flex items-center">
                       <Mail className="w-4 h-4" />
                     </span>
                     <input
@@ -1690,7 +1727,7 @@ export default function Profile() {
                       onChange={(e) => setEmailInput(e.target.value)}
                       required
                       autoFocus
-                      className="w-full py-2.5 px-3 outline-none font-display font-semibold text-sm bg-transparent placeholder:text-slate-400"
+                      className="w-full py-2.5 px-3 outline-none font-display font-semibold text-sm bg-transparent text-white placeholder:text-slate-500"
                     />
                   </div>
                 </div>
@@ -1698,7 +1735,7 @@ export default function Profile() {
                 <button
                   type="submit"
                   disabled={emailLoading}
-                  className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-[#0c1d2d]/20 rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                  className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-xl shadow-[0_0_15px_rgba(255,212,59,0.25)] hover:shadow-[0_0_20px_rgba(255,212,59,0.4)] font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4 active:scale-[0.98]"
                 >
                   <span>{emailLoading ? 'Sending code...' : 'Send Verification Code'}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1706,8 +1743,8 @@ export default function Profile() {
               </form>
             ) : (
               <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <p className="text-xs font-body text-slate-600">
-                  Enter the 6-digit verification code sent to <strong>{emailInput}</strong>.
+                <p className="text-xs font-body text-slate-300">
+                  Enter the 6-digit verification code sent to <strong className="text-amber-300">{emailInput}</strong>.
                 </p>
 
                 <div>
@@ -1719,25 +1756,25 @@ export default function Profile() {
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                     required
                     autoFocus
-                    className="w-full py-3 px-4 text-center font-mono font-bold text-2xl tracking-[0.4em] bg-slate-50 border border-slate-200 rounded-xl shadow-xs outline-none focus:border-[#0c1d2d] focus:ring-1 focus:ring-[#0c1d2d]"
+                    className="w-full py-3 px-4 text-center font-mono font-bold text-2xl tracking-[0.4em] bg-black/40 border border-white/15 text-white rounded-xl shadow-xs outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={emailLoading || otpCode.length < 6}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4 active:scale-[0.98]"
                 >
                   <span>{emailLoading ? 'Verifying...' : 'Verify & Link Email'}</span>
                   <CheckCircle2 className="w-4 h-4" />
                 </button>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <button
                     type="button"
                     onClick={handleResendOtp}
                     disabled={emailLoading}
-                    className="text-xs font-display font-medium text-slate-600 hover:text-slate-900 underline cursor-pointer flex items-center gap-1"
+                    className="text-xs font-display font-medium text-slate-400 hover:text-white underline cursor-pointer flex items-center gap-1"
                   >
                     <RotateCw className="w-3 h-3" />
                     <span>Resend Code</span>
@@ -1751,7 +1788,7 @@ export default function Profile() {
                       setEmailModalError(null)
                       setEmailModalSuccess(null)
                     }}
-                    className="text-xs font-display font-medium text-slate-600 hover:text-slate-900 underline cursor-pointer"
+                    className="text-xs font-display font-medium text-slate-400 hover:text-white underline cursor-pointer"
                   >
                     Use Different Email
                   </button>

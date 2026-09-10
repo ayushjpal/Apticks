@@ -54,7 +54,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     : 'px-3 sm:px-5 lg:px-7 py-3 sm:py-5 lg:py-6 pb-6 sm:pb-8'
 
   return (
-    <div className="min-h-screen bg-[#071a2b] text-[#050505] flex flex-col relative arena-bg-grid">
+    <div className="min-h-screen bg-[#071a2b] text-slate-100 flex flex-col relative arena-bg-grid">
       {/* Top Header */}
       {!hideHeader && <AppHeader />}
 
