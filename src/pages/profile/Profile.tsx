@@ -8,23 +8,13 @@ import {
   LogOut,
   Upload,
   Trophy,
-  Zap,
   CheckCircle2,
   AlertCircle,
   X,
-  RotateCw,
-  Sparkles,
   Lock,
-  ArrowRight,
-  Flame,
   Settings,
   Sliders,
-  Award,
-  Target,
-  Calendar,
-  Star,
-  Crown,
-  Crosshair,
+  BarChart2,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
@@ -36,11 +26,15 @@ import { normalizeUsername } from '../../utils/validation'
 import { QuestionService } from '../../services/questionService'
 import { StreakService } from '../../services/streakService'
 import { LeaderboardService } from '../../services/leaderboardService'
-import { GamificationService } from '../../services/gamificationService'
 import { calculateLevelProgress, type LevelProgress } from '../../utils/levelEngine'
 import type { QuestionBankStats, UserQuestionAttempt, UserStreak } from '../../types/questions'
-import type { BadgeWithProgress, BadgeTier } from '../../types/gamification'
 import AppLayout from '../../components/layout/AppLayout'
+
+// Subcomponents matching reference design
+import { ProfileHeader } from './components/ProfileHeader'
+import { CompetitiveHeroCard } from './components/CompetitiveHeroCard'
+import { RecentActivityFeed, type DailyChallengeCompletionRow } from './components/RecentActivityFeed'
+import { ProgressOverviewHeatmap } from './components/ProgressOverviewHeatmap'
 
 // Curated avatar presets
 const AVATAR_PRESETS = [
@@ -71,107 +65,14 @@ const AVATAR_PRESETS = [
   },
 ]
 
-// Helper for badge category / criteria icons
-const renderBadgeIcon = (iconName: string, className?: string) => {
-  switch (iconName?.toLowerCase()) {
-    case 'target':
-      return <Target className={className} />
-    case 'zap':
-      return <Zap className={className} />
-    case 'award':
-      return <Award className={className} />
-    case 'trophy':
-      return <Trophy className={className} />
-    case 'flame':
-      return <Flame className={className} />
-    case 'calendar':
-      return <Calendar className={className} />
-    case 'star':
-      return <Star className={className} />
-    case 'sparkles':
-      return <Sparkles className={className} />
-    case 'crown':
-      return <Crown className={className} />
-    case 'check-circle':
-      return <CheckCircle2 className={className} />
-    case 'crosshair':
-      return <Crosshair className={className} />
-    case 'shield':
-      return <Shield className={className} />
-    default:
-      return <Award className={className} />
-  }
-}
-
-// Helper for tier color themes
-// Helper for tier color themes (Bronze: restrained earth/metallic, Silver: cool neutral, Gold: Apticks amber/yellow, Platinum: high-contrast premium neutral)
-const getTierStyle = (tier: BadgeTier, isUnlocked: boolean) => {
-  if (!isUnlocked) {
-    return {
-      card: 'bg-white/[0.03] border-white/10 hover:border-white/20 transition-all text-slate-400 backdrop-blur-sm',
-      pill: 'bg-white/5 text-slate-400 border-white/10',
-      iconBox: 'bg-white/5 border-white/10 text-slate-500',
-      badgeText: 'text-slate-400',
-      trackBg: 'bg-white/10',
-      barBg: 'bg-slate-500',
-    }
-  }
-
-  switch (tier) {
-    case 'bronze':
-      return {
-        card: 'bg-gradient-to-b from-amber-950/40 to-slate-900/80 border-amber-700/40 hover:border-amber-600/60 shadow-[0_0_15px_rgba(180,83,9,0.06)] backdrop-blur-sm transition-all',
-        pill: 'bg-amber-950/60 text-amber-300 border-amber-700/50',
-        iconBox: 'bg-amber-900/30 border-amber-700/50 text-amber-300',
-        badgeText: 'text-amber-200',
-        trackBg: 'bg-white/10',
-        barBg: 'bg-amber-600',
-      }
-    case 'silver':
-      return {
-        card: 'bg-gradient-to-b from-slate-800/40 to-slate-900/80 border-slate-400/30 hover:border-slate-300/50 shadow-[0_0_15px_rgba(148,163,184,0.06)] backdrop-blur-sm transition-all',
-        pill: 'bg-slate-800/60 text-slate-200 border-slate-400/40',
-        iconBox: 'bg-slate-700/30 border-slate-500/40 text-slate-200',
-        badgeText: 'text-slate-200',
-        trackBg: 'bg-white/10',
-        barBg: 'bg-slate-300',
-      }
-    case 'gold':
-      return {
-        card: 'bg-gradient-to-b from-amber-500/10 to-slate-900/80 border-2 border-[#ffd43b]/70 hover:border-[#ffd43b] shadow-[0_0_20px_rgba(255,212,59,0.12)] ring-1 ring-[#ffd43b]/30 backdrop-blur-sm transition-all',
-        pill: 'bg-[#ffd43b]/20 text-[#ffd43b] border-amber-400/50',
-        iconBox: 'bg-amber-400/20 border-amber-400/50 text-[#ffd43b]',
-        badgeText: 'text-[#ffd43b]',
-        trackBg: 'bg-white/10',
-        barBg: 'bg-[#ffd43b]',
-      }
-    case 'platinum':
-      return {
-        card: 'bg-gradient-to-b from-cyan-500/10 to-slate-900/80 border-2 border-cyan-400/60 hover:border-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.12)] ring-1 ring-cyan-400/30 backdrop-blur-sm transition-all',
-        pill: 'bg-cyan-400/20 text-cyan-300 border-cyan-400/50',
-        iconBox: 'bg-cyan-400/20 border-cyan-400/50 text-cyan-300',
-        badgeText: 'text-cyan-200',
-        trackBg: 'bg-white/10',
-        barBg: 'bg-cyan-400',
-      }
-    default:
-      return {
-        card: 'bg-white/[0.04] border-white/10 shadow-xs text-slate-200 backdrop-blur-sm',
-        pill: 'bg-white/5 text-slate-300 border-white/10',
-        iconBox: 'bg-white/5 border-white/10 text-slate-400',
-        badgeText: 'text-slate-200',
-        trackBg: 'bg-white/10',
-        barBg: 'bg-slate-400',
-      }
-  }
-}
+type ProfileTab = 'overview' | 'activity' | 'edit' | 'settings'
 
 export default function Profile() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Active View Tab: 'overview' | 'edit' | 'settings'
-  const [activeTab, setActiveTab] = useState<'overview' | 'edit' | 'settings'>('overview')
+  // Active View Tab: 'overview' | 'activity' | 'edit' | 'settings'
+  const [activeTab, setActiveTab] = useState<ProfileTab>('overview')
 
   // User & DB State
   const [userId, setUserId] = useState<string | null>(null)
@@ -188,13 +89,9 @@ export default function Profile() {
   const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null)
   const [questionStats, setQuestionStats] = useState<QuestionBankStats | null>(null)
   const [userAttempts, setUserAttempts] = useState<UserQuestionAttempt[]>([])
+  const [challengeCompletions, setChallengeCompletions] = useState<DailyChallengeCompletionRow[]>([])
   const [userStreak, setUserStreak] = useState<UserStreak | null>(null)
   const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
-  const [badges, setBadges] = useState<BadgeWithProgress[]>([])
-  const [unlockedBadgeCount, setUnlockedBadgeCount] = useState<number>(0)
-  const [totalBadgeCount, setTotalBadgeCount] = useState<number>(0)
-  const [badgesLoading, setBadgesLoading] = useState<boolean>(true)
-  const [badgeFilter, setBadgeFilter] = useState<'all' | 'unlocked' | 'locked'>('all')
 
   // Form Fields
   const [displayName, setDisplayName] = useState('')
@@ -226,7 +123,7 @@ export default function Profile() {
   })
 
   // ---------------------------------------------------------------------------
-  // 1. Initial Load
+  // 1. Initial Load: Authoritative, Real-Data Fetching
   // ---------------------------------------------------------------------------
   useEffect(() => {
     let isMounted = true
@@ -313,12 +210,21 @@ export default function Profile() {
             attempts,
             streak,
             rankRes,
+            dcCompsRes,
           ] = await Promise.all([
             QuestionService.getQuestionsWithProgress(user.id),
-            QuestionService.getUserAttempts(user.id, 20),
+            QuestionService.getUserAttempts(user.id, 50),
             StreakService.getUserStreak(user.id),
             LeaderboardService.getUserGlobalRank(user.id),
+            // Enhanced fetch for authentic Daily Challenge completion history
+            supabase
+              .from('user_daily_challenge_completions')
+              .select('challenge_date, bonus_xp_awarded, completed_at')
+              .eq('user_id', user.id)
+              .order('challenge_date', { ascending: false })
+              .limit(30),
           ])
+
           const stats = QuestionService.calculateStats(
             questions,
             progressMap,
@@ -327,9 +233,13 @@ export default function Profile() {
             contestXp,
             rankRes.found ? rankRes.totalXp : undefined
           )
+
           if (isMounted) {
             setQuestionStats(stats)
             setUserAttempts(attempts)
+            if (dcCompsRes && dcCompsRes.data) {
+              setChallengeCompletions(dcCompsRes.data as DailyChallengeCompletionRow[])
+            }
             setUserStreak(streak)
             if (rankRes.found && rankRes.levelProgress) {
               setLevelProgress(rankRes.levelProgress)
@@ -339,23 +249,6 @@ export default function Profile() {
           }
         } catch (qErr) {
           console.warn('Could not load profile question stats/streak:', qErr)
-        }
-
-        // Authoritative badges & trigger non-blocking session evaluation
-        try {
-          GamificationService.evaluateUserBadges().catch(() => null)
-          const badgeRes = await GamificationService.getUserBadges(user.id)
-          if (isMounted) {
-            setBadges(badgeRes.badges)
-            setUnlockedBadgeCount(badgeRes.unlockedCount)
-            setTotalBadgeCount(badgeRes.totalCount)
-          }
-        } catch (bErr) {
-          console.warn('Could not load user badges:', bErr)
-        } finally {
-          if (isMounted) {
-            setBadgesLoading(false)
-          }
         }
       } catch (err: unknown) {
         console.error('Error loading profile page:', err)
@@ -680,7 +573,7 @@ export default function Profile() {
     displayName.trim() ||
     originalProfile?.display_name ||
     originalProfile?.username ||
-    'Player'
+    'Competitor'
 
   const effectiveUsername =
     usernameInput.trim() ||
@@ -691,7 +584,7 @@ export default function Profile() {
 
   return (
     <AppLayout maxWidth="narrow">
-      <div className="space-y-5 animate-entry">
+      <div className="space-y-5 animate-entry pb-10">
         {/* Success Alert */}
         {saveSuccess && (
           <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 shadow-xs flex items-center justify-between gap-3">
@@ -724,19 +617,43 @@ export default function Profile() {
           </div>
         )}
 
-        {/* ================================================= */}
-        {/* TOP TABBED NAVIGATION CONTROLS                    */}
-        {/* ================================================= */}
-        <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+        {/* ========================================================= */}
+        {/* 1. PROFILE HEADER (Compact Athlete Identity)              */}
+        {/* ========================================================= */}
+        <ProfileHeader
+          displayName={effectiveDisplayName}
+          username={effectiveUsername}
+          avatarUrl={avatarUrl}
+          bio={bio}
+          streakDays={userStreak?.currentStreak ?? 1}
+          division="Division 1"
+          onEditProfile={() => setActiveTab('edit')}
+        />
+
+        {/* ========================================================= */}
+        {/* 2. UNIFIED MAIN COMPETITIVE HERO CARD                     */}
+        {/* Combines Level + Performance into One Hero Glass Panel    */}
+        {/* ========================================================= */}
+        {activeTab !== 'edit' && activeTab !== 'settings' && (
+          <CompetitiveHeroCard
+            levelProgress={levelProgress}
+            questionStats={questionStats}
+          />
+        )}
+
+        {/* ========================================================= */}
+        {/* 3. NAVIGATION TABS BAR (Below Hero Card)                  */}
+        {/* ========================================================= */}
+        <div className="flex items-center gap-1.5 border-b border-white/10 pb-2.5 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
             className={`
-              px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer
+              px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer shrink-0
               ${
                 activeTab === 'overview'
-                  ? 'bg-[#ffd43b] text-[#0c1d2d] font-black shadow-[0_0_15px_rgba(255,212,59,0.3)]'
-                  : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                  ? 'bg-white/10 text-white border border-white/15 font-bold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               }
             `}
           >
@@ -746,29 +663,38 @@ export default function Profile() {
 
           <button
             type="button"
-            onClick={() => setActiveTab('edit')}
+            onClick={() => setActiveTab('activity')}
             className={`
-              px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer
+              px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer shrink-0
               ${
-                activeTab === 'edit'
-                  ? 'bg-[#ffd43b] text-[#0c1d2d] font-black shadow-[0_0_15px_rgba(255,212,59,0.3)]'
-                  : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                activeTab === 'activity'
+                  ? 'bg-white/10 text-white border border-white/15 font-bold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               }
             `}
           >
-            <Award className="w-3.5 h-3.5" />
-            <span>Edit Profile</span>
+            <BarChart2 className="w-3.5 h-3.5" />
+            <span>Activity</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/contests')}
+            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer shrink-0 text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]"
+          >
+            <Trophy className="w-3.5 h-3.5" />
+            <span>Contests</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
             className={`
-              px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer
+              px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer shrink-0
               ${
                 activeTab === 'settings'
-                  ? 'bg-[#ffd43b] text-[#0c1d2d] font-black shadow-[0_0_15px_rgba(255,212,59,0.3)]'
-                  : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                  ? 'bg-white/10 text-white border border-white/15 font-bold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
               }
             `}
           >
@@ -777,538 +703,46 @@ export default function Profile() {
           </button>
         </div>
 
-        {/* ================================================= */}
-        {/* TAB 1: PROFILE OVERVIEW & PERFORMANCE             */}
-        {/* ================================================= */}
+        {/* ========================================================= */}
+        {/* VIEW 1: OVERVIEW (Recent Activity + Progress Overview)    */}
+        {/* ========================================================= */}
         {activeTab === 'overview' && (
-          <div className="space-y-5 sm:space-y-6">
-            {/* ================================================= */}
-            {/* ROW 1: ATHLETE DOSSIER & PROGRESSION METER        */}
-            {/* ================================================= */}
-            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-5 items-stretch">
-              {/* 1. Primary Profile Identity Card */}
-              <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl overflow-hidden flex flex-col justify-between text-white">
-                <div>
-                  <div className="bg-black/40 text-white px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                    <span className="font-mono text-[11px] font-bold tracking-wider text-[#ffd43b]">
-                      COMPETITOR DOSSIER // #{userId?.slice(0, 6).toUpperCase()}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full px-2.5 py-0.5 text-[10px] font-semibold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Active
-                    </span>
-                  </div>
+          <div className="space-y-5">
+            {/* 2-Column Analytics Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 items-stretch">
+              {/* Left Column: Recent Activity Feed */}
+              <RecentActivityFeed
+                attempts={userAttempts}
+                challengeCompletions={challengeCompletions}
+              />
 
-                  <div className="p-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 sm:w-18 sm:h-18 bg-[#ffd43b] border-2 border-amber-400/80 rounded-2xl shadow-lg flex items-center justify-center font-display font-black text-2xl sm:text-3xl text-[#0c1d2d] overflow-hidden shrink-0">
-                        {avatarUrl ? (
-                          <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          firstLetter
-                        )}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <div className="inline-block bg-white/10 text-slate-300 border border-white/15 rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold">
-                            Division 1
-                          </div>
-                          {userStreak && userStreak.currentStreak > 0 && (
-                            <div className="inline-flex items-center gap-1 bg-amber-950/40 text-amber-300 border border-amber-500/40 rounded-full px-2 py-0.5 text-[10px] font-mono font-semibold shadow-xs">
-                              <Flame className="w-3 h-3 text-amber-400 fill-amber-400" />
-                              <span>{userStreak.currentStreak}d Streak</span>
-                            </div>
-                          )}
-                        </div>
-                        <h2 className="font-display font-bold text-xl sm:text-2xl text-white tracking-tight truncate leading-tight">
-                          {effectiveDisplayName}
-                        </h2>
-                        <div className="font-mono text-xs sm:text-sm font-medium text-slate-400 mt-0.5 truncate">
-                          @{effectiveUsername}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bio / Operational Statement */}
-                    <div className="mt-4 p-3 bg-white/[0.04] border border-white/10 rounded-xl">
-                      <div className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                        Operational Statement
-                      </div>
-                      <p className="font-body text-xs text-slate-300 italic leading-relaxed">
-                        {bio.trim()
-                          ? `"${bio.trim()}"`
-                          : '"Apticks competitor sharpening quantitative speed and logical reasoning daily."'}
-                      </p>
-                    </div>
-
-                    {/* Core Statistics Deck */}
-                    <div className="mt-4 grid grid-cols-3 gap-2.5 text-center">
-                      <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
-                        <div className="font-display font-black text-lg sm:text-xl text-white">
-                          {questionStats?.solvedCount ?? 0}
-                        </div>
-                        <div className="font-mono text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">
-                          Solved
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-amber-500/10 border border-amber-400/30 rounded-xl">
-                        <div className="font-display font-black text-lg sm:text-xl text-[#ffd43b]">
-                          {questionStats?.totalPoints ?? 0}
-                        </div>
-                        <div className="font-mono text-[10px] font-semibold text-amber-300/90 uppercase tracking-wider mt-0.5">
-                          Total XP
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-emerald-500/10 border border-emerald-400/30 rounded-xl">
-                        <div className="font-display font-black text-lg sm:text-xl text-emerald-400">
-                          {questionStats?.accuracyRate ?? 0}%
-                        </div>
-                        <div className="font-mono text-[10px] font-semibold text-emerald-300/90 uppercase tracking-wider mt-0.5">
-                          Accuracy
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="p-5 pt-0 flex gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('edit')}
-                    className="flex-1 py-2.5 px-4 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-xl font-display font-bold text-xs shadow-[0_0_15px_rgba(255,212,59,0.25)] hover:shadow-[0_0_20px_rgba(255,212,59,0.4)] cursor-pointer text-center transition-all active:scale-[0.98]"
-                  >
-                    Edit Profile →
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('settings')}
-                    className="py-2.5 px-4 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-xl font-display font-bold text-xs shadow-xs cursor-pointer text-center transition-all active:scale-[0.98]"
-                  >
-                    Settings
-                  </button>
-                </div>
-              </div>
-
-              {/* 2. Competitive Level Progression Meter Card (KEY CARD) */}
-              <div className="bg-slate-900/60 backdrop-blur-md border-2 border-amber-400/60 ring-1 ring-amber-400/20 shadow-[0_0_25px_rgba(255,212,59,0.08)] rounded-2xl p-5 flex flex-col justify-between text-white">
-                <div>
-                  <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#ffd43b] ring-4 ring-[#ffd43b]/20" />
-                      <h3 className="font-display font-black text-xs sm:text-sm tracking-wider uppercase text-white">
-                        Level & Progression
-                      </h3>
-                    </div>
-                    <span className="font-mono text-[10px] font-bold tracking-wider text-amber-300 uppercase bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30">
-                      COMPETITIVE ENGINE
-                    </span>
-                  </div>
-
-                  {/* Level & Rank Tier */}
-                  <div className="flex items-baseline justify-between gap-3 flex-wrap">
-                    <div>
-                      <div className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight leading-none">
-                        LEVEL {String(levelProgress?.level ?? 1).padStart(2, '0')}
-                      </div>
-                      <div className="font-mono text-xs font-black tracking-[0.2em] text-amber-400 uppercase mt-1">
-                        {levelProgress?.title ?? 'NOVICE'}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        TOTAL ACCUMULATED
-                      </div>
-                      <div className="font-display font-black text-2xl sm:text-3xl text-[#ffd43b] leading-none mt-0.5">
-                        <span>{levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0}</span>
-                        <span className="text-xs font-mono font-bold text-slate-400 ml-1">XP</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Numerical breakdown and progress bar */}
-                  <div className="mt-5">
-                    <div className="flex items-center justify-between text-xs font-mono mb-1.5">
-                      <span className="font-bold text-slate-300">
-                        {levelProgress?.xpInLevel ?? 0} / {(levelProgress?.nextLevelXp ?? 100) - (levelProgress?.currentLevelXp ?? 0)} XP
-                      </span>
-                      <span className="font-black text-[#ffd43b]">
-                        {levelProgress?.progressPercentage ?? 0}%
-                      </span>
-                    </div>
-                    <div className="w-full h-3 bg-white/10 border border-white/15 rounded-full overflow-hidden p-0.5 shadow-inner">
-                      <div
-                        className="h-full bg-[#ffd43b] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(255,212,59,0.5)] border border-amber-400/50"
-                        style={{ width: `${levelProgress?.progressPercentage ?? 0}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Milestone Target Callout */}
-                <div className="mt-5 p-3 bg-white/[0.04] border border-white/10 rounded-xl flex items-center justify-between text-xs font-mono">
-                  <span className="text-slate-400 font-medium">NEXT MILESTONE</span>
-                  <span className="font-black text-[#ffd43b] tracking-wide">
-                    {levelProgress?.xpRequired ?? 0} XP TO LEVEL {String((levelProgress?.level ?? 1) + 1).padStart(2, '0')}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* ================================================= */}
-            {/* ROW 2: COMPETITIVE PERFORMANCE KPIS               */}
-            {/* ================================================= */}
-            <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-5 text-white">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-amber-400" />
-                  <h3 className="font-display font-bold text-sm text-white">
-                    Competitive Performance
-                  </h3>
-                </div>
-                <span className="font-mono text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-                  XP Breakdown & Attempts
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 text-center">
-                <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl">
-                  <div className="font-display font-black text-lg text-white">
-                    {questionStats?.totalAttempts ?? 0}
-                  </div>
-                  <div className="font-mono text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">
-                    Attempts
-                  </div>
-                </div>
-
-                <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
-                  <div className="font-display font-black text-lg text-emerald-400">
-                    {questionStats?.correctAttempts ?? 0}
-                  </div>
-                  <div className="font-mono text-[10px] font-semibold text-emerald-400/80 uppercase tracking-wider mt-0.5">
-                    Correct
-                  </div>
-                </div>
-
-                <div className="p-3 bg-rose-950/20 border border-rose-500/20 rounded-xl">
-                  <div className="font-display font-black text-lg text-rose-400">
-                    {questionStats?.incorrectAttempts ?? 0}
-                  </div>
-                  <div className="font-mono text-[10px] font-semibold text-rose-400/80 uppercase tracking-wider mt-0.5">
-                    Incorrect
-                  </div>
-                </div>
-
-                <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-xl">
-                  <div className="font-display font-black text-lg text-[#ffd43b]">
-                    {questionStats?.accuracyRate ?? 0}%
-                  </div>
-                  <div className="font-mono text-[10px] font-semibold text-amber-400/80 uppercase tracking-wider mt-0.5">
-                    Accuracy
-                  </div>
-                </div>
-
-                <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
-                  <div className="font-display font-black text-base text-emerald-400">
-                    +{questionStats?.xpEarned ?? 0}
-                  </div>
-                  <div className="font-mono text-[10px] font-semibold text-emerald-400/80 uppercase tracking-wider mt-0.5">
-                    XP Earned
-                  </div>
-                </div>
-
-                <div className="p-3 bg-rose-950/20 border border-rose-500/20 rounded-xl">
-                  <div className="font-display font-black text-base text-rose-400">
-                    -{questionStats?.xpLost ?? 0}
-                  </div>
-                  <div className="font-mono text-[10px] font-semibold text-rose-400/80 uppercase tracking-wider mt-0.5">
-                    XP Penalty
-                  </div>
-                </div>
-
-                <div className="p-3 bg-amber-500/10 text-white border border-amber-400/30 rounded-xl flex flex-col justify-center col-span-2 sm:col-span-1">
-                  <div className="font-mono text-[9px] font-medium text-amber-300/80 uppercase tracking-wider">
-                    Net Arena XP
-                  </div>
-                  <div className="font-display font-black text-lg text-[#ffd43b] mt-0.5">
-                    {questionStats?.netXp ?? 0} XP
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ================================================= */}
-            {/* ROW 3: EARNED BADGES ACHIEVEMENT GALLERY          */}
-            {/* ================================================= */}
-            <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-5 sm:p-6 text-white">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10 mb-4">
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <h3 className="font-display font-black text-base sm:text-lg text-white tracking-tight uppercase">
-                      Earned Badges
-                    </h3>
-                    <span className="font-mono text-xs font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30">
-                      {unlockedBadgeCount} / {totalBadgeCount} UNLOCKED
-                    </span>
-                  </div>
-                  <p className="text-xs font-body text-slate-400 mt-1">
-                    Milestones earned across your Apticks journey.
-                  </p>
-                </div>
-
-                {/* Competitive Filter Tabs */}
-                <div className="inline-flex p-0.5 bg-black/50 border border-white/10 rounded-lg shrink-0 self-start sm:self-auto font-mono">
-                  <button
-                    type="button"
-                    onClick={() => setBadgeFilter('all')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                      badgeFilter === 'all'
-                        ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-xs'
-                        : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    ALL ({totalBadgeCount})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBadgeFilter('unlocked')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                      badgeFilter === 'unlocked'
-                        ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-xs'
-                        : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    UNLOCKED ({unlockedBadgeCount})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBadgeFilter('locked')}
-                    aria-label="Filter In Progress Milestones"
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                      badgeFilter === 'locked'
-                        ? 'bg-[#ffd43b] text-[#0c1d2d] shadow-xs'
-                        : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    IN PROGRESS ({Math.max(0, totalBadgeCount - unlockedBadgeCount)})
-                  </button>
-                </div>
-              </div>
-
-              {/* Gallery Grid */}
-              {badgesLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                    <div
-                      key={i}
-                      className="p-3.5 bg-white/[0.03] border border-white/10 rounded-xl animate-pulse min-h-[160px] flex flex-col justify-between"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="w-9 h-9 rounded-lg bg-white/10" />
-                        <div className="w-14 h-4 bg-white/10 rounded" />
-                      </div>
-                      <div className="space-y-1.5 my-2">
-                        <div className="w-24 h-3.5 bg-white/10 rounded" />
-                        <div className="w-full h-2.5 bg-white/10 rounded" />
-                      </div>
-                      <div className="w-full h-2 bg-white/10 rounded" />
-                    </div>
-                  ))}
-                </div>
-              ) : badges.length === 0 ? (
-                <div className="p-8 text-center bg-white/[0.02] border border-dashed border-white/10 rounded-xl font-mono text-xs text-slate-400">
-                  No achievements catalog loaded.
-                </div>
-              ) : badges.filter((b) => {
-                  if (badgeFilter === 'unlocked') return b.isUnlocked
-                  if (badgeFilter === 'locked') return !b.isUnlocked
-                  return true
-                }).length === 0 ? (
-                <div className="p-8 text-center bg-white/[0.02] border border-dashed border-white/10 rounded-xl font-mono text-xs text-slate-400">
-                  {badgeFilter === 'unlocked'
-                    ? 'No unlocked badges yet. Solve problems, complete daily challenges, and maintain streaks to earn your milestones!'
-                    : 'All badges are unlocked! Master competitor status achieved!'}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-                  {badges
-                    .filter((b) => {
-                      if (badgeFilter === 'unlocked') return b.isUnlocked
-                      if (badgeFilter === 'locked') return !b.isUnlocked
-                      return true
-                    })
-                    .map((badge) => {
-                      const style = getTierStyle(badge.tier, badge.isUnlocked)
-                      return (
-                        <div
-                          key={badge.id}
-                          data-badge-card="true"
-                          className={`p-3.5 border rounded-xl flex flex-col justify-between min-h-[160px] relative transition-all duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:transform-none ${style.card}`}
-                          title={`${badge.title}: ${badge.description}`}
-                        >
-                          <div>
-                            {/* Card Top: Icon & Metadata Badges */}
-                            <div className="flex items-center justify-between gap-2 mb-2.5">
-                              <div
-                                className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 shadow-2xs ${style.iconBox}`}
-                              >
-                                {renderBadgeIcon(badge.icon, 'w-4 h-4')}
-                              </div>
-                              <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                                <span
-                                  className={`text-[9px] font-mono font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded border ${style.pill}`}
-                                >
-                                  {badge.tier}
-                                </span>
-                                {badge.isUnlocked ? (
-                                  <span
-                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-400/20 text-[#ffd43b] border border-amber-400/40 rounded font-mono font-bold text-[9px] uppercase tracking-wider"
-                                    title="Milestone Unlocked"
-                                  >
-                                    <Sparkles className="w-2.5 h-2.5 text-amber-400" />
-                                    <span>UNLOCKED</span>
-                                  </span>
-                                ) : (
-                                  <span
-                                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white/5 text-slate-400 border border-white/10 rounded font-mono font-bold text-[9px] uppercase tracking-wider"
-                                    title="Milestone Locked"
-                                  >
-                                    <Lock className="w-2.5 h-2.5 text-slate-400" />
-                                    <span>LOCKED</span>
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Card Body: Title, Category, Description */}
-                            <h4 className="font-display font-bold text-xs sm:text-sm text-white leading-snug">
-                              {badge.title}
-                            </h4>
-                            <div className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
-                              {badge.category}
-                            </div>
-                            <p className="text-[11px] font-body text-slate-300 leading-snug line-clamp-2 mt-1">
-                              {badge.description}
-                            </p>
-                          </div>
-
-                          {/* Card Footer: Unlocked Date or Progress */}
-                          <div className="mt-3 pt-2 border-t border-white/10">
-                            {badge.isUnlocked ? (
-                              <div className="flex items-center justify-between text-[10px] font-mono text-amber-400">
-                                <span className="font-bold">Achieved</span>
-                                <span className="font-medium text-slate-400">
-                                  {badge.unlockedAt
-                                    ? new Date(badge.unlockedAt).toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        year: 'numeric',
-                                      })
-                                    : 'Completed'}
-                                </span>
-                              </div>
-                            ) : (
-                              <div>
-                                <div className="flex items-center justify-between text-[10px] font-mono mb-1">
-                                  <span className="font-medium text-slate-400">
-                                    {badge.currentProgress} / {badge.criteriaThreshold}
-                                  </span>
-                                  <span className="font-bold text-[#ffd43b]">
-                                    {badge.progressPercentage}%
-                                  </span>
-                                </div>
-                                <div className={`w-full h-1.5 rounded-full overflow-hidden ${style.trackBg}`}>
-                                  <div
-                                    className={`h-full rounded-full transition-all duration-300 ${style.barBg}`}
-                                    style={{ width: `${badge.progressPercentage}%` }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                </div>
-              )}
-            </div>
-
-            {/* ================================================= */}
-            {/* ROW 4: RECENT ATTEMPT HISTORY LOG                 */}
-            {/* ================================================= */}
-            <div className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-5 text-white">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-                <div className="flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-amber-400" />
-                  <h3 className="font-display font-bold text-sm text-white">
-                    Recent Attempt Log
-                  </h3>
-                </div>
-                <span className="font-mono text-[11px] font-medium text-slate-400">
-                  {userAttempts.length} Records
-                </span>
-              </div>
-
-              {userAttempts.length === 0 ? (
-                <div className="p-6 bg-white/[0.02] border border-dashed border-white/10 rounded-xl text-center font-body text-xs font-medium text-slate-400">
-                  No attempt history recorded yet. Solve problems in the Question Bank to build your competitive track record!
-                </div>
-              ) : (
-                <div
-                  data-lenis-prevent
-                  className="space-y-2 max-h-72 question-list-scroll overflow-y-auto min-h-0 pr-1"
-                >
-                  {userAttempts.map((att) => (
-                    <div
-                      key={att.id}
-                      className="p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl flex items-center justify-between gap-3 transition-colors"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="px-1.5 py-0.5 bg-amber-400/10 text-amber-300 border border-amber-400/30 rounded text-[9px] font-mono font-bold uppercase">
-                            {att.questionId}
-                          </span>
-                          <span className="font-display font-bold text-xs text-white truncate">
-                            {att.questionTitle || `Attempt #${att.attemptNumber}`}
-                          </span>
-                        </div>
-                        <div className="font-mono text-[10px] text-slate-400 mt-0.5">
-                          Option {att.selectedOption} • Attempt #{att.attemptNumber}
-                        </div>
-                      </div>
-
-                      <div className="shrink-0 text-right">
-                        <span
-                          className={`
-                            inline-flex items-center px-2 py-0.5 border rounded-md font-mono font-bold text-[10px]
-                            ${
-                              att.isCorrect
-                                ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30'
-                                : 'bg-rose-950/40 text-rose-300 border-rose-500/30'
-                            }
-                          `}
-                        >
-                          {att.isCorrect ? `+${att.xpChange} XP` : `${att.xpChange} XP`}
-                        </span>
-                        <div className="font-mono text-[9px] text-slate-400 mt-0.5">
-                          {new Date(att.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Right Column: Activity Heatmap */}
+              <ProgressOverviewHeatmap
+                attempts={userAttempts}
+                challengeCompletions={challengeCompletions}
+                totalEarnedXp={levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0}
+                totalProblems={questionStats?.solvedCount ?? questionStats?.totalAttempts ?? 0}
+                streakDays={userStreak?.currentStreak ?? 1}
+              />
             </div>
           </div>
         )}
 
-        {/* ================================================= */}
-        {/* TAB 2: EDIT PROFILE FORM                          */}
-        {/* ================================================= */}
+        {/* ========================================================= */}
+        {/* VIEW 2: ACTIVITY TAB (Expanded Activity View)             */}
+        {/* ========================================================= */}
+        {activeTab === 'activity' && (
+          <div className="space-y-6">
+            <RecentActivityFeed
+              attempts={userAttempts}
+              challengeCompletions={challengeCompletions}
+            />
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* VIEW 4: EDIT PROFILE TAB                                  */}
+        {/* ========================================================= */}
         {activeTab === 'edit' && (
           <div className="max-w-2xl bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
             <div className="border-b border-white/10 pb-4 mb-6">
@@ -1518,15 +952,14 @@ export default function Profile() {
                 className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-xl shadow-[0_0_15px_rgba(255,212,59,0.25)] hover:shadow-[0_0_20px_rgba(255,212,59,0.4)] font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 <span>{saving ? 'Saving Changes...' : 'Save Profile Changes'}</span>
-                <ArrowRight className="w-4 h-4" />
               </button>
             </form>
           </div>
         )}
 
-        {/* ================================================= */}
-        {/* TAB 3: SETTINGS & ACCOUNT SECURITY                */}
-        {/* ================================================= */}
+        {/* ========================================================= */}
+        {/* VIEW 5: SETTINGS & ACCOUNT SECURITY                       */}
+        {/* ========================================================= */}
         {activeTab === 'settings' && (
           <div className="max-w-3xl space-y-5">
             {/* 1. Account / Recovery Email */}
@@ -1650,154 +1083,124 @@ export default function Profile() {
                   type="button"
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0 active:scale-[0.98]"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-display font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>{loggingOut ? 'Logging out...' : 'Log Out Now'}</span>
+                  <span>{loggingOut ? 'Signing out...' : 'Log Out'}</span>
                 </button>
               </div>
             </section>
           </div>
         )}
-      </div>
 
-      {/* ================================================= */}
-      {/* IN-APP OTP EMAIL LINKING MODAL                     */}
-      {/* ================================================= */}
-      {emailModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setEmailModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-white/15 rounded-2xl shadow-2xl p-6 sm:p-7 relative text-white"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-5">
-              <div className="font-display font-bold text-base text-white">
-                {otpStep ? 'Verify Email Code' : 'Link Recovery Email'}
-              </div>
+        {/* ========================================================= */}
+        {/* EMAIL LINKING / OTP MODAL DIALOG                          */}
+        {/* ========================================================= */}
+        {emailModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+            <div className="w-full max-w-md bg-slate-900 border border-white/20 rounded-2xl shadow-2xl p-6 text-white relative animate-scale-up">
               <button
                 type="button"
                 onClick={() => setEmailModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
-            </div>
 
-            {emailModalError && (
-              <div className="mb-4 p-3 bg-rose-950/40 border border-rose-500/30 rounded-xl text-rose-300 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-                <span>{emailModalError}</span>
-              </div>
-            )}
-
-            {emailModalSuccess && (
-              <div className="mb-4 p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                <span>{emailModalSuccess}</span>
-              </div>
-            )}
-
-            {!otpStep ? (
-              <form onSubmit={handleInitiateEmailLink} className="space-y-4">
-                <p className="text-xs font-body text-slate-300">
-                  Enter your real email address. We will send a 6-digit OTP code to verify ownership.
-                </p>
-
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-[#ffd43b]">
+                  <Mail className="w-5 h-5" />
+                </div>
                 <div>
-                  <label
-                    htmlFor="modal-email-input"
-                    className="block mb-1.5 text-xs font-display font-bold tracking-wider text-slate-300 uppercase"
-                  >
-                    Email Address
-                  </label>
-                  <div className="flex items-center bg-black/40 border border-white/15 rounded-xl shadow-xs focus-within:border-amber-400 focus-within:ring-1 focus-within:ring-amber-400 overflow-hidden">
-                    <span className="px-3.5 py-2.5 border-r border-white/10 bg-white/5 text-slate-400 flex items-center">
-                      <Mail className="w-4 h-4" />
-                    </span>
+                  <h3 className="font-display font-bold text-lg text-white">
+                    {otpStep ? 'Verify Email Code' : 'Link Real Email'}
+                  </h3>
+                  <p className="text-xs text-slate-400 font-body">
+                    {otpStep
+                      ? 'Enter the 6-digit confirmation code.'
+                      : 'Connect your personal email for security.'}
+                  </p>
+                </div>
+              </div>
+
+              {emailModalError && (
+                <div className="mb-4 p-3 bg-rose-950/40 border border-rose-500/30 rounded-xl text-rose-200 text-xs font-body flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+                  <span>{emailModalError}</span>
+                </div>
+              )}
+
+              {emailModalSuccess && (
+                <div className="mb-4 p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-emerald-200 text-xs font-body flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
+                  <span>{emailModalSuccess}</span>
+                </div>
+              )}
+
+              {!otpStep ? (
+                <form onSubmit={handleInitiateEmailLink} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-display font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                      Email Address
+                    </label>
                     <input
-                      id="modal-email-input"
                       type="email"
-                      placeholder="yourname@gmail.com"
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
+                      placeholder="alex.sharma@gmail.com"
                       required
-                      autoFocus
-                      className="w-full py-2.5 px-3 outline-none font-display font-semibold text-sm bg-transparent text-white placeholder:text-slate-500"
+                      className="w-full py-2.5 px-3.5 bg-black/40 border border-white/15 rounded-xl font-body text-sm text-white placeholder:text-slate-500 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                     />
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={emailLoading}
-                  className="w-full py-3 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-xl shadow-[0_0_15px_rgba(255,212,59,0.25)] hover:shadow-[0_0_20px_rgba(255,212,59,0.4)] font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4 active:scale-[0.98]"
-                >
-                  <span>{emailLoading ? 'Sending code...' : 'Send Verification Code'}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <p className="text-xs font-body text-slate-300">
-                  Enter the 6-digit verification code sent to <strong className="text-amber-300">{emailInput}</strong>.
-                </p>
-
-                <div>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    placeholder="000000"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                    required
-                    autoFocus
-                    className="w-full py-3 px-4 text-center font-mono font-bold text-2xl tracking-[0.4em] bg-black/40 border border-white/15 text-white rounded-xl shadow-xs outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={emailLoading || otpCode.length < 6}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-xs font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 mt-4 active:scale-[0.98]"
-                >
-                  <span>{emailLoading ? 'Verifying...' : 'Verify & Link Email'}</span>
-                  <CheckCircle2 className="w-4 h-4" />
-                </button>
-
-                <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <button
-                    type="button"
-                    onClick={handleResendOtp}
+                    type="submit"
                     disabled={emailLoading}
-                    className="text-xs font-display font-medium text-slate-400 hover:text-white underline cursor-pointer flex items-center gap-1"
+                    className="w-full py-2.5 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] font-display font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    <RotateCw className="w-3 h-3" />
-                    <span>Resend Code</span>
+                    {emailLoading ? 'Sending Verification...' : 'Send Verification Code'}
                   </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-display font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                      6-Digit Code
+                    </label>
+                    <input
+                      type="text"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                      placeholder="123456"
+                      maxLength={6}
+                      required
+                      className="w-full py-2.5 px-3.5 bg-black/40 border border-white/15 rounded-xl font-mono text-center tracking-[0.3em] font-bold text-lg text-[#ffd43b] placeholder:text-slate-600 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                    />
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpStep(false)
-                      setOtpCode('')
-                      setEmailModalError(null)
-                      setEmailModalSuccess(null)
-                    }}
-                    className="text-xs font-display font-medium text-slate-400 hover:text-white underline cursor-pointer"
-                  >
-                    Use Different Email
-                  </button>
-                </div>
-              </form>
-            )}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={emailLoading}
+                      className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 rounded-xl font-display font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Resend
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={emailLoading}
+                      className="flex-1 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-amber-400/50 rounded-xl font-display font-bold text-xs uppercase tracking-wider shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {emailLoading ? 'Verifying...' : 'Verify Code'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </AppLayout>
   )
 }

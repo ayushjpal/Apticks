@@ -44,5 +44,3 @@ export interface GlobalLeaderboardResponse {
   leaderboard: GlobalLeaderboardEntry[]
   error?: string
 }
-
-export type LeaderboardViewMode = 'global' | 'contest'

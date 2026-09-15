@@ -20,7 +20,6 @@ import {
 import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
 import { ChallengeService } from '../../services/challengeService'
-import { GamificationService } from '../../services/gamificationService'
 import type { Question, UserQuestionProgress } from '../../types/questions'
 import AppLayout from '../../components/layout/AppLayout'
 import { StatusBadge, NeoBadge } from '../../components/ui'
@@ -243,12 +242,15 @@ export default function QuestionSolver() {
           setAuthoritativeExplanation(res.explanation)
         }
 
-        const totalEarned = (res.bonusXp || 0) + (res.questionXp || (res.isCorrect ? question.points : 0))
+        const qXp = res.questionXp !== undefined ? res.questionXp : (res.isCorrect && !res.alreadyCompleted ? question.points : 0)
+        const totalEarned = res.alreadyCompleted ? 0 : ((res.bonusXp || 0) + qXp)
         setXpResult({
-          xpChange: res.isCorrect ? totalEarned : (res.xpChange !== undefined ? res.xpChange : 0),
-          xpReason: res.bonusXp > 0
-            ? `+${res.bonusXp} Daily Bonus + ${res.questionXp || question.points} Problem XP`
-            : (res.alreadyCompleted ? 'Challenge completed (+0 Bonus XP)' : (res.message || 'Challenge attempt logged')),
+          xpChange: res.alreadyCompleted ? 0 : (res.isCorrect ? totalEarned : (res.xpChange !== undefined ? res.xpChange : 0)),
+          xpReason: res.alreadyCompleted
+            ? 'Daily Challenge already completed today (+0 XP)'
+            : (res.bonusXp > 0
+              ? `+${res.bonusXp} Daily Bonus + ${qXp} Problem XP`
+              : (res.message || 'Challenge attempt logged')),
           attemptNumber: 1,
         })
 
@@ -259,8 +261,6 @@ export default function QuestionSolver() {
             correctCount: stats.correctCount,
             incorrectCount: stats.incorrectCount,
           })
-          // Asynchronously trigger badge evaluation
-          GamificationService.evaluateUserBadges().catch(() => null)
         }
       } catch (err) {
         console.warn('Daily challenge submit error:', err)
@@ -296,8 +296,6 @@ export default function QuestionSolver() {
           correctCount: stats.correctCount,
           incorrectCount: stats.incorrectCount,
         })
-        // Asynchronously trigger badge evaluation
-        GamificationService.evaluateUserBadges().catch(() => null)
       }
     } catch (err) {
       console.warn('Progress save notice:', err)
@@ -615,19 +613,22 @@ export default function QuestionSolver() {
               </button>
             ) : (
               <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSubmitted(false)
-                    setIsCorrect(null)
-                    setSelectedOption(null)
-                    setTimerActive(true)
-                  }}
-                  className="px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Re-attempt</span>
-                </button>
+                {/* Re-attempt button: Only show for normal practice questions OR if daily challenge attempt was incorrect */}
+                {(!isChallengeMode || !isCorrect) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSubmitted(false)
+                      setIsCorrect(null)
+                      setSelectedOption(null)
+                      setTimerActive(true)
+                    }}
+                    className="px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Re-attempt</span>
+                  </button>
+                )}
 
                 {isChallengeMode ? (
                   <button

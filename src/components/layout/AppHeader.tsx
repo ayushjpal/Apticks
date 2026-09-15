@@ -184,12 +184,12 @@ export default function AppHeader() {
             <div
               className={`hidden min-[400px]:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono font-bold transition-all ${
                 streakData?.isActiveToday
-                  ? 'bg-rose-950/40 border-rose-500/40 text-rose-300'
+                  ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
                   : 'bg-white/5 border-white/10 text-white/70'
               }`}
               title={`${streakData?.currentStreak}-Day Active Solving Streak`}
             >
-              <Flame className={`w-3.5 h-3.5 shrink-0 ${streakData?.isActiveToday ? 'text-rose-400 fill-rose-400' : 'text-slate-400'}`} />
+              <Flame className={`w-3.5 h-3.5 shrink-0 ${streakData?.isActiveToday ? 'text-amber-400 fill-amber-400' : 'text-slate-400'}`} />
               <span>{streakData?.currentStreak}D</span>
             </div>
           ) : (

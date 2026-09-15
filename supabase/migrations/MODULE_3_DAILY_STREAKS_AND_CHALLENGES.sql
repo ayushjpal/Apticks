@@ -273,6 +273,7 @@ DECLARE
   v_was_already_solved BOOLEAN := FALSE;
   v_existing_prog RECORD;
   v_attempt_number INTEGER := 1;
+  v_new_completion_id UUID;
 BEGIN
   v_user_id := auth.uid();
   IF v_user_id IS NULL THEN
@@ -314,7 +315,38 @@ BEGIN
   v_clean_correct := trim(upper(v_question.correct_option));
   v_is_correct := (v_clean_selected = v_clean_correct);
 
-  -- 4. Check existing question progress to preserve unified attempt metrics
+  -- ============================================================================
+  -- 4. IMMEDIATE AUTHORITATIVE COMPLETION GUARD
+  -- If the user has ALREADY completed this challenge (or completed today's challenge),
+  -- immediately return an idempotent response with ZERO bonus XP and ZERO question XP.
+  -- DO NOT apply penalties, DO NOT modify streaks, DO NOT create completion records.
+  -- ============================================================================
+  SELECT * INTO v_completion
+  FROM public.user_daily_challenge_completions
+  WHERE user_id = v_user_id
+    AND (challenge_id = v_challenge.id OR challenge_date = v_challenge.challenge_date);
+
+  IF v_completion.id IS NOT NULL THEN
+    -- Fetch current streak safely for display
+    SELECT current_streak, longest_streak INTO v_streak
+    FROM public.user_streaks
+    WHERE user_id = v_user_id;
+
+    RETURN jsonb_build_object(
+      'success', true,
+      'is_correct', true,
+      'correct_option', v_clean_correct,
+      'explanation', v_question.explanation,
+      'bonus_xp', 0,
+      'question_xp', 0,
+      'already_completed', true,
+      'streak', COALESCE(v_streak.current_streak, 1),
+      'longest_streak', COALESCE(v_streak.longest_streak, 1),
+      'message', 'Daily challenge already completed. Bonus already claimed for today.'
+    );
+  END IF;
+
+  -- 5. Check existing question progress to preserve unified attempt metrics
   SELECT * INTO v_existing_prog
   FROM public.user_question_progress
   WHERE user_id = v_user_id AND question_id = v_question.id;
@@ -324,7 +356,7 @@ BEGIN
     v_attempt_number := v_existing_prog.attempts_count + 1;
   END IF;
 
-  -- 5. If INCORRECT: Record attempt with standard -25% penalty, DO NOT complete challenge
+  -- 6. If INCORRECT: Record attempt with standard -25% penalty, DO NOT complete challenge
   IF NOT v_is_correct THEN
     v_penalty := GREATEST(1, round(v_question.points * 0.25)::integer);
 
@@ -353,13 +385,16 @@ BEGIN
       'correct_option', v_clean_correct,
       'explanation', v_question.explanation,
       'bonus_xp', 0,
+      'question_xp', 0,
       'xp_change', -v_penalty,
       'already_completed', false,
       'message', 'Incorrect answer. Try again to complete the challenge.'
     );
   END IF;
 
-  -- 6. User answered CORRECTLY: Concurrency lock on streak row
+  -- ============================================================================
+  -- 7. User answered CORRECTLY: Concurrency lock on user_streaks row
+  -- ============================================================================
   INSERT INTO public.user_streaks (user_id)
   VALUES (v_user_id)
   ON CONFLICT (user_id) DO NOTHING;
@@ -369,34 +404,58 @@ BEGIN
   WHERE user_id = v_user_id
   FOR UPDATE;
 
-  -- Check if already completed this challenge today
+  -- Secondary concurrency check within locked transaction
   SELECT * INTO v_completion
   FROM public.user_daily_challenge_completions
-  WHERE user_id = v_user_id AND challenge_id = p_challenge_id;
+  WHERE user_id = v_user_id
+    AND (challenge_id = v_challenge.id OR challenge_date = v_challenge.challenge_date);
 
   IF v_completion.id IS NOT NULL THEN
-    -- Already completed: Idempotent return with 0 bonus XP
     RETURN jsonb_build_object(
       'success', true,
       'is_correct', true,
       'correct_option', v_clean_correct,
       'explanation', v_question.explanation,
       'bonus_xp', 0,
+      'question_xp', 0,
       'already_completed', true,
       'streak', v_streak.current_streak,
       'longest_streak', v_streak.longest_streak,
-      'message', 'Challenge already completed. Bonus already claimed for today.'
+      'message', 'Daily challenge already completed. Bonus already claimed for today.'
     );
   END IF;
 
-  -- 7. First completion today: Record in user_daily_challenge_completions
+  -- ============================================================================
+  -- 8. First completion today: Record in user_daily_challenge_completions
+  -- Anchored strictly to v_challenge.challenge_date with ON CONFLICT DO NOTHING
+  -- ============================================================================
   INSERT INTO public.user_daily_challenge_completions (
     user_id, challenge_id, challenge_date, bonus_xp_awarded, time_spent_seconds, completed_at
   ) VALUES (
-    v_user_id, p_challenge_id, v_today, v_challenge.bonus_xp, COALESCE(p_time_spent_seconds, 0), NOW()
-  );
+    v_user_id, v_challenge.id, v_challenge.challenge_date, v_challenge.bonus_xp, COALESCE(p_time_spent_seconds, 0), NOW()
+  )
+  ON CONFLICT (user_id, challenge_id) DO NOTHING
+  RETURNING id INTO v_new_completion_id;
 
-  -- 8. Advance streak safely
+  -- If concurrent insert slipped in between check and insert:
+  IF v_new_completion_id IS NULL THEN
+    RETURN jsonb_build_object(
+      'success', true,
+      'is_correct', true,
+      'correct_option', v_clean_correct,
+      'explanation', v_question.explanation,
+      'bonus_xp', 0,
+      'question_xp', 0,
+      'already_completed', true,
+      'streak', v_streak.current_streak,
+      'longest_streak', v_streak.longest_streak,
+      'message', 'Daily challenge already completed. Bonus already claimed for today.'
+    );
+  END IF;
+
+  -- ============================================================================
+  -- 9. Advance streak safely (only once per calendar day)
+  -- ============================================================================
   IF v_streak.last_active_date = v_today THEN
     -- Already active today through earlier activity: maintain streak
     v_new_streak := v_streak.current_streak;
@@ -417,7 +476,9 @@ BEGIN
       updated_at = NOW()
   WHERE user_id = v_user_id;
 
-  -- 9. Upsert question progress (solved)
+  -- ============================================================================
+  -- 10. Upsert question progress (solved)
+  -- ============================================================================
   INSERT INTO public.user_question_progress (
     user_id, question_id, selected_option, is_solved, is_correct, attempts_count, time_spent_seconds, last_attempted_at
   ) VALUES (
@@ -431,7 +492,9 @@ BEGIN
       selected_option = EXCLUDED.selected_option,
       last_attempted_at = NOW();
 
-  -- 10. Log attempt in user_question_attempts (+question points)
+  -- ============================================================================
+  -- 11. Log attempt in user_question_attempts (+question points if not already solved)
+  -- ============================================================================
   INSERT INTO public.user_question_attempts (
     user_id, question_id, selected_option, is_correct, xp_change, attempt_number, time_spent_seconds, created_at
   ) VALUES (

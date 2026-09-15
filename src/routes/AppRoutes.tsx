@@ -91,6 +91,7 @@ export default function AppRoutes() {
       <Route path="/contests/:id/arena" element={<ContestArena />} />
       <Route path="/contests/:id/results" element={<ContestResults />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/rank" element={<Navigate to="/leaderboard" replace />} />
       <Route path="/profile" element={<Profile />} />
 
       {/* Staff Control Center Routes (Protected) */}
