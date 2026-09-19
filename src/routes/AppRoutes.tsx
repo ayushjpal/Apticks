@@ -23,6 +23,11 @@ import ContestDetails from '../pages/contests/ContestDetails'
 import ContestArena from '../pages/contests/ContestArena'
 import ContestResults from '../pages/contests/ContestResults'
 import Leaderboard from '../pages/leaderboard/Leaderboard'
+import SocialHub from '../pages/social/SocialHub'
+import PublicProfile from '../pages/profile/PublicProfile'
+import Match1v1Hub from '../pages/match1v1/Match1v1Hub'
+import Match1v1Lobby from '../pages/match1v1/Match1v1Lobby'
+import Match1v1Arena from '../pages/match1v1/Match1v1Arena'
 
 // -----------------------------
 // Staff Control Center Pages
@@ -92,7 +97,12 @@ export default function AppRoutes() {
       <Route path="/contests/:id/results" element={<ContestResults />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/rank" element={<Navigate to="/leaderboard" replace />} />
+      <Route path="/social" element={<SocialHub />} />
+      <Route path="/1v1" element={<Match1v1Hub />} />
+      <Route path="/1v1/:matchId" element={<Match1v1Lobby />} />
+      <Route path="/1v1/:matchId/battle" element={<Match1v1Arena />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/profile/:username" element={<PublicProfile />} />
 
       {/* Staff Control Center Routes (Protected) */}
       <Route

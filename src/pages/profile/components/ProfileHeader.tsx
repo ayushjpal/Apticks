@@ -1,5 +1,5 @@
 import React from 'react'
-import { Flame, Edit3 } from 'lucide-react'
+import { Flame, Edit3, Settings } from 'lucide-react'
 
 interface ProfileHeaderProps {
   displayName: string
@@ -8,7 +8,14 @@ interface ProfileHeaderProps {
   bio?: string | null
   streakDays?: number
   division?: string
+  followersCount?: number
+  followingCount?: number
   onEditProfile: () => void
+  onOpenSettings: () => void
+  onViewFollowers?: () => void
+  onViewFollowing?: () => void
+  isSettingsActive?: boolean
+  isEditActive?: boolean
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -18,7 +25,14 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   bio,
   streakDays = 1,
   division = 'Division 1',
+  followersCount = 0,
+  followingCount = 0,
   onEditProfile,
+  onOpenSettings,
+  onViewFollowers,
+  onViewFollowing,
+  isSettingsActive = false,
+  isEditActive = false,
 }) => {
   const firstLetter = (displayName || username || 'A').charAt(0).toUpperCase()
 
@@ -76,6 +90,27 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             )}
           </div>
 
+          {/* Followers & Following Row */}
+          <div className="flex items-center gap-3.5 mt-2 text-xs font-mono">
+            <button
+              type="button"
+              onClick={onViewFollowers}
+              className="group inline-flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <span className="text-slate-400 group-hover:text-slate-300">Followers</span>
+              <strong className="font-bold text-white group-hover:text-[#ffd43b] transition-colors">{followersCount}</strong>
+            </button>
+            <span className="text-white/20">•</span>
+            <button
+              type="button"
+              onClick={onViewFollowing}
+              className="group inline-flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <span className="text-slate-400 group-hover:text-slate-300">Following</span>
+              <strong className="font-bold text-white group-hover:text-[#ffd43b] transition-colors">{followingCount}</strong>
+            </button>
+          </div>
+
           {/* Operational Statement / Bio */}
           <p className="font-body text-xs sm:text-sm text-slate-400 italic mt-2 leading-relaxed line-clamp-2 max-w-2xl">
             {statement}
@@ -83,12 +118,30 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         </div>
       </div>
 
-      {/* Right: Edit Profile Button */}
-      <div className="shrink-0 self-start sm:self-center">
+      {/* Right: Settings & Edit Profile Buttons */}
+      <div className="shrink-0 self-start sm:self-center flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          aria-label="Settings"
+          className={`px-3 py-2 border rounded-xl font-display font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-[0.98] ${
+            isSettingsActive
+              ? 'bg-white/15 text-white border-white/25 shadow-xs'
+              : 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border-white/10 hover:border-white/20'
+          }`}
+        >
+          <Settings className="w-3.5 h-3.5 text-slate-400" />
+          <span>Settings</span>
+        </button>
+
         <button
           type="button"
           onClick={onEditProfile}
-          className="px-3.5 py-2 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/10 hover:border-white/20 rounded-xl font-display font-bold text-xs flex items-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+          className={`px-3 py-2 border rounded-xl font-display font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-[0.98] ${
+            isEditActive
+              ? 'bg-white/15 text-white border-white/25 shadow-xs'
+              : 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border-white/10 hover:border-white/20'
+          }`}
         >
           <Edit3 className="w-3.5 h-3.5 text-slate-400" />
           <span>Edit Profile</span>

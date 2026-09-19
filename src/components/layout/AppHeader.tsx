@@ -10,6 +10,8 @@ import {
   Trophy,
   BookOpen,
   BarChart2,
+  Users,
+  Swords,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UserProfile } from '../../services/profileService'
@@ -30,7 +32,9 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'HOME', path: '/dashboard', icon: Home },
   { id: 'practice', label: 'PRACTICE', path: '/questions', icon: BookOpen },
   { id: 'contests', label: 'CONTESTS', path: '/contests', icon: Trophy },
+  { id: '1v1', label: '1V1', path: '/1v1', icon: Swords },
   { id: 'rank', label: 'RANK', path: '/leaderboard', icon: BarChart2 },
+  { id: 'social', label: 'SOCIAL', path: '/social', icon: Users },
 ]
 
 export default function AppHeader() {
@@ -122,6 +126,8 @@ export default function AppHeader() {
     if (path === '/contests' && location.pathname.startsWith('/contests')) return true
     if (path === '/questions' && location.pathname.startsWith('/questions')) return true
     if (path === '/leaderboard' && location.pathname.startsWith('/leaderboard')) return true
+    if (path === '/social' && location.pathname.startsWith('/social')) return true
+    if (path === '/1v1' && location.pathname.startsWith('/1v1')) return true
     if (path === '/profile' && location.pathname.startsWith('/profile')) return true
     return false
   }

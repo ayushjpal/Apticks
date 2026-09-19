@@ -12,7 +12,6 @@ import {
   AlertCircle,
   X,
   Lock,
-  Settings,
   Sliders,
   BarChart2,
 } from 'lucide-react'
@@ -22,6 +21,7 @@ import {
   type UserProfile,
   type UsernameCooldownInfo,
 } from '../../services/profileService'
+import { SocialService } from '../../services/socialService'
 import { normalizeUsername } from '../../utils/validation'
 import { QuestionService } from '../../services/questionService'
 import { StreakService } from '../../services/streakService'
@@ -92,6 +92,8 @@ export default function Profile() {
   const [challengeCompletions, setChallengeCompletions] = useState<DailyChallengeCompletionRow[]>([])
   const [userStreak, setUserStreak] = useState<UserStreak | null>(null)
   const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
+  const [followersCount, setFollowersCount] = useState<number>(0)
+  const [followingCount, setFollowingCount] = useState<number>(0)
 
   // Form Fields
   const [displayName, setDisplayName] = useState('')
@@ -211,6 +213,8 @@ export default function Profile() {
             streak,
             rankRes,
             dcCompsRes,
+            followersCountRes,
+            followingCountRes,
           ] = await Promise.all([
             QuestionService.getQuestionsWithProgress(user.id),
             QuestionService.getUserAttempts(user.id, 50),
@@ -223,7 +227,31 @@ export default function Profile() {
               .eq('user_id', user.id)
               .order('challenge_date', { ascending: false })
               .limit(30),
+            supabase
+              .from('user_follows')
+              .select('*', { count: 'exact', head: true })
+              .eq('following_id', user.id),
+            supabase
+              .from('user_follows')
+              .select('*', { count: 'exact', head: true })
+              .eq('follower_id', user.id),
           ])
+
+          let followersTotal = followersCountRes.count ?? 0
+          let followingTotal = followingCountRes.count ?? 0
+
+          // Fallback to SocialService if count query hit an unexpected error
+          if ((followersCountRes.error || followingCountRes.error) && profile?.username) {
+            try {
+              const pubRes = await SocialService.getPublicProfile(profile.username)
+              if (pubRes.found && pubRes.profile) {
+                followersTotal = pubRes.profile.followers_count
+                followingTotal = pubRes.profile.following_count
+              }
+            } catch (socErr) {
+              console.warn('SocialService.getPublicProfile fallback error:', socErr)
+            }
+          }
 
           const stats = QuestionService.calculateStats(
             questions,
@@ -241,6 +269,8 @@ export default function Profile() {
               setChallengeCompletions(dcCompsRes.data as DailyChallengeCompletionRow[])
             }
             setUserStreak(streak)
+            setFollowersCount(followersTotal)
+            setFollowingCount(followingTotal)
             if (rankRes.found && rankRes.levelProgress) {
               setLevelProgress(rankRes.levelProgress)
             } else {
@@ -627,7 +657,14 @@ export default function Profile() {
           bio={bio}
           streakDays={userStreak?.currentStreak ?? 1}
           division="Division 1"
-          onEditProfile={() => setActiveTab('edit')}
+          followersCount={followersCount}
+          followingCount={followingCount}
+          onEditProfile={() => setActiveTab(activeTab === 'edit' ? 'overview' : 'edit')}
+          onOpenSettings={() => setActiveTab(activeTab === 'settings' ? 'overview' : 'settings')}
+          onViewFollowers={() => navigate('/social?tab=followers')}
+          onViewFollowing={() => navigate('/social?tab=following')}
+          isSettingsActive={activeTab === 'settings'}
+          isEditActive={activeTab === 'edit'}
         />
 
         {/* ========================================================= */}
@@ -684,22 +721,6 @@ export default function Profile() {
           >
             <Trophy className="w-3.5 h-3.5" />
             <span>Contests</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('settings')}
-            className={`
-              px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer shrink-0
-              ${
-                activeTab === 'settings'
-                  ? 'bg-white/10 text-white border border-white/15 font-bold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
-              }
-            `}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span>Settings</span>
           </button>
         </div>
 
