@@ -21,8 +21,8 @@ import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
 import { ChallengeService } from '../../services/challengeService'
 import type { Question, UserQuestionProgress } from '../../types/questions'
-import AppLayout from '../../components/layout/AppLayout'
 import { StatusBadge, NeoBadge } from '../../components/ui'
+import { useUserSession } from '../../contexts/UserSessionContext'
 
 export default function QuestionSolver() {
   const { id } = useParams<{ id: string }>()
@@ -34,10 +34,16 @@ export default function QuestionSolver() {
   const [resolvedChallengeId, setResolvedChallengeId] = useState<string | null>(challengeId)
 
   // App & Question State
+  const { user: sessionUser, refreshUserMetrics } = useUserSession()
   const [userId, setUserId] = useState<string | undefined>()
+  const effectiveUserId = sessionUser?.id || userId
   const [question, setQuestion] = useState<Question | null>(null)
   const [allQuestions, setAllQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
+
+  // In-memory catalog and progress references to ensure 0-network next problem transitions
+  const catalogRef = useRef<Question[]>([])
+  const progressMapRef = useRef<Record<string, UserQuestionProgress>>({})
 
   // Solver State
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
@@ -70,14 +76,15 @@ export default function QuestionSolver() {
   const timerRef = useRef<number | null>(null)
 
   // ---------------------------------------------------------------------------
-  // 1. Load Question & User Data
+  // 1. Load Question & User Data (Zero-Network Fast-Path when navigating problems)
   // ---------------------------------------------------------------------------
   useEffect(() => {
     let isMounted = true
 
     const loadQuestionData = async () => {
       if (!id) return
-      setLoading(true)
+
+      // Reset solver state for this specific question
       setIsSubmitted(false)
       setIsCorrect(null)
       setSelectedOption(null)
@@ -89,23 +96,27 @@ export default function QuestionSolver() {
       setAuthoritativeExplanation(null)
 
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-
-        if (user && isMounted) {
-          setUserId(user.id)
+        let currentUserId = effectiveUserId
+        if (!currentUserId) {
+          const {
+            data: { user: authUser },
+          } = await supabase.auth.getUser()
+          if (authUser && isMounted) {
+            currentUserId = authUser.id
+            setUserId(authUser.id)
+          }
         }
 
         // =====================================================================
         // A. DAILY CHALLENGE MODE: Authoritative RPC Retrieval
         // =====================================================================
         if (isChallengeMode) {
+          setLoading(true)
           const [dailyChallenge, fetchedList, attemptStats] = await Promise.all([
             ChallengeService.getDailyChallenge(),
             QuestionService.getQuestions(),
-            user?.id
-              ? QuestionService.getQuestionAttempts(id, user.id)
+            currentUserId
+              ? QuestionService.getQuestionAttempts(id, currentUserId)
               : Promise.resolve({ attempts: [], totalAttempts: 0, correctCount: 0, incorrectCount: 0 }),
           ])
 
@@ -114,6 +125,7 @@ export default function QuestionSolver() {
           if (dailyChallenge && dailyChallenge.question) {
             setQuestion(dailyChallenge.question)
             setAllQuestions(fetchedList)
+            catalogRef.current = fetchedList
             setResolvedChallengeId(dailyChallenge.challengeId)
             setQuestionAttemptStats({
               totalAttempts: attemptStats.totalAttempts,
@@ -121,8 +133,6 @@ export default function QuestionSolver() {
               incorrectCount: attemptStats.incorrectCount,
             })
 
-            // Only treat the challenge as completed when challenge.isCompleted is true.
-            // Do NOT rely on normal user_question_progress.isSolved.
             if (dailyChallenge.isCompleted) {
               setIsSubmitted(true)
               setIsCorrect(true)
@@ -133,26 +143,76 @@ export default function QuestionSolver() {
                 attemptNumber: 1,
               })
             }
+            setLoading(false)
             return
           } else {
-            // Challenge could not be loaded - safely redirect back to Dashboard
             navigate('/dashboard', { replace: true })
             return
           }
         }
 
         // =====================================================================
-        // B. STANDARD QUESTION BANK PRACTICE FLOW (Completely Unchanged)
+        // B. STANDARD QUESTION BANK PRACTICE FLOW
         // =====================================================================
+        // FAST PATH: If questions are already held in memory/cache, resolve in 0ms with ZERO network requests!
+        const availableCatalog =
+          catalogRef.current.length > 0
+            ? catalogRef.current
+            : (QuestionService.getCachedQuestions() || [])
+
+        const cachedMatch = availableCatalog.find((q) => q.id === id)
+
+        if (cachedMatch) {
+          // Instant memory transition - ZERO question catalog network request
+          if (catalogRef.current.length === 0) {
+            catalogRef.current = availableCatalog
+            setAllQuestions(availableCatalog)
+          }
+
+          setQuestion(cachedMatch)
+          setLoading(false)
+
+          const p = progressMapRef.current[id]
+          if (p) {
+            setIsBookmarked(p.isBookmarked)
+            if (p.isSolved) {
+              setSelectedOption(p.selectedOption || null)
+              setIsSubmitted(true)
+              setIsCorrect(p.isCorrect)
+              setTimerActive(false)
+            }
+          } else {
+            setIsBookmarked(false)
+          }
+
+          // Fetch attempt stats in background without touching question catalog or blocking UI
+          if (currentUserId) {
+            QuestionService.getQuestionAttempts(id, currentUserId)
+              .then((stats) => {
+                if (isMounted) {
+                  setQuestionAttemptStats({
+                    totalAttempts: stats.totalAttempts,
+                    correctCount: stats.correctCount,
+                    incorrectCount: stats.incorrectCount,
+                  })
+                }
+              })
+              .catch(() => {})
+          }
+          return
+        }
+
+        // COLD PATH: Initial deep link or hard refresh when catalog not yet cached in memory
+        setLoading(true)
         const [foundQuestion, fetchedList, progressMap, attemptStats] =
           await Promise.all([
             QuestionService.getQuestionById(id),
             QuestionService.getQuestions(),
-            user?.id
-              ? QuestionService.getUserProgress(user.id)
+            currentUserId
+              ? QuestionService.getUserProgress(currentUserId)
               : Promise.resolve<Record<string, UserQuestionProgress>>({}),
-            user?.id
-              ? QuestionService.getQuestionAttempts(id, user.id)
+            currentUserId
+              ? QuestionService.getQuestionAttempts(id, currentUserId)
               : Promise.resolve({ attempts: [], totalAttempts: 0, correctCount: 0, incorrectCount: 0 }),
           ])
 
@@ -164,6 +224,8 @@ export default function QuestionSolver() {
         if (isMounted) {
           setQuestion(foundQuestion)
           setAllQuestions(fetchedList)
+          catalogRef.current = fetchedList
+          progressMapRef.current = progressMap
           setQuestionAttemptStats({
             totalAttempts: attemptStats.totalAttempts,
             correctCount: attemptStats.correctCount,
@@ -179,6 +241,8 @@ export default function QuestionSolver() {
               setIsCorrect(p.isCorrect)
               setTimerActive(false)
             }
+          } else {
+            setIsBookmarked(false)
           }
         }
       } catch (err) {
@@ -194,7 +258,7 @@ export default function QuestionSolver() {
       isMounted = false
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [id, navigate, isChallengeMode])
+  }, [id, navigate, isChallengeMode, effectiveUserId])
 
   // ---------------------------------------------------------------------------
   // 2. Stopwatch Timer
@@ -254,8 +318,13 @@ export default function QuestionSolver() {
           attemptNumber: 1,
         })
 
-        if (userId) {
-          const stats = await QuestionService.getQuestionAttempts(question.id, userId)
+        // Authoritative metrics refresh on challenge submission completion
+        if (res.success) {
+          await refreshUserMetrics()
+        }
+
+        if (effectiveUserId) {
+          const stats = await QuestionService.getQuestionAttempts(question.id, effectiveUserId)
           setQuestionAttemptStats({
             totalAttempts: stats.totalAttempts,
             correctCount: stats.correctCount,
@@ -275,12 +344,24 @@ export default function QuestionSolver() {
     const correct = selectedOption === question.correctOption
     setIsCorrect(correct)
 
+    // Synchronously update in-memory progress map so subsequent question transitions remember this
+    progressMapRef.current[question.id] = {
+      questionId: question.id,
+      isSolved: correct || Boolean(progressMapRef.current[question.id]?.isSolved),
+      isCorrect: correct,
+      isBookmarked,
+      selectedOption,
+      attemptsCount: (progressMapRef.current[question.id]?.attemptsCount || 0) + 1,
+      timeSpentSeconds: timeSpent,
+      lastAttemptedAt: new Date().toISOString(),
+    }
+
     try {
       const res = await QuestionService.submitAnswer(
         question.id,
         selectedOption,
         timeSpent,
-        userId
+        effectiveUserId
       )
       setXpResult({
         xpChange: res.xpChange,
@@ -288,9 +369,14 @@ export default function QuestionSolver() {
         attemptNumber: res.attemptNumber,
       })
 
+      // On completed submission, synchronize authoritative user metrics
+      if (effectiveUserId) {
+        await refreshUserMetrics()
+      }
+
       // Refresh question-specific attempt statistics
-      if (userId) {
-        const stats = await QuestionService.getQuestionAttempts(question.id, userId)
+      if (effectiveUserId) {
+        const stats = await QuestionService.getQuestionAttempts(question.id, effectiveUserId)
         setQuestionAttemptStats({
           totalAttempts: stats.totalAttempts,
           correctCount: stats.correctCount,
@@ -310,25 +396,40 @@ export default function QuestionSolver() {
     const newStatus = !isBookmarked
     setIsBookmarked(newStatus)
 
+    if (progressMapRef.current[question.id]) {
+      progressMapRef.current[question.id].isBookmarked = newStatus
+    } else {
+      progressMapRef.current[question.id] = {
+        questionId: question.id,
+        isSolved: false,
+        isCorrect: false,
+        isBookmarked: newStatus,
+        attemptsCount: 0,
+        timeSpentSeconds: 0,
+        lastAttemptedAt: new Date().toISOString(),
+      }
+    }
+
     try {
-      await QuestionService.toggleBookmark(question.id, userId)
+      await QuestionService.toggleBookmark(question.id, effectiveUserId)
     } catch (err) {
       console.warn('Bookmark toggle error:', err)
     }
   }
 
   // ---------------------------------------------------------------------------
-  // 5. Navigate to Next Question in Pool
+  // 5. Navigate to Next Question in Pool (0ms instant transition via in-memory list)
   // ---------------------------------------------------------------------------
   const handleNextQuestion = () => {
-    if (!question || allQuestions.length === 0) {
+    const list = catalogRef.current.length > 0 ? catalogRef.current : allQuestions
+    if (!question || list.length === 0) {
       navigate('/questions')
       return
     }
 
-    const currentIndex = allQuestions.findIndex((q) => q.id === question.id)
-    const nextIndex = (currentIndex + 1) % allQuestions.length
-    const nextQ = allQuestions[nextIndex]
+    const currentIndex = list.findIndex((q) => q.id === question.id)
+    const nextIndex = (currentIndex + 1) % list.length
+    const nextQ = list[nextIndex]
 
     if (nextQ) {
       navigate(`/questions/${nextQ.id}`)
@@ -346,20 +447,17 @@ export default function QuestionSolver() {
 
   if (loading || !question) {
     return (
-      <AppLayout>
-        <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-          <div className="w-8 h-8 border-2 border-slate-200 border-t-[#0c1d2d] rounded-full animate-spin mb-3" />
-          <div className="text-sm font-semibold text-slate-600">
-            Loading problem...
-          </div>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-8 h-8 border-2 border-slate-200 border-t-[#0c1d2d] rounded-full animate-spin mb-3" />
+        <div className="text-sm font-semibold text-slate-600">
+          Loading problem...
         </div>
-      </AppLayout>
+      </div>
     )
   }
 
   return (
-    <AppLayout maxWidth="wide">
-      <div className="space-y-4 sm:space-y-5 animate-entry">
+    <div className="space-y-4 sm:space-y-5 animate-entry">
         {/* ================================================= */}
         {/* TOP BAR / NAVIGATION                              */}
         {/* ================================================= */}
@@ -746,7 +844,6 @@ export default function QuestionSolver() {
           )}
         </div>
       </div>
-    </AppLayout>
   )
 }
 

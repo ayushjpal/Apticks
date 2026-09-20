@@ -13,6 +13,7 @@ import type {
   Match1v1Question,
   Match1v1AnswerRecord,
 } from '../../types/match1v1'
+import { useUserSession } from '../../contexts/UserSessionContext'
 import { supabase } from '../../lib/supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import {
@@ -33,6 +34,7 @@ import {
 export const Match1v1Arena: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
+  const { user: sessionUser, refreshUserMetrics } = useUserSession()
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   // ----------------------------------------------------------------------------
@@ -53,6 +55,7 @@ export const Match1v1Arena: React.FC = () => {
   const realtimeChannelRef = useRef<RealtimeChannel | null>(null)
   const countdownIntervalRef = useRef<number | null>(null)
   const questionStartTimeRef = useRef<number>(0)
+  const hasRefreshedMetricsRef = useRef(false)
 
   // ----------------------------------------------------------------------------
   // Normalized options parser for questions
@@ -180,14 +183,20 @@ export const Match1v1Arena: React.FC = () => {
   // Authoritative Progression Sync on Match Completion
   // ----------------------------------------------------------------------------
   useEffect(() => {
-    if (gameState?.status === 'completed' && currentUserId) {
-      LeaderboardService.getUserGlobalRank(currentUserId).then((res) => {
-        if (res.found) {
-          setUserProgression(res)
-        }
-      })
+    const effectiveUid = sessionUser?.id || currentUserId
+    if (gameState?.status === 'completed' && effectiveUid) {
+      if (!hasRefreshedMetricsRef.current) {
+        hasRefreshedMetricsRef.current = true
+        refreshUserMetrics().then(() => {
+          LeaderboardService.getUserGlobalRank(effectiveUid, true).then((res) => {
+            if (res.found) {
+              setUserProgression(res)
+            }
+          })
+        })
+      }
     }
-  }, [gameState?.status, currentUserId])
+  }, [gameState?.status, sessionUser?.id, currentUserId, refreshUserMetrics])
 
   // ----------------------------------------------------------------------------
   // Authoritative Countdown Visual Timer

@@ -14,10 +14,12 @@ import {
 import { ContestService } from '../../services/contestService'
 import type { Contest, ContestQuestion, ContestSubmissionAnswer } from '../../types/contests'
 import { supabase } from '../../lib/supabase'
+import { useUserSession } from '../../contexts/UserSessionContext'
 
 export default function ContestArena() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { refreshUserMetrics } = useUserSession()
 
   // State
   const [contest, setContest] = useState<Contest | null>(null)
@@ -137,6 +139,7 @@ export default function ContestArena() {
       const result = await ContestService.submitContestAnswers(id, submissionPayload)
 
       if (result.success || result.alreadySubmitted) {
+        await refreshUserMetrics().catch(() => {})
         navigate(`/contests/${id}/results`, { replace: true })
       } else {
         alert(result.error || result.message || 'Error submitting contest answers.')
@@ -147,7 +150,7 @@ export default function ContestArena() {
       alert('Network error while submitting contest.')
       setIsSubmitting(false)
     }
-  }, [id, isSubmitting, questions, answers, questionTimeMap, navigate])
+  }, [id, isSubmitting, questions, answers, questionTimeMap, navigate, refreshUserMetrics])
 
   // ---------------------------------------------------------------------------
   // 3. Server-Synchronized Countdown Timer & Per-Question Time Tracking

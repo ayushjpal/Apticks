@@ -29,9 +29,9 @@ export const ApticksLogo: React.FC<ApticksLogoProps> = ({
   alt,
   ariaHidden = false,
 }) => {
-  let src = '/brand/apticks-mark.png'
+  let src = '/brand/apticks-icon-192.png'
 
-  if (variant === 'icon') {
+  if (variant === 'mark' || variant === 'icon') {
     src = '/brand/apticks-icon-192.png'
   } else if (variant === 'full') {
     src = theme === 'dark' ? '/brand/apticks-full-dark.png' : '/brand/apticks-full-transparent.png'

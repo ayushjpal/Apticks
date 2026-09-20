@@ -1,43 +1,47 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, Link } from 'react-router-dom'
-
-// -----------------------------
-// Authentication Pages
-// -----------------------------
-import Login from '../pages/auth/Login'
-import Signup from '../pages/auth/Signup'
-import ForgotPassword from '../pages/auth/ForgotPassword'
-import UpdatePassword from '../pages/auth/UpdatePassword'
-import AuthCallback from '../pages/auth/AuthCallback'
-import ChooseUsername from '../pages/auth/ChooseUsername'
-import LinkEmail from '../pages/auth/LinkEmail'
-
-// -----------------------------
-// Main Application Pages
-// -----------------------------
-import Dashboard from '../pages/Dashboard'
-import Profile from '../pages/profile/Profile'
-import QuestionBank from '../pages/questions/QuestionBank'
-import QuestionSolver from '../pages/questions/QuestionSolver'
-import Contests from '../pages/contests/Contests'
-import ContestDetails from '../pages/contests/ContestDetails'
-import ContestArena from '../pages/contests/ContestArena'
-import ContestResults from '../pages/contests/ContestResults'
-import Leaderboard from '../pages/leaderboard/Leaderboard'
-import SocialHub from '../pages/social/SocialHub'
-import PublicProfile from '../pages/profile/PublicProfile'
-import Match1v1Hub from '../pages/match1v1/Match1v1Hub'
-import Match1v1Lobby from '../pages/match1v1/Match1v1Lobby'
-import Match1v1Arena from '../pages/match1v1/Match1v1Arena'
-
-// -----------------------------
-// Staff Control Center Pages
-// -----------------------------
+import AppLayout from '../components/layout/AppLayout'
+import { UserSessionProvider } from '../contexts/UserSessionContext'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
-import ModeratorDashboard from '../pages/moderator/ModeratorDashboard'
-import ModeratorQuestions from '../pages/moderator/ModeratorQuestions'
-import ModeratorContests from '../pages/moderator/ModeratorContests'
-import ModeratorModeration from '../pages/moderator/ModeratorModeration'
-import ModeratorUsers from '../pages/moderator/ModeratorUsers'
+import { RouteSkeleton, ArenaSkeleton, AuthSkeleton } from '../components/ui/RouteSkeleton'
+
+// -----------------------------
+// Authentication Pages (Lazy Loaded)
+// -----------------------------
+const Login = lazy(() => import('../pages/auth/Login'))
+const Signup = lazy(() => import('../pages/auth/Signup'))
+const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'))
+const UpdatePassword = lazy(() => import('../pages/auth/UpdatePassword'))
+const AuthCallback = lazy(() => import('../pages/auth/AuthCallback'))
+const ChooseUsername = lazy(() => import('../pages/auth/ChooseUsername'))
+const LinkEmail = lazy(() => import('../pages/auth/LinkEmail'))
+
+// -----------------------------
+// Main Application Pages (Lazy Loaded)
+// -----------------------------
+const Dashboard = lazy(() => import('../pages/Dashboard'))
+const Profile = lazy(() => import('../pages/profile/Profile'))
+const QuestionBank = lazy(() => import('../pages/questions/QuestionBank'))
+const QuestionSolver = lazy(() => import('../pages/questions/QuestionSolver'))
+const Contests = lazy(() => import('../pages/contests/Contests'))
+const ContestDetails = lazy(() => import('../pages/contests/ContestDetails'))
+const ContestArena = lazy(() => import('../pages/contests/ContestArena'))
+const ContestResults = lazy(() => import('../pages/contests/ContestResults'))
+const Leaderboard = lazy(() => import('../pages/leaderboard/Leaderboard'))
+const SocialHub = lazy(() => import('../pages/social/SocialHub'))
+const PublicProfile = lazy(() => import('../pages/profile/PublicProfile'))
+const Match1v1Hub = lazy(() => import('../pages/match1v1/Match1v1Hub'))
+const Match1v1Lobby = lazy(() => import('../pages/match1v1/Match1v1Lobby'))
+const Match1v1Arena = lazy(() => import('../pages/match1v1/Match1v1Arena'))
+
+// -----------------------------
+// Staff Control Center Pages (Lazy Loaded)
+// -----------------------------
+const ModeratorDashboard = lazy(() => import('../pages/moderator/ModeratorDashboard'))
+const ModeratorQuestions = lazy(() => import('../pages/moderator/ModeratorQuestions'))
+const ModeratorContests = lazy(() => import('../pages/moderator/ModeratorContests'))
+const ModeratorModeration = lazy(() => import('../pages/moderator/ModeratorModeration'))
+const ModeratorUsers = lazy(() => import('../pages/moderator/ModeratorUsers'))
 
 // -----------------------------
 // 404 Not Found Page
@@ -79,37 +83,49 @@ export default function AppRoutes() {
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
       {/* Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/update-password" element={<UpdatePassword />} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/choose-username" element={<ChooseUsername />} />
-      <Route path="/link-email" element={<LinkEmail />} />
+      <Route path="/login" element={<Suspense fallback={<AuthSkeleton />}><Login /></Suspense>} />
+      <Route path="/signup" element={<Suspense fallback={<AuthSkeleton />}><Signup /></Suspense>} />
+      <Route path="/forgot-password" element={<Suspense fallback={<AuthSkeleton />}><ForgotPassword /></Suspense>} />
+      <Route path="/update-password" element={<Suspense fallback={<AuthSkeleton />}><UpdatePassword /></Suspense>} />
+      <Route path="/auth/callback" element={<Suspense fallback={<AuthSkeleton />}><AuthCallback /></Suspense>} />
+      <Route path="/choose-username" element={<Suspense fallback={<AuthSkeleton />}><ChooseUsername /></Suspense>} />
+      <Route path="/link-email" element={<Suspense fallback={<AuthSkeleton />}><LinkEmail /></Suspense>} />
 
-      {/* Main Arena Routes */}
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/questions" element={<QuestionBank />} />
-      <Route path="/questions/:id" element={<QuestionSolver />} />
-      <Route path="/contests" element={<Contests />} />
-      <Route path="/contests/:id" element={<ContestDetails />} />
-      <Route path="/contests/:id/arena" element={<ContestArena />} />
-      <Route path="/contests/:id/results" element={<ContestResults />} />
-      <Route path="/leaderboard" element={<Leaderboard />} />
-      <Route path="/rank" element={<Navigate to="/leaderboard" replace />} />
-      <Route path="/social" element={<SocialHub />} />
-      <Route path="/1v1" element={<Match1v1Hub />} />
-      <Route path="/1v1/:matchId" element={<Match1v1Lobby />} />
-      <Route path="/1v1/:matchId/battle" element={<Match1v1Arena />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/profile/:username" element={<PublicProfile />} />
+      {/* Main Arena Routes with Persistent Layout & Shared UserSession Context */}
+      <Route
+        element={
+          <UserSessionProvider>
+            <AppLayout />
+          </UserSessionProvider>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/questions" element={<QuestionBank />} />
+        <Route path="/questions/:id" element={<QuestionSolver />} />
+        <Route path="/contests" element={<Contests />} />
+        <Route path="/contests/:id" element={<ContestDetails />} />
+        <Route path="/contests/:id/results" element={<ContestResults />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/rank" element={<Navigate to="/leaderboard" replace />} />
+        <Route path="/social" element={<SocialHub />} />
+        <Route path="/1v1" element={<Match1v1Hub />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:username" element={<PublicProfile />} />
+      </Route>
+
+      {/* Immersion Full-Screen Arenas (Independent HUDs outside AppLayout) */}
+      <Route path="/contests/:id/arena" element={<Suspense fallback={<ArenaSkeleton />}><ContestArena /></Suspense>} />
+      <Route path="/1v1/:matchId" element={<Suspense fallback={<ArenaSkeleton />}><Match1v1Lobby /></Suspense>} />
+      <Route path="/1v1/:matchId/battle" element={<Suspense fallback={<ArenaSkeleton />}><Match1v1Arena /></Suspense>} />
 
       {/* Staff Control Center Routes (Protected) */}
       <Route
         path="/moderator"
         element={
           <ProtectedRoute allowedRoles={['moderator', 'admin']}>
-            <ModeratorDashboard />
+            <Suspense fallback={<RouteSkeleton />}>
+              <ModeratorDashboard />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -117,7 +133,9 @@ export default function AppRoutes() {
         path="/moderator/questions"
         element={
           <ProtectedRoute allowedRoles={['moderator', 'admin']}>
-            <ModeratorQuestions />
+            <Suspense fallback={<RouteSkeleton />}>
+              <ModeratorQuestions />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -125,7 +143,9 @@ export default function AppRoutes() {
         path="/moderator/contests"
         element={
           <ProtectedRoute allowedRoles={['moderator', 'admin']}>
-            <ModeratorContests />
+            <Suspense fallback={<RouteSkeleton />}>
+              <ModeratorContests />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -133,7 +153,9 @@ export default function AppRoutes() {
         path="/moderator/moderation"
         element={
           <ProtectedRoute allowedRoles={['moderator', 'admin']}>
-            <ModeratorModeration />
+            <Suspense fallback={<RouteSkeleton />}>
+              <ModeratorModeration />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -141,7 +163,9 @@ export default function AppRoutes() {
         path="/moderator/users"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <ModeratorUsers />
+            <Suspense fallback={<RouteSkeleton />}>
+              <ModeratorUsers />
+            </Suspense>
           </ProtectedRoute>
         }
       />

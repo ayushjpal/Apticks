@@ -10,7 +10,6 @@ import {
   SlidersHorizontal,
   CheckCircle2,
 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
 import type {
   Question,
@@ -18,7 +17,7 @@ import type {
   Difficulty,
   UserQuestionProgress,
 } from '../../types/questions'
-import AppLayout from '../../components/layout/AppLayout'
+import { useUserSession } from '../../contexts/UserSessionContext'
 import { PageHeader, NeoButton } from '../../components/ui'
 
 interface CategoryTab {
@@ -54,6 +53,7 @@ function matchesCategory(
 
 export default function QuestionBank() {
   const navigate = useNavigate()
+  const { user, loading: sessionLoading } = useUserSession()
   const [questions, setQuestions] = useState<Question[]>([])
   const [progressMap, setProgressMap] = useState<Record<string, UserQuestionProgress>>({})
   const [loading, setLoading] = useState(true)
@@ -73,35 +73,24 @@ export default function QuestionBank() {
     let isMounted = true
 
     const loadData = async () => {
+      if (sessionLoading) return
+      if (!user) {
+        navigate('/login', { replace: true })
+        return
+      }
+
+      if (isMounted) {
+        setUserId(user.id)
+      }
+
       try {
-        let activeUser: { id: string } | null = null
-
-        const { data: sessionData } = await supabase.auth.getSession()
-        if (sessionData?.session?.user) {
-          activeUser = sessionData.session.user
-        } else {
-          const { data: userData, error: userError } = await supabase.auth.getUser()
-          if (!userError && userData?.user) {
-            activeUser = userData.user
-          }
-        }
-
-        if (!activeUser) {
-          navigate('/login', { replace: true })
-          return
-        }
-
-        if (isMounted) {
-          setUserId(activeUser.id)
-        }
-
         const {
           questions: fetchedQuestions,
           progressMap: fetchedMap,
           challengeBonusXp: fetchedBonus,
           contestXp: fetchedContest,
           authoritativeTotalXp: fetchedAuthXp,
-        } = await QuestionService.getQuestionsWithProgress(activeUser.id)
+        } = await QuestionService.getQuestionsWithProgress(user.id)
 
         if (isMounted) {
           setQuestions(fetchedQuestions)
@@ -124,7 +113,7 @@ export default function QuestionBank() {
     return () => {
       isMounted = false
     }
-  }, [navigate])
+  }, [user, sessionLoading, navigate])
 
   // Accurate category counts derived from the actual question dataset
   const categoryCounts = useMemo(() => {
@@ -288,19 +277,8 @@ export default function QuestionBank() {
     setSearchQuery('')
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0c1d2d] flex items-center justify-center text-white">
-        <div className="text-center font-display font-black">
-          <div className="w-10 h-10 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs tracking-wider">LOADING QUESTION ARENA...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <AppLayout maxWidth="narrow">
+    <div className="max-w-[1160px] mx-auto space-y-3.5 sm:space-y-4 animate-entry">
       <div className="space-y-3.5 sm:space-y-4 animate-entry">
         {/* ================================================= */}
         {/* TOP ARENA HEADER (COMPACT)                        */}
@@ -589,7 +567,19 @@ export default function QuestionBank() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 font-body text-xs">
-                {filteredQuestions.length === 0 ? (
+                {loading ? (
+                  [1, 2, 3, 4, 5, 6].map((i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="py-4 px-3 text-center"><div className="w-4 h-4 bg-white/10 rounded-full mx-auto" /></td>
+                      <td className="py-4 px-2 text-center"><div className="w-3.5 h-3.5 bg-white/10 rounded mx-auto" /></td>
+                      <td className="py-4 px-3"><div className="h-4 bg-white/10 rounded w-2/3 mb-1" /><div className="h-2.5 bg-white/5 rounded w-1/3" /></td>
+                      <td className="py-4 px-3"><div className="h-3 bg-white/10 rounded w-1/2" /></td>
+                      <td className="py-4 px-3 text-center"><div className="h-5 bg-white/10 rounded-full w-16 mx-auto" /></td>
+                      <td className="py-4 px-3 text-center"><div className="h-3 bg-white/10 rounded w-10 mx-auto" /></td>
+                      <td className="py-4 px-4 text-right"><div className="h-7 bg-white/10 rounded-lg w-20 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : filteredQuestions.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-12 px-4 text-center">
                       <div className="max-w-md mx-auto">
@@ -720,7 +710,16 @@ export default function QuestionBank() {
             data-lenis-prevent
             className="md:hidden question-list-scroll max-h-[60vh] sm:max-h-[500px] overflow-y-auto min-h-0 divide-y divide-white/10"
           >
-            {filteredQuestions.length === 0 ? (
+            {loading ? (
+              <div className="p-3 space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="p-4 bg-slate-900/40 border border-white/10 rounded-xl animate-pulse space-y-2">
+                    <div className="h-4 bg-white/10 rounded w-1/2" />
+                    <div className="h-3 bg-white/5 rounded w-3/4" />
+                  </div>
+                ))}
+              </div>
+            ) : filteredQuestions.length === 0 ? (
               <div className="p-6 text-center">
                 <div className="font-display font-black text-base text-white">
                   No questions found
@@ -799,7 +798,7 @@ export default function QuestionBank() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </div>
   )
 }
 

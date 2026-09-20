@@ -22,10 +22,10 @@ import {
   Hash,
   ShieldCheck,
 } from 'lucide-react'
-import AppLayout from '../../components/layout/AppLayout'
 import { supabase } from '../../lib/supabase'
 import { Match1v1Service } from '../../services/match1v1Service'
 import { SocialService, type FriendUserItem, type SocialUserSummary } from '../../services/socialService'
+import { useUserSession } from '../../contexts/UserSessionContext'
 import type {
   IncomingChallenge,
   OutgoingChallenge,
@@ -53,8 +53,10 @@ export default function Match1v1Hub() {
     setSearchParams({ tab })
   }, [setSearchParams])
 
-  // Current authenticated user
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  // Current authenticated user (derived from shared UserSessionContext or local auth)
+  const { user: sessionUser } = useUserSession()
+  const [localUserId, setLocalUserId] = useState<string | null>(null)
+  const currentUserId = sessionUser?.id || localUserId
 
   // Config State
   const [selectedCategory, setSelectedCategory] = useState<string>('All Topics')
@@ -73,6 +75,8 @@ export default function Match1v1Hub() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SocialUserSummary[]>([])
   const [searchingUsers, setSearchingUsers] = useState(false)
+  const searchRequestId = useRef(0)
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [selectedCompetitor, setSelectedCompetitor] = useState<{
     id: string
     username: string
@@ -103,6 +107,8 @@ export default function Match1v1Hub() {
   // 1. Initial Load & Auth
   // ----------------------------------------------------------------------------
   useEffect(() => {
+    if (sessionUser?.id) return
+
     let isMounted = true
 
     async function initUser() {
@@ -112,7 +118,7 @@ export default function Match1v1Hub() {
         return
       }
       if (isMounted) {
-        setCurrentUserId(user.id)
+        setLocalUserId(user.id)
       }
     }
 
@@ -120,7 +126,7 @@ export default function Match1v1Hub() {
     return () => {
       isMounted = false
     }
-  }, [navigate])
+  }, [sessionUser?.id, navigate])
 
   // ----------------------------------------------------------------------------
   // 2. Fetch Challenges & Friends
@@ -189,19 +195,30 @@ export default function Match1v1Hub() {
   }, [searchParams, currentUserId, setTab])
 
   // ----------------------------------------------------------------------------
-  // 3. User Search for Direct Challenge
+  // 3. User Search for Direct Challenge (Debounced & Sequence-Protected)
   // ----------------------------------------------------------------------------
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val)
+    if (val.trim().length < 2) {
+      searchRequestId.current++
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+      setSearchResults([])
+      setSearchingUsers(false)
+    }
+  }
+
   useEffect(() => {
     const q = searchQuery.trim()
-    if (!q || q.length < 2) {
-      const clearTimer = setTimeout(() => setSearchResults([]), 0)
-      return () => clearTimeout(clearTimer)
-    }
+    if (!q || q.length < 2) return
 
     const timer = setTimeout(async () => {
       setSearchingUsers(true)
+      const reqId = ++searchRequestId.current
       try {
         const res = await SocialService.searchUsers(q, 5)
+        // Stale-request sequence protection: ignore if a newer search was initiated
+        if (reqId !== searchRequestId.current) return
+
         if (res.success && res.users) {
           // Filter out self
           const filtered = res.users.filter(
@@ -210,9 +227,11 @@ export default function Match1v1Hub() {
           setSearchResults(filtered)
         }
       } finally {
-        setSearchingUsers(false)
+        if (reqId === searchRequestId.current) {
+          setSearchingUsers(false)
+        }
       }
-    }, 250)
+    }, 300)
 
     return () => clearTimeout(timer)
   }, [searchQuery, currentUserId])
@@ -420,8 +439,7 @@ export default function Match1v1Hub() {
   }
 
   return (
-    <AppLayout maxWidth="wide">
-      <div className="max-w-6xl mx-auto space-y-5 pb-12 animate-entry">
+    <div className="max-w-6xl mx-auto space-y-5 pb-12 animate-entry">
 
         {/* ========================================================================= */}
         {/* TOP SECTION: COMPACT PAGE HEADER                                          */}
@@ -792,14 +810,37 @@ export default function Match1v1Hub() {
                     <input
                       type="text"
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => handleSearchChange(e.target.value)}
                       placeholder="Search username..."
                       className="w-full bg-[#0e2438] border border-white/15 rounded-lg pl-10 pr-10 py-2.5 font-mono text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#ffd43b]"
                     />
                     {searchingUsers && (
                       <RefreshCw className="w-3.5 h-3.5 text-[#ffd43b] animate-spin absolute right-3.5 top-1/2 -translate-y-1/2" />
                     )}
+                    {searchQuery && !searchingUsers && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          searchRequestId.current++
+                          if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+                          setSearchQuery('')
+                          setSearchResults([])
+                          setSearchingUsers(false)
+                        }}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
+
+                  {searchQuery.trim().length === 1 && !searchingUsers && (
+                    <div className="p-2.5 bg-[#0e2438] border border-amber-400/20 rounded-lg text-center">
+                      <p className="font-mono text-[11px] text-amber-300">
+                        Type at least 2 characters to search competitors
+                      </p>
+                    </div>
+                  )}
 
                   {/* Compact Search Results */}
                   {searchResults.length > 0 && (
@@ -1206,6 +1247,5 @@ export default function Match1v1Hub() {
         )}
 
       </div>
-    </AppLayout>
   )
 }

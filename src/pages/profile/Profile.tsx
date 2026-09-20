@@ -28,7 +28,7 @@ import { StreakService } from '../../services/streakService'
 import { LeaderboardService } from '../../services/leaderboardService'
 import { calculateLevelProgress, type LevelProgress } from '../../utils/levelEngine'
 import type { QuestionBankStats, UserQuestionAttempt, UserStreak } from '../../types/questions'
-import AppLayout from '../../components/layout/AppLayout'
+import { useUserSession } from '../../contexts/UserSessionContext'
 
 // Subcomponents matching reference design
 import { ProfileHeader } from './components/ProfileHeader'
@@ -71,6 +71,14 @@ export default function Profile() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
+  const {
+    profile: sessionProfile,
+    streak: sessionStreak,
+    totalXp: sessionTotalXp,
+    levelProgress: sessionLevelProgress,
+    refreshUserMetrics,
+  } = useUserSession()
+
   // Active View Tab: 'overview' | 'activity' | 'edit' | 'settings'
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview')
 
@@ -92,8 +100,7 @@ export default function Profile() {
   const [challengeCompletions, setChallengeCompletions] = useState<DailyChallengeCompletionRow[]>([])
   const [userStreak, setUserStreak] = useState<UserStreak | null>(null)
   const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
-  const [followersCount, setFollowersCount] = useState<number>(0)
-  const [followingCount, setFollowingCount] = useState<number>(0)
+  const [friendsCount, setFriendsCount] = useState<number>(0)
 
   // Form Fields
   const [displayName, setDisplayName] = useState('')
@@ -213,8 +220,7 @@ export default function Profile() {
             streak,
             rankRes,
             dcCompsRes,
-            followersCountRes,
-            followingCountRes,
+            friendsCountRes,
           ] = await Promise.all([
             QuestionService.getQuestionsWithProgress(user.id),
             QuestionService.getUserAttempts(user.id, 50),
@@ -227,26 +233,17 @@ export default function Profile() {
               .eq('user_id', user.id)
               .order('challenge_date', { ascending: false })
               .limit(30),
-            supabase
-              .from('user_follows')
-              .select('*', { count: 'exact', head: true })
-              .eq('following_id', user.id),
-            supabase
-              .from('user_follows')
-              .select('*', { count: 'exact', head: true })
-              .eq('follower_id', user.id),
+            SocialService.getMyFriendsCount(),
           ])
 
-          let followersTotal = followersCountRes.count ?? 0
-          let followingTotal = followingCountRes.count ?? 0
+          let friendsTotal = friendsCountRes.count ?? 0
 
           // Fallback to SocialService if count query hit an unexpected error
-          if ((followersCountRes.error || followingCountRes.error) && profile?.username) {
+          if (!friendsCountRes.success && profile?.username) {
             try {
               const pubRes = await SocialService.getPublicProfile(profile.username)
               if (pubRes.found && pubRes.profile) {
-                followersTotal = pubRes.profile.followers_count
-                followingTotal = pubRes.profile.following_count
+                friendsTotal = pubRes.profile.friends_count
               }
             } catch (socErr) {
               console.warn('SocialService.getPublicProfile fallback error:', socErr)
@@ -269,8 +266,7 @@ export default function Profile() {
               setChallengeCompletions(dcCompsRes.data as DailyChallengeCompletionRow[])
             }
             setUserStreak(streak)
-            setFollowersCount(followersTotal)
-            setFollowingCount(followingTotal)
+            setFriendsCount(friendsTotal)
             if (rankRes.found && rankRes.levelProgress) {
               setLevelProgress(rankRes.levelProgress)
             } else {
@@ -434,6 +430,7 @@ export default function Profile() {
       } else {
         setOriginalProfile(res.profile)
         setSaveSuccess(true)
+        refreshUserMetrics().catch(() => {})
 
         if (isChangingUsername) {
           const newCooldown = ProfileService.getUsernameCooldownInfo(
@@ -588,13 +585,11 @@ export default function Profile() {
     }
   }
 
-  if (loading) {
+  if (loading && !originalProfile) {
     return (
-      <div className="min-h-screen bg-[#0c1d2d] flex items-center justify-center text-white">
-        <div className="text-center font-display">
-          <div className="w-10 h-10 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm font-semibold tracking-wide text-white/70">Loading profile...</p>
-        </div>
+      <div className="max-w-[1160px] mx-auto py-16 text-center text-white">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-xs font-semibold tracking-wide text-white/70">Loading profile...</p>
       </div>
     )
   }
@@ -613,7 +608,7 @@ export default function Profile() {
   const firstLetter = effectiveDisplayName.charAt(0).toUpperCase()
 
   return (
-    <AppLayout maxWidth="narrow">
+    <div className="max-w-[1160px] mx-auto space-y-5 animate-entry pb-10">
       <div className="space-y-5 animate-entry pb-10">
         {/* Success Alert */}
         {saveSuccess && (
@@ -653,16 +648,13 @@ export default function Profile() {
         <ProfileHeader
           displayName={effectiveDisplayName}
           username={effectiveUsername}
-          avatarUrl={avatarUrl}
-          bio={bio}
-          streakDays={userStreak?.currentStreak ?? 1}
+          avatarUrl={avatarUrl || sessionProfile?.avatar_url || null}
+          bio={bio || sessionProfile?.bio || ''}
+          streakDays={sessionStreak?.currentStreak ?? userStreak?.currentStreak ?? 1}
           division="Division 1"
-          followersCount={followersCount}
-          followingCount={followingCount}
+          friendsCount={friendsCount}
           onEditProfile={() => setActiveTab(activeTab === 'edit' ? 'overview' : 'edit')}
           onOpenSettings={() => setActiveTab(activeTab === 'settings' ? 'overview' : 'settings')}
-          onViewFollowers={() => navigate('/social?tab=followers')}
-          onViewFollowing={() => navigate('/social?tab=following')}
           isSettingsActive={activeTab === 'settings'}
           isEditActive={activeTab === 'edit'}
         />
@@ -673,7 +665,7 @@ export default function Profile() {
         {/* ========================================================= */}
         {activeTab !== 'edit' && activeTab !== 'settings' && (
           <CompetitiveHeroCard
-            levelProgress={levelProgress}
+            levelProgress={sessionLevelProgress ?? levelProgress}
             questionStats={questionStats}
           />
         )}
@@ -741,9 +733,9 @@ export default function Profile() {
               <ProgressOverviewHeatmap
                 attempts={userAttempts}
                 challengeCompletions={challengeCompletions}
-                totalEarnedXp={levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0}
+                totalEarnedXp={sessionTotalXp || (sessionLevelProgress?.totalXp ?? levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0)}
                 totalProblems={questionStats?.solvedCount ?? questionStats?.totalAttempts ?? 0}
-                streakDays={userStreak?.currentStreak ?? 1}
+                streakDays={sessionStreak?.currentStreak ?? userStreak?.currentStreak ?? 1}
               />
             </div>
           </div>
@@ -1222,6 +1214,6 @@ export default function Profile() {
           </div>
         )}
       </div>
-    </AppLayout>
+    </div>
   )
 }

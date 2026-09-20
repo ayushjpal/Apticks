@@ -11,7 +11,8 @@ export interface SocialUserSummary {
   level_title: string
   solved_count: number
   is_caller: boolean
-  is_following: boolean
+  friendship_status?: 'none' | 'friend' | 'incoming_pending' | 'outgoing_pending'
+  friend_request_id?: string | null
 }
 
 export interface PublicUserProfile {
@@ -37,11 +38,8 @@ export interface PublicUserProfile {
   solved_count: number
   contests_count: number
   current_streak: number
-  followers_count: number
-  following_count: number
   friends_count: number
   is_caller: boolean
-  is_following: boolean
   is_blocked_by_caller: boolean
   friendship_status: 'none' | 'friend' | 'incoming_pending' | 'outgoing_pending'
   friend_request_id: string | null
@@ -54,35 +52,6 @@ export interface PublicProfileResult {
   profile?: PublicUserProfile
 }
 
-export interface FollowerUserItem {
-  id: string
-  username: string
-  display_name: string | null
-  avatar_url: string | null
-  bio: string | null
-  level: number
-  level_title: string
-  total_xp: number
-  solved_count: number
-  followed_at: string
-  is_following_back: boolean
-  is_caller: boolean
-}
-
-export interface FollowingUserItem {
-  id: string
-  username: string
-  display_name: string | null
-  avatar_url: string | null
-  bio: string | null
-  level: number
-  level_title: string
-  total_xp: number
-  solved_count: number
-  followed_at: string
-  is_following: boolean
-  is_caller: boolean
-}
 
 export interface BlockedUserItem {
   id: string
@@ -104,7 +73,6 @@ export interface FriendUserItem {
   solved_count: number
   friendship_id: string
   friends_since: string
-  is_following: boolean
 }
 
 export interface IncomingFriendRequestItem {
@@ -120,7 +88,6 @@ export interface IncomingFriendRequestItem {
     level_title: string
     total_xp: number
     solved_count: number
-    is_following: boolean
   }
 }
 
@@ -145,16 +112,50 @@ export interface RelationshipStatusResult {
   is_caller: boolean
   friend_status: 'none' | 'friend' | 'incoming_pending' | 'outgoing_pending' | 'blocked' | 'unavailable'
   friend_request_id: string | null
-  is_following: boolean
-  is_follower: boolean
   is_blocked: boolean
   message?: string
 }
 
+interface CachedFriendsResult {
+  data: { success: boolean; friends: FriendUserItem[]; total_count: number; message?: string }
+  timestamp: number
+}
+
+let cachedFriends: CachedFriendsResult | null = null
+let inFlightFriendsPromise: Promise<{
+  success: boolean
+  friends: FriendUserItem[]
+  total_count: number
+  message?: string
+}> | null = null
+const FRIENDS_CACHE_TTL = 60 * 1000 // 60 seconds
+
+interface CachedSearchResult {
+  users: SocialUserSummary[]
+  timestamp: number
+}
+const searchCache = new Map<string, CachedSearchResult>()
+const MAX_SEARCH_CACHE_SIZE = 20
+
 export class SocialService {
+  /**
+   * Invalidate friends list cache
+   */
+  static invalidateFriendsCache(): void {
+    cachedFriends = null
+  }
+
+  /**
+   * Clear search cache
+   */
+  static clearSearchCache(): void {
+    searchCache.clear()
+  }
+
   /**
    * Search users across the arena by username or display name.
    * Server RPC guarantees case-insensitivity, mutual block filtering, and zero email exposure.
+   * Implements minimum character check and bounded in-memory LRU query cache.
    */
   static async searchUsers(
     query: string,
@@ -162,8 +163,18 @@ export class SocialService {
     offset: number = 0
   ): Promise<{ success: boolean; users: SocialUserSummary[]; message?: string }> {
     const trimmed = query.trim()
-    if (!trimmed) {
+    // Minimum 2 characters required before querying Supabase
+    if (trimmed.length < 2) {
       return { success: true, users: [] }
+    }
+
+    const cacheKey = trimmed.toLowerCase()
+    const cached = searchCache.get(cacheKey)
+    if (cached) {
+      // LRU refresh (move to end)
+      searchCache.delete(cacheKey)
+      searchCache.set(cacheKey, cached)
+      return { success: true, users: cached.users }
     }
 
     try {
@@ -179,9 +190,18 @@ export class SocialService {
       }
 
       const res = data as { success: boolean; users?: SocialUserSummary[]; message?: string }
+      const users = res.users || []
+
+      // Bounded LRU cache eviction
+      if (searchCache.size >= MAX_SEARCH_CACHE_SIZE) {
+        const firstKey = searchCache.keys().next().value
+        if (firstKey) searchCache.delete(firstKey)
+      }
+      searchCache.set(cacheKey, { users, timestamp: Date.now() })
+
       return {
         success: res.success,
-        users: res.users || [],
+        users,
         message: res.message,
       }
     } catch (err: unknown) {
@@ -228,101 +248,28 @@ export class SocialService {
   }
 
   /**
-   * Server-authoritative follow/unfollow toggle.
+   * Fetch authenticated user's exact authoritative friends count.
+   * Uses lightweight get_my_friends_count RPC without loading the full list.
    */
-  static async toggleFollowUser(
-    targetUserId: string
-  ): Promise<{ success: boolean; following: boolean; message?: string }> {
+  static async getMyFriendsCount(): Promise<{ success: boolean; count: number; message?: string }> {
     try {
-      const { data, error } = await supabase.rpc('toggle_follow_user', {
-        p_target_user_id: targetUserId,
-      })
-
+      const { data, error } = await supabase.rpc('get_my_friends_count')
       if (error) {
-        console.error('SocialService.toggleFollowUser RPC error:', error)
-        return { success: false, following: false, message: error.message }
+        console.error('SocialService.getMyFriendsCount RPC error:', error)
+        return { success: false, count: 0, message: error.message }
       }
-
-      const res = data as { success: boolean; following: boolean; message?: string }
-      return res
-    } catch (err: unknown) {
-      console.error('SocialService.toggleFollowUser unexpected error:', err)
-      return {
-        success: false,
-        following: false,
-        message: err instanceof Error ? err.message : 'Follow action failed',
-      }
-    }
-  }
-
-  /**
-   * Fetch followers list for a user.
-   */
-  static async getUserFollowers(
-    targetUserId: string,
-    limit: number = 50,
-    offset: number = 0
-  ): Promise<{ success: boolean; followers: FollowerUserItem[]; message?: string }> {
-    try {
-      const { data, error } = await supabase.rpc('get_user_followers', {
-        p_target_user_id: targetUserId,
-        p_limit: limit,
-        p_offset: offset,
-      })
-
-      if (error) {
-        console.error('SocialService.getUserFollowers RPC error:', error)
-        return { success: false, followers: [], message: error.message }
-      }
-
-      const res = data as { success: boolean; followers?: FollowerUserItem[]; message?: string }
+      const res = data as { success: boolean; count?: number; message?: string }
       return {
         success: res.success,
-        followers: res.followers || [],
+        count: typeof res.count === 'number' ? res.count : 0,
         message: res.message,
       }
     } catch (err: unknown) {
-      console.error('SocialService.getUserFollowers unexpected error:', err)
+      console.error('SocialService.getMyFriendsCount unexpected error:', err)
       return {
         success: false,
-        followers: [],
-        message: err instanceof Error ? err.message : 'Failed to load followers',
-      }
-    }
-  }
-
-  /**
-   * Fetch following list for a user.
-   */
-  static async getUserFollowing(
-    targetUserId: string,
-    limit: number = 50,
-    offset: number = 0
-  ): Promise<{ success: boolean; following: FollowingUserItem[]; message?: string }> {
-    try {
-      const { data, error } = await supabase.rpc('get_user_following', {
-        p_target_user_id: targetUserId,
-        p_limit: limit,
-        p_offset: offset,
-      })
-
-      if (error) {
-        console.error('SocialService.getUserFollowing RPC error:', error)
-        return { success: false, following: [], message: error.message }
-      }
-
-      const res = data as { success: boolean; following?: FollowingUserItem[]; message?: string }
-      return {
-        success: res.success,
-        following: res.following || [],
-        message: res.message,
-      }
-    } catch (err: unknown) {
-      console.error('SocialService.getUserFollowing unexpected error:', err)
-      return {
-        success: false,
-        following: [],
-        message: err instanceof Error ? err.message : 'Failed to load following accounts',
+        count: 0,
+        message: err instanceof Error ? err.message : 'Failed to fetch friends count',
       }
     }
   }
@@ -345,6 +292,9 @@ export class SocialService {
       }
 
       const res = data as { success: boolean; blocked: boolean; message?: string }
+      if (res.success) {
+        SocialService.invalidateFriendsCache()
+      }
       return res
     } catch (err: unknown) {
       console.error('SocialService.blockUser unexpected error:', err)
@@ -373,6 +323,9 @@ export class SocialService {
       }
 
       const res = data as { success: boolean; unblocked: boolean; message?: string }
+      if (res.success) {
+        SocialService.invalidateFriendsCache()
+      }
       return res
     } catch (err: unknown) {
       console.error('SocialService.unblockUser unexpected error:', err)
@@ -436,7 +389,11 @@ export class SocialService {
         return { success: false, message: error.message }
       }
 
-      return data as { success: boolean; request_id?: string; status?: string; message?: string; error?: string }
+      const res = data as { success: boolean; request_id?: string; status?: string; message?: string; error?: string }
+      if (res.success) {
+        SocialService.invalidateFriendsCache()
+      }
+      return res
     } catch (err: unknown) {
       console.error('SocialService.sendFriendRequest unexpected error:', err)
       return {
@@ -464,7 +421,11 @@ export class SocialService {
         return { success: false, message: error.message }
       }
 
-      return data as { success: boolean; status?: string; message?: string; error?: string }
+      const res = data as { success: boolean; status?: string; message?: string; error?: string }
+      if (res.success) {
+        SocialService.invalidateFriendsCache()
+      }
+      return res
     } catch (err: unknown) {
       console.error('SocialService.respondToFriendRequest unexpected error:', err)
       return {
@@ -490,7 +451,11 @@ export class SocialService {
         return { success: false, message: error.message }
       }
 
-      return data as { success: boolean; message?: string; error?: string }
+      const res = data as { success: boolean; message?: string; error?: string }
+      if (res.success) {
+        SocialService.invalidateFriendsCache()
+      }
+      return res
     } catch (err: unknown) {
       console.error('SocialService.cancelFriendRequest unexpected error:', err)
       return {
@@ -516,7 +481,11 @@ export class SocialService {
         return { success: false, message: error.message }
       }
 
-      return data as { success: boolean; message?: string; error?: string }
+      const res = data as { success: boolean; message?: string; error?: string }
+      if (res.success) {
+        SocialService.invalidateFriendsCache()
+      }
+      return res
     } catch (err: unknown) {
       console.error('SocialService.removeFriend unexpected error:', err)
       return {
@@ -528,38 +497,114 @@ export class SocialService {
 
   /**
    * Fetch authenticated user's accepted friends list.
+   * Implements in-memory SWR caching and in-flight request deduplication.
    */
   static async getMyFriends(
     limit: number = 50,
-    offset: number = 0
+    offset: number = 0,
+    forceRefresh = false
   ): Promise<{ success: boolean; friends: FriendUserItem[]; total_count: number; message?: string }> {
-    try {
-      const { data, error } = await supabase.rpc('get_my_friends', {
-        p_limit: limit,
-        p_offset: offset,
-      })
-
-      if (error) {
-        console.error('SocialService.getMyFriends RPC error:', error)
-        return { success: false, friends: [], total_count: 0, message: error.message }
+    // 1. Return cached friends list if available and unpaginated
+    if (!forceRefresh && offset === 0 && cachedFriends) {
+      const isFresh = Date.now() - cachedFriends.timestamp < FRIENDS_CACHE_TTL
+      if (isFresh) {
+        return cachedFriends.data
       }
-
-      const res = data as { success: boolean; friends?: FriendUserItem[]; total_count?: number; message?: string }
-      return {
-        success: res.success,
-        friends: res.friends || [],
-        total_count: res.total_count || 0,
-        message: res.message,
-      }
-    } catch (err: unknown) {
-      console.error('SocialService.getMyFriends unexpected error:', err)
-      return {
-        success: false,
-        friends: [],
-        total_count: 0,
-        message: err instanceof Error ? err.message : 'Failed to load friends list',
-      }
+      // SWR: return stale data immediately, revalidate in background
+      this.revalidateFriendsInBackground(limit, offset)
+      return cachedFriends.data
     }
+
+    // 2. In-flight request deduplication
+    if (inFlightFriendsPromise) {
+      return inFlightFriendsPromise
+    }
+
+    // 3. Launch fetch with in-flight tracking
+    const fetchPromise = (async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_my_friends', {
+          p_limit: limit,
+          p_offset: offset,
+        })
+
+        if (error) {
+          console.error('SocialService.getMyFriends RPC error:', error)
+          return { success: false, friends: [], total_count: 0, message: error.message }
+        }
+
+        const res = data as { success: boolean; friends?: FriendUserItem[]; total_count?: number; message?: string }
+        const result = {
+          success: res.success,
+          friends: res.friends || [],
+          total_count: res.total_count || 0,
+          message: res.message,
+        }
+
+        if (offset === 0) {
+          cachedFriends = {
+            data: result,
+            timestamp: Date.now(),
+          }
+        }
+
+        return result
+      } catch (err: unknown) {
+        console.error('SocialService.getMyFriends unexpected error:', err)
+        return {
+          success: false,
+          friends: [],
+          total_count: 0,
+          message: err instanceof Error ? err.message : 'Failed to load friends list',
+        }
+      } finally {
+        inFlightFriendsPromise = null
+      }
+    })()
+
+    inFlightFriendsPromise = fetchPromise
+    return fetchPromise
+  }
+
+  /**
+   * Background revalidation for friends list
+   */
+  private static revalidateFriendsInBackground(limit: number, offset: number): void {
+    if (inFlightFriendsPromise) return
+
+    const task = (async (): Promise<{ success: boolean; friends: FriendUserItem[]; total_count: number; message?: string }> => {
+      try {
+        const { data, error } = await supabase.rpc('get_my_friends', { p_limit: limit, p_offset: offset })
+        if (!error && data) {
+          const res = data as { success: boolean; friends?: FriendUserItem[]; total_count?: number; message?: string }
+          if (offset === 0) {
+            cachedFriends = {
+              data: {
+                success: res.success,
+                friends: res.friends || [],
+                total_count: res.total_count || 0,
+                message: res.message,
+              },
+              timestamp: Date.now(),
+            }
+          }
+        }
+      } catch {
+        // Silent background failure
+      } finally {
+        inFlightFriendsPromise = null
+      }
+      return (
+        cachedFriends?.data || {
+          success: false,
+          friends: [],
+          total_count: 0,
+          message: 'Failed to revalidate friends',
+        }
+      )
+    })()
+
+    inFlightFriendsPromise = task
   }
 
   /**
@@ -652,8 +697,6 @@ export class SocialService {
           is_caller: false,
           friend_status: 'none',
           friend_request_id: null,
-          is_following: false,
-          is_follower: false,
           is_blocked: false,
           message: error.message,
         }
@@ -667,8 +710,6 @@ export class SocialService {
         is_caller: false,
         friend_status: 'none',
         friend_request_id: null,
-        is_following: false,
-        is_follower: false,
         is_blocked: false,
         message: err instanceof Error ? err.message : 'Failed to determine relationship status',
       }

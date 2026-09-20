@@ -11,7 +11,6 @@ import {
   Award,
   Loader2,
 } from 'lucide-react'
-import AppLayout from '../../components/layout/AppLayout'
 import { PageHeader, StatusBadge } from '../../components/ui'
 import { ContestService } from '../../services/contestService'
 import type { Contest } from '../../types/contests'
@@ -115,8 +114,7 @@ export default function Contests() {
   })
 
   return (
-    <AppLayout maxWidth="narrow">
-      <div className="space-y-4 sm:space-y-5 animate-entry relative">
+    <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-5 animate-entry relative">
         {/* Toast Notification */}
         {toastMessage && (
           <div className="fixed bottom-6 right-6 z-50 bg-[#0c1d2d] text-white border border-slate-700 p-3.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 animate-bounce">
@@ -356,6 +354,5 @@ export default function Contests() {
           </div>
         )}
       </div>
-    </AppLayout>
   )
 }

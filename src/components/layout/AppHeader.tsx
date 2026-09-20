@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import {
   Flame,
@@ -13,13 +13,7 @@ import {
   Users,
   Swords,
 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
-import { ProfileService, type UserProfile } from '../../services/profileService'
-import { QuestionService } from '../../services/questionService'
-import { StreakService } from '../../services/streakService'
-import { LeaderboardService } from '../../services/leaderboardService'
-import { calculateLevelProgress } from '../../utils/levelEngine'
-import type { UserStreak } from '../../types/questions'
+import { useUserSession } from '../../contexts/UserSessionContext'
 
 interface NavItem {
   id: string
@@ -40,81 +34,14 @@ const NAV_ITEMS: NavItem[] = [
 export default function AppHeader() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [totalXP, setTotalXP] = useState(0)
-  const [userLevel, setUserLevel] = useState<number | null>(null)
-  const [levelTitle, setLevelTitle] = useState<string | null>(null)
-  const [streakData, setStreakData] = useState<UserStreak | null>(null)
+  const {
+    profile,
+    totalXp: totalXP,
+    level: userLevel,
+    levelTitle,
+    streak: streakData,
+  } = useUserSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-
-  useEffect(() => {
-    let isMounted = true
-
-    async function loadHeaderUser() {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-
-        if (!user || !isMounted) return
-
-        let p = await ProfileService.fetchProfile(user.id)
-        if (!p?.username && user.user_metadata?.username) {
-          p = {
-            id: user.id,
-            username: user.user_metadata.username,
-            display_name: user.user_metadata.display_name || user.user_metadata.username,
-            avatar_url: p?.avatar_url || null,
-            bio: p?.bio || null,
-            username_changed_at: p?.username_changed_at || null,
-          }
-        }
-
-        if (isMounted) {
-          setProfile(p)
-        }
-
-        // Fetch Live Streak & Authoritative Unified XP concurrently
-        try {
-          const [userStreak, rankRes] = await Promise.all([
-            StreakService.getUserStreak(user.id),
-            LeaderboardService.getUserGlobalRank(user.id),
-          ])
-
-          if (isMounted) {
-            setStreakData(userStreak)
-            if (rankRes.found && typeof rankRes.totalXp === 'number') {
-              setTotalXP(rankRes.totalXp)
-              setUserLevel(rankRes.level ?? 1)
-              setLevelTitle(rankRes.levelTitle ?? 'Novice')
-            } else {
-              // Fallback calculation if rank RPC not found
-              const { questions, progressMap, challengeBonusXp, contestXp } =
-                await QuestionService.getQuestionsWithProgress(user.id)
-              if (isMounted) {
-                const stats = QuestionService.calculateStats(questions, progressMap, [], challengeBonusXp, contestXp)
-                setTotalXP(stats.totalPoints)
-                const prog = calculateLevelProgress(stats.totalPoints)
-                setUserLevel(prog.level)
-                setLevelTitle(prog.title)
-              }
-            }
-          }
-        } catch (e) {
-          console.warn('Header stats/streak fetch note:', e)
-        }
-      } catch (err) {
-        console.warn('Header load note:', err)
-      }
-    }
-
-    loadHeaderUser()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   const initial =
     profile?.display_name?.charAt(0).toUpperCase() ||

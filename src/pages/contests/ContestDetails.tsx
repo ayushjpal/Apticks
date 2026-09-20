@@ -15,7 +15,6 @@ import {
   Loader2,
   HelpCircle,
 } from 'lucide-react'
-import AppLayout from '../../components/layout/AppLayout'
 import { StatusBadge, NeoBadge } from '../../components/ui'
 import { ContestService } from '../../services/contestService'
 import type { Contest, UserContestStatus } from '../../types/contests'
@@ -136,39 +135,35 @@ export default function ContestDetails() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-slate-400 mb-2" />
-            <p className="text-xs font-mono text-slate-500">
-              Loading tournament details...
-            </p>
-          </div>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-slate-400 mb-2" />
+          <p className="text-xs font-mono text-slate-500">
+            Loading tournament details...
+          </p>
         </div>
-      </AppLayout>
+      </div>
     )
   }
 
   if (!contest) {
     return (
-      <AppLayout>
-        <div className="p-8 bg-white border border-slate-200 rounded-xl shadow-sm text-center max-w-md mx-auto mt-12">
-          <Trophy className="w-10 h-10 mx-auto text-slate-300 mb-3" />
-          <h2 className="font-bold text-lg text-slate-900">
-            Tournament Not Found
-          </h2>
-          <p className="text-xs text-slate-500 mt-1">
-            The requested tournament fixture does not exist or has been removed.
-          </p>
-          <Link
-            to="/contests"
-            className="inline-flex items-center gap-2 mt-5 px-4 py-2 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs shadow-xs transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return to Tournaments</span>
-          </Link>
-        </div>
-      </AppLayout>
+      <div className="p-8 bg-white border border-slate-200 rounded-xl shadow-sm text-center max-w-md mx-auto mt-12">
+        <Trophy className="w-10 h-10 mx-auto text-slate-300 mb-3" />
+        <h2 className="font-bold text-lg text-slate-900">
+          Tournament Not Found
+        </h2>
+        <p className="text-xs text-slate-500 mt-1">
+          The requested tournament fixture does not exist or has been removed.
+        </p>
+        <Link
+          to="/contests"
+          className="inline-flex items-center gap-2 mt-5 px-4 py-2 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs shadow-xs transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Return to Tournaments</span>
+        </Link>
+      </div>
     )
   }
 
@@ -192,7 +187,7 @@ export default function ContestDetails() {
   const isLive = contest.status === 'live'
 
   return (
-    <AppLayout maxWidth="narrow">
+    <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-6 animate-entry pb-12">
       <div className="space-y-4 sm:space-y-6 animate-entry pb-12">
         {/* Toast */}
         {toastMessage && (
@@ -482,6 +477,6 @@ export default function ContestDetails() {
           </section>
         </div>
       </div>
-    </AppLayout>
+    </div>
   )
 }

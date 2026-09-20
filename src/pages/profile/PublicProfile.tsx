@@ -5,7 +5,6 @@ import {
   Zap,
   Flame,
   Trophy,
-  UserCheck,
   UserPlus,
   Ban,
   ShieldAlert,
@@ -17,11 +16,10 @@ import {
   Check,
   X,
   UserMinus,
-  Clock,
   HeartHandshake,
   Swords,
+  Clock,
 } from 'lucide-react'
-import AppLayout from '../../components/layout/AppLayout'
 import {
   SocialService,
   type PublicUserProfile,
@@ -94,33 +92,6 @@ export default function PublicProfile() {
       isMounted = false
     }
   }, [username])
-
-  // Follow / Unfollow Toggle
-  const handleToggleFollow = async () => {
-    if (!profile || actionLoading || profile.is_caller) return
-    setActionLoading(true)
-    try {
-      const res = await SocialService.toggleFollowUser(profile.id)
-      if (res.success) {
-        setProfile((prev) =>
-          prev
-            ? {
-                ...prev,
-                is_following: res.following,
-                followers_count: res.following
-                  ? prev.followers_count + 1
-                  : Math.max(0, prev.followers_count - 1),
-              }
-            : null
-        )
-        showToast(res.following ? `Now following @${profile.username}` : `Unfollowed @${profile.username}`)
-      } else {
-        showToast(res.message || 'Action failed', 'error')
-      }
-    } finally {
-      setActionLoading(false)
-    }
-  }
 
   // Send Friend Request
   const handleSendFriendRequest = async () => {
@@ -289,50 +260,46 @@ export default function PublicProfile() {
   // 1. Loading State
   if (loading) {
     return (
-      <AppLayout>
-        <div className="min-h-screen bg-[#071a2b] text-white flex items-center justify-center arena-bg-grid">
-          <div className="text-center p-8 bg-[#091522] border border-white/10 rounded-2xl shadow-xl">
-            <Loader2 className="w-8 h-8 animate-spin text-[#ffd43b] mx-auto mb-3" />
-            <p className="font-mono text-sm text-slate-400">Loading competitor telemetry...</p>
-          </div>
+      <div className="py-20 text-white flex items-center justify-center">
+        <div className="text-center p-8 bg-[#091522] border border-white/10 rounded-2xl shadow-xl">
+          <Loader2 className="w-8 h-8 animate-spin text-[#ffd43b] mx-auto mb-3" />
+          <p className="font-mono text-sm text-slate-400">Loading competitor telemetry...</p>
         </div>
-      </AppLayout>
+      </div>
     )
   }
 
   // 2. User Not Found or Unavailable
   if (userNotFound || !profile) {
     return (
-      <AppLayout>
-        <div className="min-h-screen bg-[#071a2b] text-white flex items-center justify-center p-4 arena-bg-grid">
-          <div className="max-w-md w-full bg-[#091522] border-2 border-white/10 rounded-2xl p-8 text-center shadow-2xl space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-slate-400">
-              <AlertCircle className="w-8 h-8" />
-            </div>
+      <div className="py-16 text-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#091522] border-2 border-white/10 rounded-2xl p-8 text-center shadow-2xl space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-slate-400">
+            <AlertCircle className="w-8 h-8" />
+          </div>
 
-            <h1 className="font-display font-black text-2xl text-white uppercase tracking-tight">
-              COMPETITOR UNAVAILABLE
-            </h1>
+          <h1 className="font-display font-black text-2xl text-white uppercase tracking-tight">
+            COMPETITOR UNAVAILABLE
+          </h1>
 
-            <p className="font-body text-xs sm:text-sm text-slate-400 leading-relaxed">
-              The competitor handle <span className="font-mono text-amber-400">@{username}</span> could not be found, has been deactivated, or is currently unavailable in the Apticks network.
-            </p>
-            {errorMessage && (
-              <p className="font-mono text-[11px] text-slate-500">Reason: {errorMessage}</p>
-            )}
+          <p className="font-body text-xs sm:text-sm text-slate-400 leading-relaxed">
+            The competitor handle <span className="font-mono text-amber-400">@{username}</span> could not be found, has been deactivated, or is currently unavailable in the Apticks network.
+          </p>
+          {errorMessage && (
+            <p className="font-mono text-[11px] text-slate-500">Reason: {errorMessage}</p>
+          )}
 
-            <div className="pt-2">
-              <Link
-                to="/social"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Return to Social Hub</span>
-              </Link>
-            </div>
+          <div className="pt-2">
+            <Link
+              to="/social"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return to Social Hub</span>
+            </Link>
           </div>
         </div>
-      </AppLayout>
+      </div>
     )
   }
 
@@ -348,9 +315,7 @@ export default function PublicProfile() {
   const nextLevelNum = String(levelNum + 1).padStart(2, '0')
 
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-[#071a2b] text-white py-6 sm:py-8 arena-bg-grid">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6 animate-entry">
           {/* Back Navigation Row */}
           <div className="flex items-center justify-between gap-4">
             <Link
@@ -431,21 +396,11 @@ export default function PublicProfile() {
                   </span>
                 </div>
 
-                {/* Social Network Counts (Friends, Followers, Following, Streak) */}
+                {/* Social Network Counts (Friends, Streak) */}
                 <div className="flex items-center gap-3 sm:gap-4 mt-2 text-xs font-mono text-slate-300 flex-wrap">
                   <span className="flex items-center gap-1.5">
                     <strong className="text-white font-bold">{profile.friends_count}</strong>
                     <span className="text-slate-400">Friends</span>
-                  </span>
-                  <span className="text-white/20">•</span>
-                  <span className="flex items-center gap-1.5">
-                    <strong className="text-white font-bold">{profile.followers_count}</strong>
-                    <span className="text-slate-400">Followers</span>
-                  </span>
-                  <span className="text-white/20">•</span>
-                  <span className="flex items-center gap-1.5">
-                    <strong className="text-white font-bold">{profile.following_count}</strong>
-                    <span className="text-slate-400">Following</span>
                   </span>
                   {profile.current_streak > 0 && (
                     <>
@@ -554,31 +509,6 @@ export default function PublicProfile() {
                       </button>
                     )}
 
-                    {/* FOLLOW TOGGLE BUTTON */}
-                    <button
-                      type="button"
-                      onClick={handleToggleFollow}
-                      disabled={actionLoading}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-display font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 ${
-                        profile.is_following
-                          ? 'bg-white/10 hover:bg-rose-500/20 text-slate-200 hover:text-rose-300 border border-white/15 hover:border-rose-500/30'
-                          : 'bg-[#ffd43b] hover:bg-[#facc15] text-[#0c1d2d] border border-black shadow-[2px_2px_0_#0c1d2d]'
-                      }`}
-                    >
-                      {actionLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : profile.is_following ? (
-                        <>
-                          <UserCheck className="w-4 h-4" />
-                          <span>Following</span>
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="w-4 h-4" />
-                          <span>Follow</span>
-                        </>
-                      )}
-                    </button>
 
                     {/* 1v1 CHALLENGE BUTTON */}
                     <button
@@ -750,8 +680,6 @@ export default function PublicProfile() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
       {/* Remove Friend Confirmation Modal */}
       {removeFriendModalOpen && (
@@ -850,6 +778,6 @@ export default function PublicProfile() {
           </div>
         </div>
       )}
-    </AppLayout>
+    </div>
   )
 }

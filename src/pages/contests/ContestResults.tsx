@@ -15,7 +15,6 @@ import {
   Loader2,
   Flame,
 } from 'lucide-react'
-import AppLayout from '../../components/layout/AppLayout'
 import { ContestService } from '../../services/contestService'
 import type {
   Contest,
@@ -78,36 +77,32 @@ export default function ContestResults() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-slate-400 mb-2" />
-            <p className="text-xs font-mono text-slate-500">
-              Calculating tournament results & standings...
-            </p>
-          </div>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-slate-400 mb-2" />
+          <p className="text-xs font-mono text-slate-500">
+            Calculating tournament results & standings...
+          </p>
         </div>
-      </AppLayout>
+      </div>
     )
   }
 
   if (!contest) {
     return (
-      <AppLayout>
-        <div className="p-8 bg-white border border-slate-200 rounded-xl shadow-sm text-center max-w-md mx-auto mt-12">
-          <Trophy className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-          <h2 className="font-bold text-lg text-slate-900">
-            Tournament Not Found
-          </h2>
-          <Link
-            to="/contests"
-            className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs shadow-xs transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return to Tournaments</span>
-          </Link>
-        </div>
-      </AppLayout>
+      <div className="p-8 bg-white border border-slate-200 rounded-xl shadow-sm text-center max-w-md mx-auto mt-12">
+        <Trophy className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+        <h2 className="font-bold text-lg text-slate-900">
+          Tournament Not Found
+        </h2>
+        <Link
+          to="/contests"
+          className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs shadow-xs transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Return to Tournaments</span>
+        </Link>
+      </div>
     )
   }
 
@@ -130,7 +125,7 @@ export default function ContestResults() {
   const unattemptedCount = userStatus?.unattemptedCount ?? 0
 
   return (
-    <AppLayout maxWidth="narrow">
+    <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-6 animate-entry pb-12">
       <div className="space-y-4 sm:space-y-6 animate-entry pb-12">
         {/* Top Back Navigation */}
         <div className="flex items-center justify-between">
@@ -552,6 +547,6 @@ export default function ContestResults() {
           </section>
         )}
       </div>
-    </AppLayout>
+    </div>
   )
 }

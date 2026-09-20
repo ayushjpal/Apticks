@@ -12,24 +12,25 @@ import {
   ChevronRight,
   BarChart2,
 } from 'lucide-react'
-import { supabase } from '../lib/supabase'
-import { ProfileService, type UserProfile } from '../services/profileService'
 import { QuestionService } from '../services/questionService'
-import { StreakService } from '../services/streakService'
 import { ChallengeService } from '../services/challengeService'
 import { ContestService } from '../services/contestService'
-import { LeaderboardService } from '../services/leaderboardService'
-import { calculateLevelProgress, type LevelProgress } from '../utils/levelEngine'
-import type { UserStreak, DailyChallenge } from '../types/questions'
+import type { DailyChallenge } from '../types/questions'
 import type { Contest } from '../types/contests'
-import AppLayout from '../components/layout/AppLayout'
+import { useUserSession } from '../contexts/UserSessionContext'
 import { NeoButton, StatusBadge } from '../components/ui'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [streakData, setStreakData] = useState<UserStreak | null>(null)
+  const {
+    user,
+    profile,
+    streak: streakData,
+    rank: userRank,
+    levelProgress,
+    loading: sessionLoading,
+  } = useUserSession()
+
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null)
   const [contests, setContests] = useState<Contest[]>([])
   const [questionStats, setQuestionStats] = useState<{
@@ -38,118 +39,51 @@ export default function Dashboard() {
     accuracyRate: number
     totalPoints: number
   } | null>(null)
-  const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
-  const [userRank, setUserRank] = useState<number | null>(null)
 
   useEffect(() => {
     let isMounted = true
 
-    const loadProfile = async () => {
+    const loadDashboardData = async () => {
+      if (sessionLoading) return
+      if (!user) {
+        navigate('/login', { replace: true })
+        return
+      }
+
       try {
-        let user: { id: string; user_metadata?: Record<string, unknown> } | null = null
-
-        const { data: sessionData } = await supabase.auth.getSession()
-        if (sessionData?.session?.user) {
-          user = sessionData.session.user
-        } else {
-          const {
-            data: { user: fetchedUser },
-            error: userError,
-          } = await supabase.auth.getUser()
-
-          if (!userError && fetchedUser) {
-            user = fetchedUser
-          }
-        }
-
-        if (!user) {
-          if (isMounted) {
-            navigate('/login', { replace: true })
-          }
-          return
-        }
-
-        let userProfile = await ProfileService.fetchProfile(user.id)
-        const metaUsername = typeof user.user_metadata?.username === 'string' ? user.user_metadata.username : null
-        const metaDisplayName = typeof user.user_metadata?.display_name === 'string' ? user.user_metadata.display_name : metaUsername
-        if (!userProfile?.username && metaUsername) {
-          userProfile = {
-            id: user.id,
-            username: metaUsername,
-            display_name: metaDisplayName,
-            avatar_url: userProfile?.avatar_url || null,
-            bio: userProfile?.bio || null,
-            username_changed_at: userProfile?.username_changed_at || null,
-          }
-        }
+        const [
+          challenge,
+          { questions, progressMap, challengeBonusXp, contestXp },
+          contestList,
+        ] = await Promise.all([
+          ChallengeService.getDailyChallenge(),
+          QuestionService.getQuestionsWithProgress(user.id),
+          ContestService.getContests(),
+        ])
 
         if (isMounted) {
-          setProfile(userProfile)
-        }
-
-        try {
-          const [
-            userStreak,
-            challenge,
-            { questions, progressMap, challengeBonusXp, contestXp },
-            contestList,
-            rankRes,
-          ] = await Promise.all([
-            StreakService.getUserStreak(user.id),
-            ChallengeService.getDailyChallenge(),
-            QuestionService.getQuestionsWithProgress(user.id),
-            ContestService.getContests(),
-            LeaderboardService.getUserGlobalRank(user.id),
-          ])
-
-          if (isMounted) {
-            setStreakData(userStreak)
-            setDailyChallenge(challenge)
-            setContests(contestList)
-            const stats = QuestionService.calculateStats(
-              questions,
-              progressMap,
-              [],
-              challengeBonusXp,
-              contestXp,
-              rankRes.found ? rankRes.totalXp : undefined
-            )
-            setQuestionStats(stats)
-            if (rankRes.found && rankRes.levelProgress) {
-              setLevelProgress(rankRes.levelProgress)
-              setUserRank(typeof rankRes.rank === 'number' ? rankRes.rank : null)
-            } else {
-              setLevelProgress(calculateLevelProgress(stats.totalPoints))
-              setUserRank(null)
-            }
-          }
-        } catch (qErr) {
-          console.warn('Could not load dashboard metrics:', qErr)
+          setDailyChallenge(challenge)
+          setContests(contestList)
+          const stats = QuestionService.calculateStats(
+            questions,
+            progressMap,
+            [],
+            challengeBonusXp,
+            contestXp
+          )
+          setQuestionStats(stats)
         }
       } catch (error) {
         console.error('Dashboard loading error:', error)
-      } finally {
-        if (isMounted) setLoading(false)
       }
     }
 
-    loadProfile()
+    loadDashboardData()
 
     return () => {
       isMounted = false
     }
-  }, [navigate])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#071a2b] flex items-center justify-center text-white">
-        <div className="text-center font-display font-black">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-[#ffd43b] rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs tracking-wider text-white/60">LOADING...</p>
-        </div>
-      </div>
-    )
-  }
+  }, [user, sessionLoading, navigate])
 
   const username = profile?.username || profile?.display_name || 'player'
   const solvedCount = questionStats?.solvedCount ?? 0
@@ -164,7 +98,7 @@ export default function Dashboard() {
   }
 
   return (
-    <AppLayout maxWidth="narrow">
+    <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-5 animate-entry">
       <div className="space-y-4 sm:space-y-5 animate-entry">
         {/* ================================================= */}
         {/* COMPETITIVE COMMAND BASE // PLAYER STATUS HUD     */}
@@ -607,6 +541,6 @@ export default function Dashboard() {
           </section>
         </div>
       </div>
-    </AppLayout>
+    </div>
   )
 }

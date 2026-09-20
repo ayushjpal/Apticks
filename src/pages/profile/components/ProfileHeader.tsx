@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Flame, Edit3, Settings } from 'lucide-react'
 
 interface ProfileHeaderProps {
@@ -8,12 +9,9 @@ interface ProfileHeaderProps {
   bio?: string | null
   streakDays?: number
   division?: string
-  followersCount?: number
-  followingCount?: number
+  friendsCount?: number
   onEditProfile: () => void
   onOpenSettings: () => void
-  onViewFollowers?: () => void
-  onViewFollowing?: () => void
   isSettingsActive?: boolean
   isEditActive?: boolean
 }
@@ -25,12 +23,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   bio,
   streakDays = 1,
   division = 'Division 1',
-  followersCount = 0,
-  followingCount = 0,
+  friendsCount = 0,
   onEditProfile,
   onOpenSettings,
-  onViewFollowers,
-  onViewFollowing,
   isSettingsActive = false,
   isEditActive = false,
 }) => {
@@ -90,25 +85,15 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             )}
           </div>
 
-          {/* Followers & Following Row */}
+          {/* Friends Count Row linking to /social?tab=friends */}
           <div className="flex items-center gap-3.5 mt-2 text-xs font-mono">
-            <button
-              type="button"
-              onClick={onViewFollowers}
+            <Link
+              to="/social?tab=friends"
               className="group inline-flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              <span className="text-slate-400 group-hover:text-slate-300">Followers</span>
-              <strong className="font-bold text-white group-hover:text-[#ffd43b] transition-colors">{followersCount}</strong>
-            </button>
-            <span className="text-white/20">•</span>
-            <button
-              type="button"
-              onClick={onViewFollowing}
-              className="group inline-flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              <span className="text-slate-400 group-hover:text-slate-300">Following</span>
-              <strong className="font-bold text-white group-hover:text-[#ffd43b] transition-colors">{followingCount}</strong>
-            </button>
+              <span className="text-slate-400 group-hover:text-slate-300">Friends</span>
+              <strong className="font-bold text-white group-hover:text-[#ffd43b] transition-colors">{friendsCount}</strong>
+            </Link>
           </div>
 
           {/* Operational Statement / Bio */}

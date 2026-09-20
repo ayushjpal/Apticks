@@ -20,6 +20,12 @@ const LOCAL_ATTEMPTS_KEY_PREFIX = 'aptiverse_user_attempts_'
 
 const inMemoryCache: Record<string, string> = {}
 
+// In-memory catalog cache to prevent re-fetching full question sets on route changes
+let cachedCatalog: Question[] | null = null
+let cachedCatalogTimestamp = 0
+let inFlightCatalogPromise: Promise<Question[]> | null = null
+const CATALOG_CACHE_TTL = 5 * 60 * 1000 // 5 minutes TTL
+
 /**
  * Safe localStorage reader (resilient to SSR, Node.js, and private browsing)
  */
@@ -185,67 +191,166 @@ export class QuestionService {
   }
 
   /**
-   * Fetch questions directly from Supabase (with fallback to local dataset if offline/empty)
+   * Return questions from memory if catalog cache is warm
    */
-  static async getQuestions(
-    filters?: Partial<QuestionFilters>,
-    options?: { limit?: number; offset?: number }
-  ): Promise<Question[]> {
-    try {
-      let query = supabase
-        .from('questions')
-        .select('*')
-        .eq('is_active', true)
-        .order('id', { ascending: true })
-
-      if (filters?.category && filters.category !== 'all') {
-        query = query.eq('category', filters.category)
-      }
-
-      if (filters?.difficulty && filters.difficulty !== 'all') {
-        query = query.eq('difficulty', filters.difficulty.toLowerCase())
-      }
-
-      if (filters?.topic && filters.topic !== 'all') {
-        query = query.ilike('topic', filters.topic)
-      }
-
-      if (typeof options?.limit === 'number') {
-        const offset = options.offset || 0
-        query = query.range(offset, offset + options.limit - 1)
-      }
-
-      const { data, error } = await query
-
-      if (!error && data && data.length > 0) {
-        return data.map((row: Record<string, unknown>) =>
-          this.mapRowToQuestion(row as unknown as DatabaseQuestion)
-        )
-      }
-    } catch (err) {
-      console.warn('Supabase questions fetch note (using fallback):', err)
+  static getCachedQuestions(): Question[] | null {
+    if (cachedCatalog && Date.now() - cachedCatalogTimestamp < CATALOG_CACHE_TTL) {
+      return cachedCatalog
     }
-
-    // Fallback to local INITIAL_QUESTIONS if database is empty/unreachable
-    let fallback = [...INITIAL_QUESTIONS]
-    if (filters?.category && filters.category !== 'all') {
-      fallback = fallback.filter((q) => q.category === filters.category)
-    }
-    if (filters?.difficulty && filters.difficulty !== 'all') {
-      fallback = fallback.filter((q) => q.difficulty === filters.difficulty)
-    }
-    if (filters?.topic && filters.topic !== 'all') {
-      fallback = fallback.filter(
-        (q) => q.topic.toLowerCase() === filters.topic?.toLowerCase()
-      )
-    }
-    return fallback
+    return null
   }
 
   /**
-   * Fetch a single question by ID from Supabase
+   * Background revalidation for Question Catalog SWR
+   */
+  private static revalidateCatalogInBackground(): void {
+    if (inFlightCatalogPromise) return
+
+    inFlightCatalogPromise = (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('questions')
+          .select('*')
+          .eq('is_active', true)
+          .order('id', { ascending: true })
+
+        if (!error && data && data.length > 0) {
+          cachedCatalog = data.map((row: Record<string, unknown>) =>
+            this.mapRowToQuestion(row as unknown as DatabaseQuestion)
+          )
+          cachedCatalogTimestamp = Date.now()
+        }
+      } catch {
+        // silent background failure
+      } finally {
+        inFlightCatalogPromise = null
+      }
+      return cachedCatalog || []
+    })()
+  }
+
+  /**
+   * Explicitly set or refresh catalog in memory
+   */
+  static setCachedQuestions(questions: Question[]): void {
+    cachedCatalog = questions
+    cachedCatalogTimestamp = Date.now()
+  }
+
+  /**
+   * Fetch questions directly from Supabase (with fallback to local dataset if offline/empty)
+   * Uses in-memory SWR caching and in-flight deduplication to guarantee 0-network requests for subsequent problem loads.
+   */
+  static async getQuestions(
+    filters?: Partial<QuestionFilters>,
+    options?: { limit?: number; offset?: number },
+    forceRefresh = false
+  ): Promise<Question[]> {
+    const isUnfilteredCatalog =
+      (!filters?.category || filters.category === 'all') &&
+      (!filters?.difficulty || filters.difficulty === 'all') &&
+      (!filters?.topic || filters.topic === 'all') &&
+      !options?.limit &&
+      !options?.offset
+
+    // Fast-path: return cached catalog immediately if present (SWR pattern)
+    if (!forceRefresh && isUnfilteredCatalog && cachedCatalog) {
+      const isFresh = Date.now() - cachedCatalogTimestamp < CATALOG_CACHE_TTL
+      if (isFresh) {
+        return cachedCatalog
+      }
+      // Return stale catalog immediately and revalidate in background without blocking QuestionSolver
+      this.revalidateCatalogInBackground()
+      return cachedCatalog
+    }
+
+    // In-flight request deduplication for unfiltered catalog
+    if (!forceRefresh && isUnfilteredCatalog && inFlightCatalogPromise) {
+      return inFlightCatalogPromise
+    }
+
+    const fetchPromise = (async (): Promise<Question[]> => {
+      try {
+        let query = supabase
+          .from('questions')
+          .select('*')
+          .eq('is_active', true)
+          .order('id', { ascending: true })
+
+        if (filters?.category && filters.category !== 'all') {
+          query = query.eq('category', filters.category)
+        }
+
+        if (filters?.difficulty && filters.difficulty !== 'all') {
+          query = query.eq('difficulty', filters.difficulty.toLowerCase())
+        }
+
+        if (filters?.topic && filters.topic !== 'all') {
+          query = query.ilike('topic', filters.topic)
+        }
+
+        if (typeof options?.limit === 'number') {
+          const offset = options.offset || 0
+          query = query.range(offset, offset + options.limit - 1)
+        }
+
+        const { data, error } = await query
+
+        if (!error && data && data.length > 0) {
+          const mapped = data.map((row: Record<string, unknown>) =>
+            this.mapRowToQuestion(row as unknown as DatabaseQuestion)
+          )
+          if (isUnfilteredCatalog) {
+            cachedCatalog = mapped
+            cachedCatalogTimestamp = Date.now()
+          }
+          return mapped
+        }
+      } catch (err) {
+        console.warn('Supabase questions fetch note (using fallback):', err)
+      } finally {
+        if (isUnfilteredCatalog) {
+          inFlightCatalogPromise = null
+        }
+      }
+
+      // Fallback to local INITIAL_QUESTIONS if database is empty/unreachable
+      let fallback = [...INITIAL_QUESTIONS]
+      if (isUnfilteredCatalog && (!cachedCatalog || forceRefresh)) {
+        cachedCatalog = fallback
+        cachedCatalogTimestamp = Date.now()
+      }
+      if (filters?.category && filters.category !== 'all') {
+        fallback = fallback.filter((q) => q.category === filters.category)
+      }
+      if (filters?.difficulty && filters.difficulty !== 'all') {
+        fallback = fallback.filter((q) => q.difficulty === filters.difficulty)
+      }
+      if (filters?.topic && filters.topic !== 'all') {
+        fallback = fallback.filter(
+          (q) => q.topic.toLowerCase() === filters.topic?.toLowerCase()
+        )
+      }
+      return fallback
+    })()
+
+    if (isUnfilteredCatalog) {
+      inFlightCatalogPromise = fetchPromise
+    }
+
+    return fetchPromise
+  }
+
+  /**
+   * Fetch a single question by ID from in-memory cache first or Supabase
    */
   static async getQuestionById(id: string): Promise<Question | null> {
+    // 1. Instant in-memory cache check (0ms, 0-network)
+    if (cachedCatalog) {
+      const match = cachedCatalog.find((q) => q.id === id)
+      if (match) return match
+    }
+
     try {
       const { data, error } = await supabase
         .from('questions')
@@ -600,11 +705,10 @@ export class QuestionService {
       attemptsArr.unshift(createdAttempt)
       setStoredItem(localAttemptsKey, JSON.stringify(attemptsArr))
 
-      // 5. Cloud-sync to Supabase tables asynchronously
-      ;(async () => {
-        try {
-          // A. Upsert progress
-          const { error: progErr } = await supabase
+      // 5. Cloud-sync to Supabase tables synchronously before returning
+      try {
+        const [progRes, attRes] = await Promise.all([
+          supabase
             .from('user_question_progress')
             .upsert(
               {
@@ -619,13 +723,8 @@ export class QuestionService {
                 last_attempted_at: updatedProgress.lastAttemptedAt,
               },
               { onConflict: 'user_id,question_id' }
-            )
-          if (progErr) {
-            console.warn('Supabase progress upsert note:', progErr.message)
-          }
-
-          // B. Insert attempt history log
-          const { error: attErr } = await supabase
+            ),
+          supabase
             .from('user_question_attempts')
             .insert({
               user_id: userId,
@@ -635,19 +734,23 @@ export class QuestionService {
               xp_change: xpChange,
               attempt_number: attemptNumber,
               time_spent_seconds: timeSpentSeconds,
-            })
-          if (attErr) {
-            console.warn('Supabase attempt insert note:', attErr.message)
-          }
+            }),
+        ])
 
-          // C. If solved correctly, advance/maintain daily streak idempotently via trusted RPC
-          if (isCorrect) {
-            StreakService.recordDailyActivity(userId).catch(() => {})
-          }
-        } catch (e) {
-          console.warn('Supabase sync network note:', e)
+        if (progRes.error) {
+          console.warn('Supabase progress upsert note:', progRes.error.message)
         }
-      })()
+        if (attRes.error) {
+          console.warn('Supabase attempt insert note:', attRes.error.message)
+        }
+
+        // C. If solved correctly, advance/maintain daily streak idempotently via trusted RPC
+        if (isCorrect) {
+          await StreakService.recordDailyActivity(userId).catch(() => {})
+        }
+      } catch (e) {
+        console.warn('Supabase sync network note:', e)
+      }
     }
 
     return {

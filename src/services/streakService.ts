@@ -1,7 +1,23 @@
 import { supabase } from '../lib/supabase'
 import type { UserStreak } from '../types/questions'
 
-const STREAK_CACHE_PREFIX = 'apticks_user_streak_'
+interface CachedStreak {
+  userId: string
+  streak: UserStreak
+  timestamp: number
+}
+
+// In-memory SWR cache (no sensitive user data in localStorage)
+interface InFlightStreak {
+  promise: Promise<UserStreak>
+  generation: number
+  isForced: boolean
+}
+
+let memoryStreakCache: CachedStreak | null = null
+const inFlightStreakRequests = new Map<string, InFlightStreak>()
+const streakGenerations = new Map<string, number>()
+const STREAK_CACHE_TTL = 60 * 1000 // 60 seconds
 
 function getClientTimezone(): string {
   try {
@@ -11,76 +27,167 @@ function getClientTimezone(): string {
   }
 }
 
-function getStoredStreak(userId: string): UserStreak | null {
-  try {
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-      const data = localStorage.getItem(`${STREAK_CACHE_PREFIX}${userId}`)
-      if (data) {
-        return JSON.parse(data) as UserStreak
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return null
-}
-
-function setStoredStreak(userId: string, streak: UserStreak): void {
-  try {
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-      localStorage.setItem(`${STREAK_CACHE_PREFIX}${userId}`, JSON.stringify(streak))
-    }
-  } catch {
-    // ignore
-  }
+const DEFAULT_STREAK: UserStreak = {
+  currentStreak: 0,
+  longestStreak: 0,
+  isActiveToday: false,
+  isAtRisk: false,
+  lastActiveDate: null,
 }
 
 export class StreakService {
   /**
-   * Get user streak metrics with dynamic display resolution (Read-Only).
-   * Will never silently mutate database rows.
+   * Invalidate in-memory streak cache (e.g. after mutations) with generation bump
    */
-  static async getUserStreak(userId?: string): Promise<UserStreak> {
-    const defaultStreak: UserStreak = {
-      currentStreak: 0,
-      longestStreak: 0,
-      isActiveToday: false,
-      isAtRisk: false,
-      lastActiveDate: null,
-    }
-
-    if (!userId) {
-      return defaultStreak
-    }
-
-    // 1. Return cached streak immediately for instant zero-flicker UI
-    const cached = getStoredStreak(userId)
-    const base = cached || defaultStreak
-
-    // 2. Fetch authoritative display metrics from database RPC
-    try {
-      const tz = getClientTimezone()
-      const { data, error } = await supabase.rpc('get_user_streak', {
-        p_timezone: tz,
-      })
-
-      if (!error && data) {
-        const streak: UserStreak = {
-          currentStreak: Number(data.current_streak) || 0,
-          longestStreak: Number(data.longest_streak) || 0,
-          isActiveToday: Boolean(data.is_active_today),
-          isAtRisk: Boolean(data.is_at_risk),
-          lastActiveDate: data.last_active_date || null,
-        }
-
-        setStoredStreak(userId, streak)
-        return streak
+  static invalidateStreakCache(userId?: string): void {
+    if (userId) {
+      if (memoryStreakCache?.userId === userId) {
+        memoryStreakCache = null
       }
-    } catch (err) {
-      console.warn('StreakService.getUserStreak error:', err)
+      const nextGen = (streakGenerations.get(userId) ?? 0) + 1
+      streakGenerations.set(userId, nextGen)
+      inFlightStreakRequests.delete(userId)
+    } else {
+      memoryStreakCache = null
+      streakGenerations.clear()
+      inFlightStreakRequests.clear()
+    }
+  }
+
+  /**
+   * Get user streak metrics with dynamic display resolution (Read-Only).
+   * Implements in-memory SWR caching and in-flight request deduplication with generation protection.
+   */
+  static async getUserStreak(userId?: string, forceRefresh = false): Promise<UserStreak> {
+    if (!userId) {
+      return DEFAULT_STREAK
     }
 
-    return base
+    const currentGen = streakGenerations.get(userId) ?? 0
+
+    // 1. In-memory cache check
+    if (!forceRefresh && memoryStreakCache && memoryStreakCache.userId === userId) {
+      const isFresh = Date.now() - memoryStreakCache.timestamp < STREAK_CACHE_TTL
+      if (isFresh) {
+        return memoryStreakCache.streak
+      }
+      // SWR pattern: return stale streak immediately and revalidate in background
+      this.revalidateStreakInBackground(userId)
+      return memoryStreakCache.streak
+    }
+
+    // 2. In-flight request deduplication
+    const inFlight = inFlightStreakRequests.get(userId)
+    if (inFlight) {
+      if (forceRefresh) {
+        if (inFlight.isForced && inFlight.generation === currentGen) {
+          return inFlight.promise
+        }
+      } else {
+        return inFlight.promise
+      }
+    }
+
+    // 3. Launch fetch with generation token tracking
+    const requestGen = forceRefresh ? currentGen + 1 : currentGen
+    if (forceRefresh) {
+      streakGenerations.set(userId, requestGen)
+      if (memoryStreakCache?.userId === userId) {
+        memoryStreakCache = null
+      }
+    }
+
+    const fetchPromise = (async () => {
+      try {
+        const tz = getClientTimezone()
+        const { data, error } = await supabase.rpc('get_user_streak', {
+          p_timezone: tz,
+        })
+
+        if (!error && data) {
+          const streak: UserStreak = {
+            currentStreak: Number(data.current_streak) || 0,
+            longestStreak: Number(data.longest_streak) || 0,
+            isActiveToday: Boolean(data.is_active_today),
+            isAtRisk: Boolean(data.is_at_risk),
+            lastActiveDate: data.last_active_date || null,
+          }
+
+          // STALE RESPONSE PROTECTION:
+          const latestGen = streakGenerations.get(userId) ?? 0
+          if (requestGen >= latestGen) {
+            memoryStreakCache = {
+              userId,
+              streak,
+              timestamp: Date.now(),
+            }
+          }
+          return streak
+        }
+      } catch (err) {
+        console.warn('StreakService.getUserStreak error:', err)
+      } finally {
+        if (inFlightStreakRequests.get(userId)?.generation === requestGen) {
+          inFlightStreakRequests.delete(userId)
+        }
+      }
+
+      return memoryStreakCache?.streak || DEFAULT_STREAK
+    })()
+
+    inFlightStreakRequests.set(userId, {
+      promise: fetchPromise,
+      generation: requestGen,
+      isForced: forceRefresh,
+    })
+    return fetchPromise
+  }
+
+  /**
+   * Background revalidation helper for SWR with stale protection
+   */
+  private static revalidateStreakInBackground(userId: string): void {
+    if (inFlightStreakRequests.has(userId)) return
+
+    const requestGen = streakGenerations.get(userId) ?? 0
+    const tz = getClientTimezone()
+    const task = (async (): Promise<UserStreak> => {
+      try {
+        const { data, error } = await supabase.rpc('get_user_streak', { p_timezone: tz })
+        if (!error && data) {
+          const streak: UserStreak = {
+            currentStreak: Number(data.current_streak) || 0,
+            longestStreak: Number(data.longest_streak) || 0,
+            isActiveToday: Boolean(data.is_active_today),
+            isAtRisk: Boolean(data.is_at_risk),
+            lastActiveDate: data.last_active_date || null,
+          }
+
+          // STALE RESPONSE PROTECTION:
+          const latestGen = streakGenerations.get(userId) ?? 0
+          if (requestGen >= latestGen) {
+            memoryStreakCache = {
+              userId,
+              streak,
+              timestamp: Date.now(),
+            }
+          }
+        }
+      } catch {
+        // Silent background failure
+      } finally {
+        if (inFlightStreakRequests.get(userId)?.generation === requestGen) {
+          inFlightStreakRequests.delete(userId)
+        }
+      }
+      return memoryStreakCache?.streak || DEFAULT_STREAK
+    })()
+
+    inFlightStreakRequests.set(userId, {
+      promise: task,
+      generation: requestGen,
+      isForced: false,
+    })
   }
 
   /**
@@ -104,7 +211,7 @@ export class StreakService {
         const streak = Number(data.streak) || 1
         const longestStreak = Number(data.longest_streak) || streak
 
-        // Update local cache
+        // Update in-memory cache
         const updated: UserStreak = {
           currentStreak: streak,
           longestStreak,
@@ -112,7 +219,11 @@ export class StreakService {
           isAtRisk: false,
           lastActiveDate: new Date().toISOString().split('T')[0],
         }
-        setStoredStreak(userId, updated)
+        memoryStreakCache = {
+          userId,
+          streak: updated,
+          timestamp: Date.now(),
+        }
 
         return {
           success: true,

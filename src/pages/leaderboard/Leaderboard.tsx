@@ -6,8 +6,7 @@ import {
   RefreshCw,
   AlertCircle,
 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
-import AppLayout from '../../components/layout/AppLayout'
+import { useUserSession } from '../../contexts/UserSessionContext'
 import { PageHeader, RankMedalBadge } from '../../components/ui'
 import { LeaderboardService } from '../../services/leaderboardService'
 import type {
@@ -18,10 +17,41 @@ import type {
 const TOP_LIMIT = 10
 
 export default function Leaderboard() {
-  // Current logged in user
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [currentUserHandle, setCurrentUserHandle] = useState<string>('')
-  const [userRankData, setUserRankData] = useState<UserGlobalRankResult | null>(null)
+  const {
+    user,
+    profile,
+    rank: sessionRank,
+    level: sessionLevel,
+    levelTitle: sessionLevelTitle,
+    totalXp: sessionXp,
+    refreshUserMetrics,
+  } = useUserSession()
+  const currentUserId = user?.id || null
+  const currentUserHandle =
+    profile?.username ||
+    profile?.display_name ||
+    user?.user_metadata?.username ||
+    user?.email?.split('@')[0] ||
+    'player'
+
+  // Pre-seed user rank from session if available for instant display
+  const [userRankData, setUserRankData] = useState<UserGlobalRankResult | null>(() => {
+    if (sessionRank !== null && user) {
+      return {
+        found: true,
+        rank: sessionRank,
+        totalXp: sessionXp,
+        level: sessionLevel,
+        levelTitle: sessionLevelTitle,
+        username: profile?.username || currentUserHandle,
+        displayName: profile?.display_name || currentUserHandle,
+        avatarUrl: profile?.avatar_url || null,
+        solvedCount: 0,
+        accuracyPercentage: 0,
+      }
+    }
+    return null
+  })
 
   // Global Leaderboard State (Top 10 competitors)
   const [globalEntries, setGlobalEntries] = useState<GlobalLeaderboardEntry[]>([])
@@ -31,29 +61,7 @@ export default function Leaderboard() {
   const [refreshKey, setRefreshKey] = useState(0)
 
   // ---------------------------------------------------------------------------
-  // 1. Load Current User Session
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        if (user) {
-          setCurrentUserId(user.id)
-          const handle =
-            user.user_metadata?.username || user.email?.split('@')[0] || 'player'
-          setCurrentUserHandle(handle)
-        }
-      } catch (err) {
-        console.warn('Leaderboard auth check note:', err)
-      }
-    }
-    loadUser()
-  }, [])
-
-  // ---------------------------------------------------------------------------
-  // 2. Fetch Global Leaderboard Data & User Rank
+  // 1. Fetch Global Leaderboard Data
   // ---------------------------------------------------------------------------
   useEffect(() => {
     let isMounted = true
@@ -62,8 +70,9 @@ export default function Leaderboard() {
       setGlobalLoading(true)
       setGlobalError(null)
 
-      // Request only Top 10 competitors
-      const response = await LeaderboardService.getGlobalLeaderboard(TOP_LIMIT, 0)
+      // Force network refresh when user explicitly clicks refresh button
+      const force = refreshKey > 0
+      const response = await LeaderboardService.getGlobalLeaderboard(TOP_LIMIT, 0, force)
 
       if (!isMounted) return
 
@@ -87,13 +96,16 @@ export default function Leaderboard() {
     }
   }, [refreshKey])
 
-  // Fetch current user's individual rank standing (for the sticky HUD card)
+  // ---------------------------------------------------------------------------
+  // 2. Fetch User Rank (Strictly Independent from globalEntries)
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     let isMounted = true
 
     async function fetchUserRank() {
       if (!currentUserId) return
-      const rankRes = await LeaderboardService.getUserGlobalRank(currentUserId)
+      const force = refreshKey > 0
+      const rankRes = await LeaderboardService.getUserGlobalRank(currentUserId, force)
       if (isMounted && rankRes.found) {
         setUserRankData(rankRes)
       }
@@ -106,7 +118,7 @@ export default function Leaderboard() {
     return () => {
       isMounted = false
     }
-  }, [currentUserId, globalEntries])
+  }, [currentUserId, refreshKey])
 
   // ---------------------------------------------------------------------------
   // Helper calculations
@@ -135,7 +147,7 @@ export default function Leaderboard() {
     : globalEntries
 
   return (
-    <AppLayout maxWidth="narrow">
+    <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-5 animate-entry pb-12">
       <div className="space-y-4 sm:space-y-5 animate-entry pb-12">
         {/* ================================================= */}
         {/* TOP HERO HEADER                                   */}
@@ -177,7 +189,10 @@ export default function Leaderboard() {
 
             <button
               type="button"
-              onClick={() => setRefreshKey((k) => k + 1)}
+              onClick={() => {
+                setRefreshKey((k) => k + 1)
+                refreshUserMetrics()
+              }}
               title="Refresh rankings"
               aria-label="Refresh rankings"
               className="p-2 border border-white/10 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
@@ -557,10 +572,10 @@ export default function Leaderboard() {
                   <span>Top 10 Global Arena Standings</span>
                 </span>
                 <span className="text-slate-500">Tie-break: XP &gt; Solved &gt; Accuracy &gt; Seniority</span>
-              </div>
             </div>
           </div>
         </div>
-      </AppLayout>
-    )
-  }
+      </div>
+    </div>
+  )
+}

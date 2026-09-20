@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import React, { useEffect, useRef, Suspense } from 'react'
+import { useLocation, Outlet } from 'react-router-dom'
 import AppHeader from './AppHeader'
+import { RouteSkeleton } from '../ui/RouteSkeleton'
 import { initSmoothScroll, scrollToTop, animatePageEntrance } from '../../lib/motion'
 
 export interface AppLayoutProps {
-  children: React.ReactNode
+  children?: React.ReactNode
   hideBottomNav?: boolean
   hideHeader?: boolean
   maxWidth?: 'default' | 'narrow' | 'wide' | 'full' | string
@@ -15,7 +16,7 @@ export interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({
   children,
   hideHeader = false,
-  maxWidth = 'default',
+  maxWidth = 'wide',
   className = '',
   noPadding = false,
 }) => {
@@ -63,7 +64,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         ref={contentRef}
         className={`flex-1 w-full mx-auto ${maxWidthClass} ${paddingClass} ${className}`}
       >
-        {children}
+        {children ?? (
+          <Suspense fallback={<RouteSkeleton />}>
+            <Outlet />
+          </Suspense>
+        )}
       </main>
     </div>
   )
