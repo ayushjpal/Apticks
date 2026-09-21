@@ -1,13 +1,15 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { Routes, Route, Navigate, Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import AppLayout from '../components/layout/AppLayout'
 import { UserSessionProvider } from '../contexts/UserSessionContext'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
 import { RouteSkeleton, ArenaSkeleton, AuthSkeleton } from '../components/ui/RouteSkeleton'
 
 // -----------------------------
-// Authentication Pages (Lazy Loaded)
+// Public & Authentication Pages (Lazy Loaded)
 // -----------------------------
+const Overview = lazy(() => import('../pages/Overview'))
 const Login = lazy(() => import('../pages/auth/Login'))
 const Signup = lazy(() => import('../pages/auth/Signup'))
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'))
@@ -74,13 +76,49 @@ function NotFoundPage() {
 }
 
 // -----------------------------
+// Root Public Entry Helper
+// Unauthenticated: / -> Overview
+// Authenticated: / -> /dashboard
+// -----------------------------
+function RootRoute() {
+  const [sessionChecked, setSessionChecked] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session?.user)
+      setSessionChecked(true)
+    })
+  }, [])
+
+  if (!sessionChecked) {
+    return (
+      <Suspense fallback={<RouteSkeleton />}>
+        <Overview />
+      </Suspense>
+    )
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return (
+    <Suspense fallback={<RouteSkeleton />}>
+      <Overview />
+    </Suspense>
+  )
+}
+
+// -----------------------------
 // Main Routes
 // -----------------------------
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Root redirect */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      {/* Root public entry and explicit /overview route */}
+      <Route path="/" element={<RootRoute />} />
+      <Route path="/overview" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
 
       {/* Auth Routes */}
       <Route path="/login" element={<Suspense fallback={<AuthSkeleton />}><Login /></Suspense>} />

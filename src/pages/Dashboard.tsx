@@ -1,24 +1,107 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
   Trophy,
   Zap,
-  Target,
   CheckCircle2,
+  XCircle,
   BookOpen,
   ArrowRight,
   Flame,
   Clock,
   ChevronRight,
-  BarChart2,
+  Calculator,
+  Brain,
+  BarChart3,
+  Swords,
+  Target,
 } from 'lucide-react'
 import { QuestionService } from '../services/questionService'
 import { ChallengeService } from '../services/challengeService'
 import { ContestService } from '../services/contestService'
-import type { DailyChallenge } from '../types/questions'
+import type {
+  DailyChallenge,
+  Question,
+  UserQuestionProgress,
+  QuestionBankStats,
+  UserQuestionAttempt,
+} from '../types/questions'
 import type { Contest } from '../types/contests'
 import { useUserSession } from '../contexts/UserSessionContext'
-import { NeoButton, StatusBadge } from '../components/ui'
+import { StatusBadge } from '../components/ui'
+
+interface ArenaCategory {
+  id: string
+  name: string
+  icon: typeof Calculator
+  matchFn: (cat: string) => boolean
+  description: string
+}
+
+const ARENA_CATEGORIES: ArenaCategory[] = [
+  {
+    id: 'quant',
+    name: 'Quantitative Aptitude',
+    icon: Calculator,
+    matchFn: (cat) => cat.toLowerCase().includes('quant'),
+    description: 'Arithmetic, Algebra, Geometry & Number Systems',
+  },
+  {
+    id: 'logical',
+    name: 'Logical Reasoning',
+    icon: Brain,
+    matchFn: (cat) => cat.toLowerCase().includes('logic'),
+    description: 'Deduction, Series, Syllogisms & Arrangements',
+  },
+  {
+    id: 'verbal',
+    name: 'Verbal & Abstract',
+    icon: BookOpen,
+    matchFn: (cat) => cat.toLowerCase().includes('verbal'),
+    description: 'Comprehension, Grammar & Critical Logic',
+  },
+  {
+    id: 'data',
+    name: 'Data Interpretation',
+    icon: BarChart3,
+    matchFn: (cat) => cat.toLowerCase().includes('data'),
+    description: 'Tables, Graphs, Charts & Analytical Sets',
+  },
+]
+
+const getGreeting = () => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+const formatRelativeTime = (isoString: string): string => {
+  try {
+    const date = new Date(isoString)
+    const now = new Date()
+    const diffSeconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000))
+    if (diffSeconds < 60) return 'Just now'
+    const diffMinutes = Math.floor(diffSeconds / 60)
+    if (diffMinutes < 60) return `${diffMinutes}m ago`
+    const diffHours = Math.floor(diffMinutes / 60)
+    if (diffHours < 24) return `${diffHours}h ago`
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 7) return `${diffDays}d ago`
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  } catch {
+    return 'Recently'
+  }
+}
+
+const formatTimeLeft = (seconds: number) => {
+  if (seconds <= 0) return 'Ending soon'
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  if (h <= 0) return `${m}m left`
+  return `${h}h ${m}m left`
+}
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -33,12 +116,11 @@ export default function Dashboard() {
 
   const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null)
   const [contests, setContests] = useState<Contest[]>([])
-  const [questionStats, setQuestionStats] = useState<{
-    totalQuestions: number
-    solvedCount: number
-    accuracyRate: number
-    totalPoints: number
-  } | null>(null)
+  const [rawQuestions, setRawQuestions] = useState<Question[]>([])
+  const [rawProgressMap, setRawProgressMap] = useState<Record<string, UserQuestionProgress>>({})
+  const [questionStats, setQuestionStats] = useState<QuestionBankStats | null>(null)
+  const [userAttempts, setUserAttempts] = useState<UserQuestionAttempt[]>([])
+  const [dataLoading, setDataLoading] = useState<boolean>(true)
 
   useEffect(() => {
     let isMounted = true
@@ -55,15 +137,21 @@ export default function Dashboard() {
           challenge,
           { questions, progressMap, challengeBonusXp, contestXp },
           contestList,
+          attemptsList,
         ] = await Promise.all([
           ChallengeService.getDailyChallenge(),
           QuestionService.getQuestionsWithProgress(user.id),
           ContestService.getContests(),
+          QuestionService.getUserAttempts(user.id, 5),
         ])
 
         if (isMounted) {
           setDailyChallenge(challenge)
           setContests(contestList)
+          setRawQuestions(questions)
+          setRawProgressMap(progressMap)
+          setUserAttempts(attemptsList)
+
           const stats = QuestionService.calculateStats(
             questions,
             progressMap,
@@ -72,9 +160,13 @@ export default function Dashboard() {
             contestXp
           )
           setQuestionStats(stats)
+          setDataLoading(false)
         }
       } catch (error) {
         console.error('Dashboard loading error:', error)
+        if (isMounted) {
+          setDataLoading(false)
+        }
       }
     }
 
@@ -85,397 +177,626 @@ export default function Dashboard() {
     }
   }, [user, sessionLoading, navigate])
 
-  const username = profile?.username || profile?.display_name || 'player'
+  const questionsById = useMemo(() => {
+    const map = new Map<string, Question>()
+    rawQuestions.forEach((q) => map.set(q.id, q))
+    return map
+  }, [rawQuestions])
+
+  const categoryProgress = useMemo(() => {
+    const result: Record<string, { total: number; solved: number }> = {
+      quant: { total: 0, solved: 0 },
+      logical: { total: 0, solved: 0 },
+      verbal: { total: 0, solved: 0 },
+      data: { total: 0, solved: 0 },
+    }
+
+    if (!rawQuestions.length) {
+      return {
+        quant: { total: 240, solved: 0 },
+        logical: { total: 210, solved: 0 },
+        verbal: { total: 175, solved: 0 },
+        data: { total: 75, solved: 0 },
+      }
+    }
+
+    rawQuestions.forEach((q) => {
+      const isSolved = Boolean(rawProgressMap[q.id]?.isSolved)
+      for (const cat of ARENA_CATEGORIES) {
+        if (cat.matchFn(q.category)) {
+          result[cat.id].total += 1
+          if (isSolved) result[cat.id].solved += 1
+          break
+        }
+      }
+    })
+
+    return result
+  }, [rawQuestions, rawProgressMap])
+
+  const rawName = profile?.display_name || profile?.username || 'Competitor'
+  const firstName = rawName.trim().split(' ')[0]
+  const greeting = getGreeting()
+
   const solvedCount = questionStats?.solvedCount ?? 0
-  const totalQuestions = questionStats?.totalQuestions ?? 30
+  const totalQuestions = questionStats?.totalQuestions ?? (rawQuestions.length || 700)
   const accuracyRate = questionStats?.accuracyRate ?? 0
 
-  const formatTimeLeft = (seconds: number) => {
-    if (seconds <= 0) return 'Ending soon'
-    const h = Math.floor(seconds / 3600)
-    const m = Math.floor((seconds % 3600) / 60)
-    return `${h}h ${m}m left`
-  }
+  const easySolved = questionStats?.easySolved ?? 0
+  const easyTotal = Math.max(questionStats?.easyTotal ?? 227, 1)
+  const mediumSolved = questionStats?.mediumSolved ?? 0
+  const mediumTotal = Math.max(questionStats?.mediumTotal ?? 340, 1)
+  const hardSolved = questionStats?.hardSolved ?? 0
+  const hardTotal = Math.max(questionStats?.hardTotal ?? 133, 1)
+
+  const totalXp = levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0
+  const currentLevel = levelProgress?.level ?? 1
+  const levelTitle = levelProgress?.title ?? 'Novice'
+  const currentLevelXp = levelProgress?.currentLevelXp ?? 0
+  const nextLevelXp = levelProgress?.nextLevelXp ?? 100
+  const levelRangeXp = Math.max(nextLevelXp - currentLevelXp, 1)
+  const xpInLevel = levelProgress?.xpInLevel ?? 0
+  const progressPercentage = levelProgress?.progressPercentage ?? 0
 
   return (
-    <div className="max-w-[1160px] mx-auto space-y-4 sm:space-y-5 animate-entry">
-      <div className="space-y-4 sm:space-y-5 animate-entry">
-        {/* ================================================= */}
-        {/* COMPETITIVE COMMAND BASE // PLAYER STATUS HUD     */}
-        {/* ================================================= */}
-        <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-4 sm:p-5 lg:p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-white/10">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-400 uppercase tracking-wider mb-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>ARENA COMMAND BASE // SEASON 01</span>
-              </div>
-              <h1 className="font-display font-black text-xl sm:text-2xl text-white tracking-tight leading-tight flex items-center gap-2 flex-wrap">
-                <span>OPERATIONAL STATUS:</span>
-                <span className="bg-[#ffd43b]/20 text-[#ffd43b] px-2 py-0.5 rounded border border-[#ffd43b]/40 inline-flex items-center gap-1 font-mono text-base sm:text-lg">
-                  @{username}
-                </span>
-              </h1>
+    <div className="max-w-[1240px] mx-auto space-y-4 sm:space-y-5 pb-6">
+      {/* ========================================================= */}
+      {/* SECTION 1: EDITORIAL HERO & COMPETITIVE STATUS RIBBON      */}
+      {/* ========================================================= */}
+      <section className="space-y-3">
+        {/* Editorial Greeting Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pt-1">
+          <div>
+            <div className="text-slate-400 font-display font-medium text-xs sm:text-sm">
+              {greeting}, <span className="text-slate-200 font-semibold">{firstName}</span>.
             </div>
-
-            {/* Quick Actions */}
-            <div className="flex flex-wrap sm:flex-nowrap gap-2 shrink-0">
-              <NeoButton
-                variant="primary"
-                size="md"
-                onClick={() => navigate('/questions')}
-                icon={<BookOpen className="w-4 h-4 shrink-0" />}
-                iconRight={<ArrowRight className="w-4 h-4 shrink-0" />}
-              >
-                Continue Practice
-              </NeoButton>
-
-              <NeoButton
-                variant="secondary"
-                size="md"
-                onClick={() => navigate('/contests')}
-                icon={<Trophy className="w-3.5 h-3.5 shrink-0" />}
-              >
-                Tournaments
-              </NeoButton>
-            </div>
+            <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-none mt-1">
+              READY FOR TODAY?
+            </h1>
           </div>
 
-          {/* 4-Tile High-Density Player HUD */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-            {/* Tile 1: Level & Tier */}
-            <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl flex flex-col justify-between">
-              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
-                <span>CURRENT LEVEL</span>
-                <span className="text-[#0c1d2d] bg-[#ffd43b] px-1.5 py-0.2 rounded font-black">
-                  LVL {String(levelProgress?.level ?? 1).padStart(2, '0')}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/questions"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 hover:bg-white/15 border border-white/15 rounded-lg text-xs font-semibold text-white transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-slate-300" />
+              <span>Practice All</span>
+              <ArrowRight className="w-3 h-3 text-slate-400" />
+            </Link>
+
+            <Link
+              to="/contests"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#ffd43b]/15 hover:bg-[#ffd43b]/25 border border-[#ffd43b]/30 rounded-lg text-xs font-semibold text-[#ffd43b] transition-colors"
+            >
+              <Trophy className="w-3.5 h-3.5 text-[#ffd43b]" />
+              <span>Tournaments</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* High-Density Competitive Status Ribbon */}
+        <div className="bg-[#0a1c2c] border border-[#173047] rounded-xl p-3 sm:p-4 text-slate-200 shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 divide-y sm:divide-y-0 md:divide-x divide-white/10">
+            {/* Metric 1: Global Rank */}
+            <div className="pt-2 sm:pt-0 sm:pr-3 flex flex-col justify-between">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-wider text-slate-400 uppercase">
+                <span className="flex items-center gap-1">
+                  <Trophy className="w-3 h-3 text-amber-400" />
+                  GLOBAL RANK
                 </span>
               </div>
-              <div className="my-2">
-                <div className="font-display font-black text-base sm:text-lg text-white leading-none">
-                  {levelProgress?.title ?? 'Novice'}
-                </div>
-                <div className="text-[11px] font-mono text-slate-400 mt-1">
-                  {levelProgress?.xpInLevel ?? 0} / {(levelProgress?.nextLevelXp ?? 100) - (levelProgress?.currentLevelXp ?? 0)} XP
-                </div>
-              </div>
-              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#ffd43b] rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(255,212,59,0.5)]"
-                  style={{ width: `${levelProgress?.progressPercentage ?? 0}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Tile 2: XP */}
-            <div className="p-3 bg-amber-400/[0.06] border border-amber-400/25 rounded-xl flex flex-col justify-between">
-              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-amber-300 uppercase tracking-wider">
-                <span>TOTAL XP</span>
-                <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              </div>
-              <div className="my-2">
+              <div className="my-1.5">
                 <div className="font-display font-black text-2xl sm:text-3xl text-white leading-none">
-                  {levelProgress?.totalXp ?? questionStats?.totalPoints ?? 0}
-                  <span className="text-xs font-mono font-bold text-[#ffd43b] ml-1">XP</span>
-                </div>
-              </div>
-              <div className="text-[10px] font-mono text-amber-300 font-medium truncate">
-                {levelProgress?.xpRequired ?? 0} XP to Level {(levelProgress?.level ?? 1) + 1}
-              </div>
-            </div>
-
-            {/* Tile 3: Streak */}
-            <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl flex flex-col justify-between">
-              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
-                <span>ACTIVE STREAK</span>
-                <Flame className={`w-3.5 h-3.5 ${streakData?.isActiveToday ? 'text-rose-500 fill-rose-500' : 'text-slate-400'}`} />
-              </div>
-              <div className="my-2">
-                <div className="font-display font-black text-2xl sm:text-3xl text-white leading-none">
-                  {streakData?.currentStreak ?? 0}
-                  <span className="text-xs font-mono font-bold text-slate-400 ml-1">DAYS</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-[10px] font-mono">
-                <span className="text-slate-400">Best: {streakData?.longestStreak ?? 0}d</span>
-                {streakData?.isActiveToday ? (
-                  <span className="text-emerald-400 font-bold">Active Today</span>
-                ) : (
-                  <span className="text-rose-400 font-bold">Needs Solve</span>
-                )}
-              </div>
-            </div>
-
-            {/* Tile 4: Competitive Standing */}
-            <div className="p-3 bg-white/[0.04] border border-white/10 rounded-xl flex flex-col justify-between">
-              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
-                <span>GLOBAL STANDING</span>
-                <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              </div>
-              <div className="my-2">
-                <div className="font-display font-black text-2xl sm:text-3xl text-white leading-none">
-                  {userRank ? `#${userRank}` : 'STANDBY'}
+                  {userRank ? `#${userRank}` : '—'}
                 </div>
               </div>
               <Link
                 to="/leaderboard"
-                className="text-[10px] font-mono text-sky-400 hover:underline font-bold flex items-center gap-1"
+                className="text-[11px] font-mono text-sky-400 hover:underline flex items-center gap-1"
               >
                 <span>Arena Standings</span>
                 <ArrowRight className="w-2.5 h-2.5" />
               </Link>
             </div>
+
+            {/* Metric 2: Current Level & Progress */}
+            <div className="pt-2 sm:pt-0 sm:px-3 flex flex-col justify-between">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-wider text-slate-400 uppercase">
+                <span>CURRENT LEVEL</span>
+                <span className="bg-[#ffd43b] text-[#071a2b] px-1.5 py-0.2 rounded font-black text-[10px]">
+                  LVL {String(currentLevel).padStart(2, '0')}
+                </span>
+              </div>
+              <div className="my-1.5">
+                <div className="font-display font-bold text-sm sm:text-base text-white truncate">
+                  {levelTitle}
+                </div>
+                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+                  <div
+                    className="h-full bg-[#ffd43b] rounded-full transition-all duration-300"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
+              </div>
+              <div className="text-[10px] font-mono text-slate-400 flex items-center justify-between">
+                <span>{xpInLevel} / {levelRangeXp} XP</span>
+                <span>{progressPercentage}%</span>
+              </div>
+            </div>
+
+            {/* Metric 3: Total XP */}
+            <div className="pt-2 sm:pt-0 sm:px-3 flex flex-col justify-between">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-wider text-slate-400 uppercase">
+                <span className="flex items-center gap-1">
+                  <Zap className="w-3 h-3 text-[#ffd43b] fill-[#ffd43b]" />
+                  TOTAL SCORE
+                </span>
+              </div>
+              <div className="my-1.5">
+                <div className="font-display font-black text-2xl sm:text-3xl text-white leading-none">
+                  {totalXp.toLocaleString()}
+                  <span className="text-xs font-mono font-bold text-[#ffd43b] ml-1">XP</span>
+                </div>
+              </div>
+              <div className="text-[10px] font-mono text-slate-400 truncate">
+                {levelProgress?.xpRequired ?? 0} XP to Next Level
+              </div>
+            </div>
+
+            {/* Metric 4: Active Streak */}
+            <div className="pt-2 sm:pt-0 sm:pl-3 flex flex-col justify-between">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-wider text-slate-400 uppercase">
+                <span className="flex items-center gap-1">
+                  <Flame
+                    className={`w-3.5 h-3.5 ${
+                      streakData?.isActiveToday ? 'text-amber-400 fill-amber-400' : 'text-slate-500'
+                    }`}
+                  />
+                  ACTIVE STREAK
+                </span>
+              </div>
+              <div className="my-1.5 flex items-baseline gap-1.5">
+                <span className="font-display font-black text-2xl sm:text-3xl text-white leading-none">
+                  {streakData?.currentStreak ?? 0}
+                </span>
+                <span className="text-xs font-mono font-bold text-slate-400">DAYS</span>
+              </div>
+              <div className="flex items-center justify-between text-[10px] font-mono">
+                <span className="text-slate-400">Best: {streakData?.longestStreak ?? 0}d</span>
+                {streakData?.isActiveToday ? (
+                  <span className="text-emerald-400 font-semibold">Active Today</span>
+                ) : (
+                  <span className="text-amber-400 font-medium">Needs Solve</span>
+                )}
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ================================================= */}
-        {/* ARENA CORE: QUESTION BANK & DAILY CHALLENGE       */}
-        {/* ================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-4 sm:gap-5">
-          {/* Question Bank Practice Module */}
-          <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl flex flex-col justify-between overflow-hidden">
-            <div>
-              <div className="p-3.5 sm:p-4 border-b border-white/10 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#ffd43b]/15 border border-[#ffd43b]/30 flex items-center justify-center font-display font-bold text-[#ffd43b] text-sm">
-                    Q
-                  </div>
-                  <div>
-                    <h2 className="font-display font-bold text-sm text-white leading-none">
-                      Question Bank
-                    </h2>
-                    <span className="text-[11px] font-medium text-slate-400">
-                      Progressive Speed Practice
-                    </span>
-                  </div>
+      {/* ========================================================= */}
+      {/* SECTION 2: MAIN 2-COLUMN ARENA LAYOUT                     */}
+      {/* ========================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-4 sm:gap-5 items-start">
+        {/* ======================================================= */}
+        {/* LEFT COLUMN: PRIMARY ACTION & ARENA DOMAINS             */}
+        {/* ======================================================= */}
+        <div className="space-y-4 sm:space-y-5">
+          {/* PRIMARY ACTION: TODAY'S CHALLENGE */}
+          <section className="bg-[#0c2338] border border-[#ffd43b]/40 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
+            <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-[#ffd43b]/15 border border-[#ffd43b]/30 flex items-center justify-center">
+                  <Flame className="w-3.5 h-3.5 text-[#ffd43b]" />
                 </div>
-
-                <Link
-                  to="/questions"
-                  className="px-2.5 py-1 bg-white/10 hover:bg-white/15 border border-white/15 rounded-lg text-xs font-semibold text-white flex items-center gap-1 shadow-xs transition-colors"
-                >
-                  <span>All Problems</span>
-                  <ArrowRight className="w-3 h-3 text-slate-300" />
-                </Link>
+                <h2 className="font-display font-bold text-xs uppercase tracking-wider text-white">
+                  Today's Challenge
+                </h2>
               </div>
 
-              {/* Progress Summary Blocks */}
-              <div className="p-3.5 sm:p-4 space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div className="p-3 bg-white/[0.04] border border-white/10 rounded-lg">
-                    <div className="font-display font-bold text-lg text-white">
-                      {solvedCount} <span className="text-xs font-normal text-slate-400">/ {totalQuestions}</span>
-                    </div>
-                    <div className="text-[11px] font-medium text-slate-400 mt-0.5">
-                      Problems Completed
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
-                      <div
-                        className="h-full bg-[#ffd43b] rounded-full shadow-[0_0_8px_rgba(255,212,59,0.5)]"
-                        style={{
-                          width: `${(solvedCount / Math.max(totalQuestions, 1)) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-white/[0.04] border border-white/10 rounded-lg">
-                    <div className="font-display font-bold text-lg text-white">
-                      {accuracyRate}%
-                    </div>
-                    <div className="text-[11px] font-medium text-slate-400 mt-0.5">
-                      Solver Accuracy
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
-                      <div
-                        className="h-full bg-sky-400 rounded-full shadow-[0_0_8px_rgba(56,174,240,0.5)]"
-                        style={{ width: `${accuracyRate}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Topics strip */}
-                <div className="p-3 bg-white/[0.04] border border-white/10 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                  <div>
-                    <div className="text-xs font-semibold text-white">
-                      Practice Domains
-                    </div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">
-                      Quantitative • Logical Reasoning • Data Interpretation
-                    </div>
-                  </div>
-
-                  <Link
-                    to="/questions"
-                    className="px-3 py-1.5 bg-[#ffd43b] hover:bg-[#facb15] border border-amber-400/80 rounded-lg text-xs font-bold text-[#0c1d2d] shadow-[0_0_15px_rgba(255,212,59,0.2)] hover:shadow-[0_0_20px_rgba(255,212,59,0.35)] hover:-translate-y-0.5 active:translate-y-0 text-center shrink-0 transition-all"
-                  >
-                    Start Solving →
-                  </Link>
+              <div className="flex items-center gap-2">
+                <span className="bg-[#ffd43b]/15 text-[#ffd43b] border border-[#ffd43b]/30 rounded-md px-2 py-0.5 font-mono text-[11px] font-bold">
+                  +{dailyChallenge?.bonusXp ?? 50} XP BONUS
+                </span>
+                <div className="hidden sm:flex items-center gap-1 font-mono text-xs text-slate-400">
+                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{dailyChallenge ? formatTimeLeft(dailyChallenge.secondsLeft) : 'Standby'}</span>
                 </div>
               </div>
             </div>
 
-            <div className="px-4 py-2.5 border-t border-white/10 bg-black/20 flex items-center justify-between text-xs font-mono text-slate-400">
-              <span>{totalQuestions - solvedCount} problems remaining</span>
-              <span
-                className="text-sky-400 font-semibold cursor-pointer hover:underline"
-                onClick={() => navigate('/questions')}
-              >
-                Open Practice →
-              </span>
-            </div>
-          </section>
-
-          {/* Daily Challenge Card (Key card with accent border per spec) */}
-          <section className="bg-slate-900/60 backdrop-blur-md border-2 border-amber-400/60 ring-1 ring-amber-400/20 rounded-2xl shadow-[0_0_20px_rgba(255,212,59,0.08)] flex flex-col justify-between p-4 sm:p-5 overflow-hidden">
-            <div>
-              <div className="flex items-center justify-between pb-2.5 border-b border-white/10">
-                <div className="flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-amber-400" />
-                  <span className="font-display font-bold text-xs uppercase tracking-wide text-white">
-                    Daily Challenge
-                  </span>
-                </div>
-                <div className="bg-amber-400/20 text-amber-300 border border-amber-400/40 rounded-full px-2 py-0.5 font-mono text-[10px] font-bold">
-                  +{dailyChallenge?.bonusXp ?? 50} BONUS XP
-                </div>
-              </div>
-
-              <div className="mt-3 bg-white/[0.04] border border-white/10 rounded-xl p-3.5 sm:p-4">
-                <div className="flex items-center justify-between mb-1.5">
+            {/* Challenge Details */}
+            <div className="mt-3.5 space-y-2.5">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
                   {dailyChallenge ? (
                     <StatusBadge
                       status={dailyChallenge.question.difficulty}
                       size="xs"
-                      label={`${dailyChallenge.question.difficulty.toUpperCase()} • ${dailyChallenge.question.category.toUpperCase()}`}
+                      label={dailyChallenge.question.difficulty.toUpperCase()}
                     />
                   ) : (
-                    <span className="bg-white/10 text-slate-300 border border-white/10 rounded-full px-2 py-0.5 text-[9px] font-medium">
-                      Daily Arena
+                    <span className="bg-white/10 text-slate-400 rounded px-1.5 py-0.5 text-[10px] font-mono">
+                      STANDARD
                     </span>
                   )}
-                  <div className="flex items-center gap-1 font-mono text-xs text-slate-400">
-                    <Clock className="w-3 h-3 text-slate-400" />
-                    <span>{dailyChallenge ? formatTimeLeft(dailyChallenge.secondsLeft) : 'Standby'}</span>
-                  </div>
+                  <span className="text-xs font-mono font-semibold text-sky-400 tracking-wide uppercase">
+                    {dailyChallenge
+                      ? `${dailyChallenge.question.category} // ${dailyChallenge.question.topic}`
+                      : 'Aptitude Speed Challenge'}
+                  </span>
                 </div>
 
-                <h3 className="font-display font-bold text-sm sm:text-base text-white leading-snug mt-1.5">
-                  {dailyChallenge?.question.title || "Daily Challenge Arena"}
-                </h3>
+                <div className="sm:hidden flex items-center gap-1 font-mono text-[11px] text-slate-400">
+                  <Clock className="w-3 h-3" />
+                  <span>{dailyChallenge ? formatTimeLeft(dailyChallenge.secondsLeft) : 'Standby'}</span>
+                </div>
+              </div>
 
-                <p className="mt-1 text-xs font-body text-slate-300 leading-relaxed line-clamp-2">
-                  {dailyChallenge?.question.prompt || "Today's speed challenge is loading or currently unavailable. Please verify your connection."}
-                </p>
+              <h3 className="font-display font-bold text-base sm:text-lg text-white leading-snug">
+                {dailyChallenge?.question.title || "Daily Speed Aptitude Problem"}
+              </h3>
 
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed line-clamp-2">
+                {dailyChallenge?.question.prompt ||
+                  "Daily challenge question is loading or currently syncing. Verify your network connection to solve today's challenge."}
+              </p>
+
+              {/* Action Button */}
+              <div className="pt-2">
                 {dailyChallenge?.isCompleted ? (
-                  <div className="mt-3 w-full py-2 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 cursor-default">
+                  <div className="w-full py-2.5 px-4 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-lg font-semibold text-xs flex items-center justify-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Completed (+{dailyChallenge.bonusXpAwarded || dailyChallenge.bonusXp} XP)</span>
+                    <span>✓ COMPLETED (+{dailyChallenge.bonusXpAwarded || dailyChallenge.bonusXp} XP)</span>
                   </div>
                 ) : dailyChallenge ? (
                   <button
                     type="button"
                     onClick={() => {
-                      navigate(`/questions/${dailyChallenge.question.id}?challenge=true&challengeId=${dailyChallenge.challengeId}`)
+                      navigate(
+                        `/questions/${dailyChallenge.question.id}?challenge=true&challengeId=${dailyChallenge.challengeId}`
+                      )
                     }}
-                    className="mt-3 w-full py-2 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-lg font-bold text-xs shadow-[0_0_15px_rgba(255,212,59,0.25)] hover:shadow-[0_0_22px_rgba(255,212,59,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full sm:w-auto px-6 py-2.5 bg-[#ffd43b] hover:bg-[#facb15] text-[#071a2b] font-display font-black text-xs uppercase tracking-wider rounded-lg shadow-sm hover:shadow transition-all cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <Zap className="w-3.5 h-3.5 fill-[#0c1d2d] text-[#0c1d2d] shrink-0" />
-                    <span>Accept Challenge →</span>
+                    <span>START CHALLENGE</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 ) : (
                   <button
                     type="button"
                     disabled
-                    className="mt-3 w-full py-2 bg-white/5 text-slate-500 border border-white/10 rounded-lg text-xs font-medium cursor-not-allowed flex items-center justify-center gap-1.5"
+                    className="w-full sm:w-auto px-5 py-2.5 bg-white/5 text-slate-500 border border-white/10 rounded-lg text-xs font-semibold cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span>Currently Unavailable</span>
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <span>Challenge Syncing...</span>
                   </button>
                 )}
               </div>
             </div>
-
-            <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-mono text-slate-400">
-              <div className="flex items-center gap-1.5">
-                <span>Streak: {streakData?.currentStreak ?? 0} {(streakData?.currentStreak ?? 0) === 1 ? 'day' : 'days'}</span>
-                {streakData?.isActiveToday && (
-                  <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full px-1.5 py-0.2 text-[9px] font-medium">
-                    Active
-                  </span>
-                )}
-                {streakData?.isAtRisk && (
-                  <span className="bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full px-1.5 py-0.2 text-[9px] font-medium">
-                    At Risk
-                  </span>
-                )}
-              </div>
-              <span>Best: {streakData?.longestStreak ?? 0}</span>
-            </div>
           </section>
-        </div>
 
-        {/* ================================================= */}
-        {/* LOWER DECK: UPCOMING CONTESTS & QUICK NAV         */}
-        {/* ================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-4 sm:gap-5">
-          {/* Upcoming Contests */}
-          <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl overflow-hidden">
-            <div className="p-3.5 sm:p-4 border-b border-white/10 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-amber-400" />
-                <h2 className="font-display font-bold text-sm text-white leading-none">
-                  Upcoming Contests
+          {/* PRACTICE ENTRY: CHOOSE YOUR ARENA */}
+          <section className="bg-[#0a1c2c] border border-[#173047] rounded-xl p-4 sm:p-5 shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between pb-2.5 border-b border-white/10">
+              <div>
+                <div className="text-[10px] font-mono font-bold tracking-wider text-slate-400 uppercase">
+                  PRACTICE
+                </div>
+                <h2 className="font-display font-bold text-sm text-white leading-tight">
+                  Choose your arena
                 </h2>
               </div>
 
               <Link
-                to="/contests"
-                className="px-2.5 py-1 bg-white/10 hover:bg-white/15 border border-white/15 rounded-lg text-xs font-semibold text-white flex items-center gap-1 shadow-xs transition-colors"
+                to="/questions"
+                className="text-xs font-mono text-sky-400 hover:underline flex items-center gap-1 font-semibold"
               >
-                <span>View All</span>
-                <ArrowRight className="w-3 h-3 text-slate-300" />
+                <span>All 700 questions</span>
+                <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
-            <div className="p-3.5 sm:p-4 space-y-2.5">
+            {/* 4 Compact Arena Domains */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {ARENA_CATEGORIES.map((cat) => {
+                const IconComponent = cat.icon
+                const stats = categoryProgress[cat.id] || { total: 0, solved: 0 }
+                const pct = stats.total > 0 ? Math.round((stats.solved / stats.total) * 100) : 0
+
+                return (
+                  <div
+                    key={cat.id}
+                    onClick={() => navigate('/questions')}
+                    className="p-3 bg-[#0e2438] hover:bg-[#122e47] border border-[#1d3b56] hover:border-[#ffd43b]/40 rounded-xl transition-all cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 group-hover:text-[#ffd43b] group-hover:border-[#ffd43b]/30 flex items-center justify-center transition-colors">
+                            <IconComponent className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="font-display font-bold text-xs sm:text-sm text-white group-hover:text-[#ffd43b] transition-colors leading-tight">
+                            {cat.name}
+                          </span>
+                        </div>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" />
+                      </div>
+
+                      <p className="text-[11px] text-slate-400 mt-1.5 leading-snug line-clamp-1">
+                        {cat.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between text-[11px] font-mono">
+                        <span className="text-slate-300 font-medium">
+                          {stats.solved} / {stats.total} solved
+                        </span>
+                        <span className="text-slate-400">{pct}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+                        <div
+                          className="h-full bg-sky-400 group-hover:bg-[#ffd43b] transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Quick Practice Bottom Strip */}
+            <div className="pt-2 flex items-center justify-between text-xs font-mono text-slate-400">
+              <span>{Math.max(totalQuestions - solvedCount, 0)} problems remaining</span>
+              <button
+                type="button"
+                onClick={() => navigate('/questions')}
+                className="text-sky-400 hover:underline font-semibold cursor-pointer"
+              >
+                Open Question Bank →
+              </button>
+            </div>
+          </section>
+        </div>
+
+        {/* ======================================================= */}
+        {/* RIGHT COLUMN: PERFORMANCE, RECENT ACTIVITY, HUB        */}
+        {/* ======================================================= */}
+        <div className="space-y-4 sm:space-y-5">
+          {/* SECTION 4: PERFORMANCE */}
+          <section className="bg-[#0a1c2c] border border-[#173047] rounded-xl p-4 sm:p-5 shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-sky-400" />
+                <h2 className="font-display font-bold text-xs uppercase tracking-wider text-white">
+                  Performance & Accuracy
+                </h2>
+              </div>
+              <span className="text-[11px] font-mono text-slate-400">Authoritative</span>
+            </div>
+
+            {/* Key Metrics Row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-[#0e2438] border border-[#1d3b56] rounded-lg">
+                <div className="font-display font-black text-2xl sm:text-3xl text-white leading-none">
+                  {accuracyRate}%
+                </div>
+                <div className="text-[11px] font-medium text-slate-400 mt-1">
+                  Solver Accuracy
+                </div>
+                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                  <div
+                    className="h-full bg-sky-400 rounded-full"
+                    style={{ width: `${accuracyRate}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-[#0e2438] border border-[#1d3b56] rounded-lg">
+                <div className="font-display font-black text-2xl sm:text-3xl text-white leading-none">
+                  {solvedCount}
+                  <span className="text-xs font-normal text-slate-400 font-mono ml-1">
+                    / {totalQuestions}
+                  </span>
+                </div>
+                <div className="text-[11px] font-medium text-slate-400 mt-1">
+                  Problems Solved
+                </div>
+                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                  <div
+                    className="h-full bg-[#ffd43b] rounded-full"
+                    style={{
+                      width: `${Math.min(100, Math.round((solvedCount / Math.max(totalQuestions, 1)) * 100))}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Difficulty Breakdown */}
+            <div className="space-y-2 pt-1">
+              <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+                Difficulty Progress
+              </div>
+
+              {/* Easy */}
+              <div>
+                <div className="flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-emerald-400 font-semibold">Easy</span>
+                  <span className="text-slate-300">
+                    {easySolved} / {easyTotal} ({Math.round((easySolved / easyTotal) * 100)}%)
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-400 rounded-full"
+                    style={{ width: `${Math.round((easySolved / easyTotal) * 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Medium */}
+              <div>
+                <div className="flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-amber-400 font-semibold">Medium</span>
+                  <span className="text-slate-300">
+                    {mediumSolved} / {mediumTotal} ({Math.round((mediumSolved / mediumTotal) * 100)}%)
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                  <div
+                    className="h-full bg-[#ffd43b] rounded-full"
+                    style={{ width: `${Math.round((mediumSolved / mediumTotal) * 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Hard */}
+              <div>
+                <div className="flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-rose-400 font-semibold">Hard</span>
+                  <span className="text-slate-300">
+                    {hardSolved} / {hardTotal} ({Math.round((hardSolved / hardTotal) * 100)}%)
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                  <div
+                    className="h-full bg-rose-400 rounded-full"
+                    style={{ width: `${Math.round((hardSolved / hardTotal) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 5: RECENT ACTIVITY */}
+          <section className="bg-[#0a1c2c] border border-[#173047] rounded-xl p-4 sm:p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-slate-400" />
+                <h2 className="font-display font-bold text-xs uppercase tracking-wider text-white">
+                  Recent Activity
+                </h2>
+              </div>
+              <Link
+                to="/profile"
+                className="text-xs font-mono text-sky-400 hover:underline font-semibold"
+              >
+                Profile Feed →
+              </Link>
+            </div>
+
+            {dataLoading ? (
+              <div className="py-6 text-center font-mono text-xs text-slate-400">
+                Loading activity...
+              </div>
+            ) : userAttempts.length === 0 ? (
+              <div className="py-5 px-4 bg-[#0e2438] border border-[#1d3b56] rounded-lg text-center">
+                <div className="font-display font-semibold text-xs text-slate-300">
+                  No recent attempts recorded
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                  Solve today's challenge or pick an arena domain above to log your competitive activity.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {userAttempts.slice(0, 4).map((att) => {
+                  const q = questionsById.get(att.questionId)
+                  const title = att.questionTitle || q?.title || 'Aptitude Problem'
+                  const category = att.questionCategory || q?.category || 'General'
+
+                  return (
+                    <div
+                      key={att.id}
+                      className="p-2.5 bg-[#0e2438] border border-[#1d3b56] rounded-lg flex items-center justify-between gap-2.5"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {att.isCorrect ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-display font-medium text-xs text-white truncate">
+                            {title}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-400 mt-0.5 truncate">
+                            {category} • {formatRelativeTime(att.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 font-mono text-xs font-bold text-right">
+                        {att.xpChange > 0 ? (
+                          <span className="text-emerald-400">+{att.xpChange} XP</span>
+                        ) : att.xpChange < 0 ? (
+                          <span className="text-rose-400">{att.xpChange} XP</span>
+                        ) : (
+                          <span className="text-slate-400">+0 XP</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* SECTION 6: COMPETITIVE HUB */}
+          <section className="bg-[#0a1c2c] border border-[#173047] rounded-xl p-4 sm:p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-amber-400" />
+                <h2 className="font-display font-bold text-xs uppercase tracking-wider text-white">
+                  Tournaments & 1V1
+                </h2>
+              </div>
+              <Link
+                to="/contests"
+                className="text-xs font-mono text-sky-400 hover:underline font-semibold"
+              >
+                All Contests →
+              </Link>
+            </div>
+
+            {/* Contests Preview */}
+            <div className="space-y-2">
               {contests.length === 0 ? (
-                <div className="p-4 bg-white/[0.03] border border-white/10 rounded-lg text-center font-mono text-xs text-slate-400">
-                  No active or upcoming tournaments
+                <div className="p-3 bg-[#0e2438] border border-[#1d3b56] rounded-lg text-center font-mono text-xs text-slate-400">
+                  No active or upcoming tournaments right now
                 </div>
               ) : (
                 contests.slice(0, 2).map((c) => (
                   <div
                     key={c.id}
-                    className="p-3 bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors"
+                    className="p-2.5 bg-[#0e2438] border border-[#1d3b56] rounded-lg flex items-center justify-between gap-2.5"
                   >
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-1">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
                         <StatusBadge
                           status={c.status === 'live' ? 'live' : 'upcoming'}
                           size="xs"
                         />
-                        <span className="text-[11px] font-mono text-slate-400">
+                        <span className="text-[10px] font-mono text-slate-400">
                           {c.durationMinutes}m • {c.totalQuestions}Q
                         </span>
                       </div>
-                      <h4 className="font-display font-semibold text-sm text-white">
+                      <h4 className="font-display font-semibold text-xs text-white truncate">
                         {c.title}
                       </h4>
-                      <p className="text-[11px] font-body text-slate-400 mt-0.5">
-                        {c.category} • {c.difficulty}
-                      </p>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => navigate(`/contests/${c.id}`)}
-                      className={`px-3 py-1.5 border rounded-lg text-xs font-bold shrink-0 cursor-pointer transition-all ${
+                      className={`px-3 py-1 rounded text-xs font-bold shrink-0 cursor-pointer transition-all ${
                         c.status === 'live'
-                          ? 'bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border-amber-400/80 shadow-[0_0_12px_rgba(255,212,59,0.3)] hover:-translate-y-0.5 active:translate-y-0'
-                          : 'bg-white/10 hover:bg-white/15 text-white border-white/15 shadow-xs hover:-translate-y-0.5 active:translate-y-0'
+                          ? 'bg-[#ffd43b] hover:bg-[#facb15] text-[#071a2b]'
+                          : 'bg-white/10 hover:bg-white/15 text-white'
                       }`}
                     >
                       {c.status === 'live' ? 'Enter →' : 'View →'}
@@ -484,59 +805,32 @@ export default function Dashboard() {
                 ))
               )}
             </div>
-          </section>
 
-          {/* Quick Hub Navigation Actions */}
-          <section className="bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl p-4 sm:p-5 flex flex-col justify-between">
-            <div>
-              <div className="pb-2.5 border-b border-white/10 flex items-center justify-between">
-                <span className="font-display font-bold text-xs uppercase tracking-wide text-white">
-                  Quick Navigation
+            {/* Direct Shortcuts */}
+            <div className="pt-2 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/1v1')}
+                className="p-2.5 bg-[#0e2438] hover:bg-[#122e47] border border-[#1d3b56] hover:border-slate-500/40 rounded-lg text-xs font-semibold text-white flex items-center justify-between transition-colors cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <Swords className="w-3.5 h-3.5 text-amber-400" />
+                  1V1 Arena
                 </span>
-              </div>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
 
-              <div className="mt-3 space-y-2">
-                <button
-                  type="button"
-                  onClick={() => navigate('/questions')}
-                  className="w-full p-2.5 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg text-xs font-medium text-left flex items-center justify-between transition-colors cursor-pointer text-white"
-                >
-                  <span className="flex items-center gap-2">
-                    <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                    Practice Question Bank
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => navigate('/leaderboard')}
-                  className="w-full p-2.5 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg text-xs font-medium text-left flex items-center justify-between transition-colors cursor-pointer text-white"
-                >
-                  <span className="flex items-center gap-2">
-                    <BarChart2 className="w-3.5 h-3.5 text-slate-400" />
-                    Global Leaderboard
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => navigate('/profile')}
-                  className="w-full p-2.5 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg text-xs font-medium text-left flex items-center justify-between transition-colors cursor-pointer text-white"
-                >
-                  <span className="flex items-center gap-2">
-                    <Target className="w-3.5 h-3.5 text-slate-400" />
-                    Profile & Settings
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-              </div>
-            </div>
-
-            {/* Motto */}
-            <div className="mt-4 pt-2.5 border-t border-white/10 text-center font-mono text-[10px] text-slate-400 tracking-wider uppercase">
-              Apticks • Think Fast • Solve Accurate
+              <button
+                type="button"
+                onClick={() => navigate('/leaderboard')}
+                className="p-2.5 bg-[#0e2438] hover:bg-[#122e47] border border-[#1d3b56] hover:border-slate-500/40 rounded-lg text-xs font-semibold text-white flex items-center justify-between transition-colors cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <Trophy className="w-3.5 h-3.5 text-sky-400" />
+                  Leaderboard
+                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </button>
             </div>
           </section>
         </div>

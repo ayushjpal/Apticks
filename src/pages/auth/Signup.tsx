@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, ArrowRight, User, Lock, CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, User, Lock, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ProfileService, type UsernameValidationResult } from '../../services/profileService'
 import { validatePassword, normalizeUsername } from '../../utils/validation'
-import AuthShell from '../../components/auth/AuthShell'
+import AuthBackground from '../../components/auth/AuthBackground'
+import AuthInput from '../../components/auth/AuthInput'
+import AuthPrimaryButton from '../../components/auth/AuthPrimaryButton'
+import AuthSocialButton from '../../components/auth/AuthSocialButton'
+import AuthAlert from '../../components/auth/AuthAlert'
 
 export default function Signup() {
   const navigate = useNavigate()
@@ -23,6 +27,10 @@ export default function Signup() {
   // Messages
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  // Clean username for live presentation preview (no backend calls for preview display)
+  const displayHandle = username.trim().toLowerCase() || 'speed_solver'
+  const displayInitials = displayHandle.replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() || 'SS'
 
   // -----------------------------
   // Debounced Live Username Check
@@ -229,218 +237,262 @@ export default function Signup() {
   }
 
   return (
-    <AuthShell
-      eyebrow="Join Apticks"
-      title="Create Account"
-      subtitle="Create your username and start competing in the arena."
+    <AuthBackground
+      variant="signup"
+      navRight={
+        <div className="flex items-center gap-1.5 font-mono text-xs text-slate-400">
+          <span className="hidden sm:inline">Already on Apticks?</span>
+          <Link
+            to="/login"
+            className="font-display font-semibold text-[#ffd43b] hover:text-[#facc15] transition-colors inline-flex items-center gap-1"
+          >
+            <span>Sign in</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      }
     >
-      {/* Error notification */}
-      {error && (
-        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-medium flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Success notification */}
-      {success && (
-        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-          <span>{success}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSignup} className="space-y-4">
-        {/* Username */}
-        <div>
-          <label
-            htmlFor="signup-username"
-            className="block mb-1.5 text-xs font-semibold tracking-wider text-slate-700 uppercase"
-          >
-            Choose Username
-          </label>
-          <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden transition-all">
-            <span className="px-3 py-2.5 border-r border-slate-200 bg-slate-50 text-slate-500 font-semibold text-xs flex items-center">
-              <User className="w-3.5 h-3.5 text-slate-400 mr-1" />
-              @
-            </span>
-            <input
-              id="signup-username"
-              type="text"
-              placeholder="e.g. speed_solver"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value)
-                if (!e.target.value.trim()) {
-                  setUsernameStatus(null)
-                }
-              }}
-              maxLength={20}
-              autoComplete="username"
-              autoFocus
-              className="w-full py-2.5 px-3 outline-none font-medium text-sm bg-transparent placeholder:text-slate-400 text-slate-900"
-            />
+      <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+        {/* ======================================================= */}
+        {/* LEFT: EDITORIAL SECTION                                 */}
+        {/* ======================================================= */}
+        <div className="lg:col-span-4 flex flex-col justify-start pt-1">
+          <div className="font-mono text-xs sm:text-sm tracking-[0.25em] text-[#ffd43b]/90 font-bold uppercase mb-3">
+            02
           </div>
-
-          {/* Real-time username feedback pill */}
-          {username.trim() && (
-            <div className="mt-2">
-              {checkingUsername ? (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 font-medium text-xs">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />
-                  <span>Checking handle availability...</span>
-                </div>
-              ) : usernameStatus ? (
-                <div
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 border rounded-lg font-medium text-xs ${
-                    !usernameStatus.isValid
-                      ? 'bg-rose-50 border-rose-200 text-rose-700'
-                      : usernameStatus.isAvailable
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                      : 'bg-rose-50 border-rose-200 text-rose-700'
-                  }`}
-                >
-                  {!usernameStatus.isValid ? (
-                    <>
-                      <XCircle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
-                      <span>{usernameStatus.message}</span>
-                    </>
-                  ) : usernameStatus.isAvailable ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
-                      <span>Handle is available!</span>
-                    </>
-                  ) : (
-                    <>
-                      <XCircle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
-                      <span>Username is taken</span>
-                    </>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          )}
-
-          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">
-            3–20 characters • letters, numbers, _, -, .
+          <div className="w-12 sm:w-16 h-px bg-slate-700/80 mb-6 sm:mb-8" />
+          <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-[1.05]">
+            Create<br />
+            Your<br />
+            <span className="text-[#ffd43b]">Competitor.</span>
+          </h1>
+          <p className="font-display text-base sm:text-lg font-semibold text-slate-200 mt-6 sm:mt-8">
+            Start your journey in the arena.
           </p>
+
+          {/* Progress Indicator */}
+          <div className="flex items-center gap-3 mt-8 pt-6 border-t border-slate-800/80 font-mono text-xs">
+            <div className="flex items-center gap-2 text-[#ffd43b] font-bold">
+              <span className="w-5 h-5 rounded-full bg-[#ffd43b]/15 border border-[#ffd43b] flex items-center justify-center text-[10px]">
+                01
+              </span>
+              <span className="tracking-wider uppercase text-[11px]">Identity</span>
+            </div>
+            <div className="w-6 h-px bg-slate-700" />
+            <div className="flex items-center gap-2 text-slate-500 font-medium">
+              <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] text-slate-400">
+                02
+              </span>
+              <span className="tracking-wider uppercase text-[11px]">Access</span>
+            </div>
+          </div>
         </div>
 
-        {/* Password */}
-        <div>
-          <label
-            htmlFor="signup-confirm-password"
-            className="block mb-1.5 text-xs font-semibold tracking-wider text-slate-700 uppercase"
-          >
-            Password
-          </label>
-          <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden transition-all">
-            <span className="px-3 py-2.5 border-r border-slate-200 bg-slate-50 text-slate-400 flex items-center">
-              <Lock className="w-4 h-4 text-slate-400" />
-            </span>
-            <input
+        {/* ======================================================= */}
+        {/* CENTER: FORM AREA                                       */}
+        {/* ======================================================= */}
+        <div className="lg:col-span-5 bg-[#0c1d2d] border border-slate-800 rounded-2xl p-6 sm:p-7 shadow-2xl relative overflow-hidden">
+          {/* Top Yellow Accent */}
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ffd43b]/40 to-transparent" />
+
+          {/* Error Notification */}
+          {error && <AuthAlert type="error" message={error} className="mb-4" />}
+
+          {/* Success Notification */}
+          {success && <AuthAlert type="success" message={success} className="mb-4" />}
+
+          {/* Signup Form */}
+          <form onSubmit={handleSignup} className="space-y-4">
+            {/* Username Input */}
+            <div>
+              <AuthInput
+                id="signup-username"
+                label="CHOOSE USERNAME"
+                icon={<User className="w-3.5 h-3.5" />}
+                prefixText="@"
+                placeholder="username"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value)
+                  if (!e.target.value.trim()) {
+                    setUsernameStatus(null)
+                  }
+                }}
+                maxLength={20}
+                autoComplete="username"
+                autoFocus
+                helperText="3–20 characters • letters, numbers, _, -, ."
+              />
+
+              {/* Real-time username availability pill */}
+              {username.trim() && (
+                <div className="mt-2">
+                  {checkingUsername ? (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-400/10 border border-amber-400/25 rounded-lg text-[#ffd43b] font-mono text-xs">
+                      <Loader2 className="w-3 h-3 animate-spin text-[#ffd43b]" />
+                      <span>Checking availability...</span>
+                    </div>
+                  ) : usernameStatus ? (
+                    <div
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 border rounded-lg font-mono text-xs ${
+                        !usernameStatus.isValid
+                          ? 'bg-rose-950/40 border-rose-800/60 text-rose-300'
+                          : usernameStatus.isAvailable
+                          ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
+                          : 'bg-rose-950/40 border-rose-800/60 text-rose-300'
+                      }`}
+                    >
+                      {!usernameStatus.isValid ? (
+                        <>
+                          <XCircle className="w-3 h-3 shrink-0 text-rose-400" />
+                          <span>{usernameStatus.message}</span>
+                        </>
+                      ) : usernameStatus.isAvailable ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3 shrink-0 text-emerald-400" />
+                          <span>Handle is available</span>
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="w-3 h-3 shrink-0 text-rose-400" />
+                          <span>Username is taken</span>
+                        </>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
+
+            {/* Password Input */}
+            <AuthInput
               id="signup-confirm-password"
+              label="PASSWORD"
               type={showPassword ? 'text' : 'password'}
+              icon={<Lock className="w-3.5 h-3.5" />}
               placeholder="Create your secure password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
-              className="w-full py-2.5 px-3 outline-none font-medium text-sm bg-transparent placeholder:text-slate-400 text-slate-900"
+              helperText="Min 8 chars with uppercase, lowercase, number & special char"
+              action={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="p-1 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              }
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              className="px-3 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-            >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
+
+            {/* Submit CTA */}
+            <div className="pt-2">
+              <AuthPrimaryButton
+                type="submit"
+                disabled={loading || oauthLoading !== null || checkingUsername}
+                loading={loading}
+                loadingText="Creating Account..."
+              >
+                Create Account
+              </AuthPrimaryButton>
+            </div>
+          </form>
+
+          {/* Divider */}
+          <div className="my-5 flex items-center gap-3">
+            <div className="flex-1 h-px bg-slate-800" />
+            <span className="font-mono text-[10px] font-semibold tracking-wider text-slate-500 uppercase">
+              OR CONTINUE WITH
+            </span>
+            <div className="flex-1 h-px bg-slate-800" />
           </div>
-          <p className="mt-1.5 text-[11px] text-slate-500 font-medium">
-            Min 8 chars with uppercase, lowercase, number & special char
-          </p>
+
+          {/* Compact OAuth Buttons */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <AuthSocialButton
+              provider="google"
+              compact
+              onClick={handleGoogleSignup}
+              loading={oauthLoading === 'google'}
+              disabled={loading || oauthLoading !== null}
+            />
+            <AuthSocialButton
+              provider="github"
+              compact
+              onClick={handleGithubSignup}
+              loading={oauthLoading === 'github'}
+              disabled={loading || oauthLoading !== null}
+            />
+          </div>
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading || oauthLoading !== null || checkingUsername}
-          className="w-full py-2.5 sm:py-3 bg-[#ffd43b] hover:bg-[#fcc419] text-[#0c1d2d] border border-amber-400/60 rounded-xl font-semibold text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
-        >
-          <span>{loading ? 'Creating Account...' : 'Create Account'}</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </form>
+        {/* ======================================================= */}
+        {/* RIGHT: COMPACT LIVE PREVIEW CARD                        */}
+        {/* ======================================================= */}
+        <aside className="lg:col-span-3 w-full">
+          <div className="bg-[#0c1d2d]/90 border border-slate-800 hover:border-[#ffd43b]/40 rounded-2xl p-5 shadow-xl relative overflow-hidden transition-all group">
+            {/* Subtle top indicator */}
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ffd43b]/30 to-transparent" />
 
-      {/* Divider */}
-      <div className="my-5 flex items-center gap-3">
-        <div className="flex-1 h-px bg-slate-200" />
-        <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
-          Or sign up with
-        </span>
-        <div className="flex-1 h-px bg-slate-200" />
-      </div>
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-800/80 mb-5">
+              <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                LIVE PREVIEW
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#ffd43b]/10 border border-[#ffd43b]/30 text-[#ffd43b] font-mono text-[10px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ffd43b] animate-pulse" />
+                ACTIVE
+              </span>
+            </div>
 
-      {/* OAuth Buttons */}
-      <div className="space-y-2">
-        <button
-          type="button"
-          onClick={handleGoogleSignup}
-          disabled={loading || oauthLoading !== null}
-          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl font-medium text-xs text-slate-700 shadow-2xs transition-colors cursor-pointer flex items-center justify-between"
-        >
-          <div className="flex items-center gap-2.5">
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="#4285F4"
-                d="M21.35 12.27c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.21z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 21.82c2.63 0 4.84-.87 6.45-2.35l-3.14-2.44c-.87.58-1.98.92-3.31.92-2.55 0-4.72-1.72-5.5-4.04H3.25v2.52A9.74 9.74 0 0 0 12 21.82z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M6.5 13.91A5.86 5.86 0 0 1 6.2 12c0-.66.11-1.3.3-1.91V7.57H3.25A9.82 9.82 0 0 0 2.18 12c0 1.59.38 3.09 1.07 4.43L6.5 13.91z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 6.05c1.43 0 2.72.49 3.74 1.46l2.8-2.8C16.84 3.15 14.63 2.18 12 2.18a9.74 9.74 0 0 0-8.75 5.39L6.5 10.09C7.28 7.77 9.45 6.05 12 6.05z"
-              />
-            </svg>
-            <span>{oauthLoading === 'google' ? 'Connecting...' : 'Continue with Google'}</span>
+            {/* Profile Monogram & Handle */}
+            <div className="flex items-center gap-3.5 mb-5">
+              <div className="w-12 h-12 rounded-xl bg-[#071a2b] border border-[#ffd43b]/40 flex items-center justify-center font-display font-black text-base text-[#ffd43b] shadow-inner shrink-0">
+                {displayInitials}
+              </div>
+
+              <div className="min-w-0">
+                <div className="font-mono text-sm font-bold text-white truncate">
+                  @{displayHandle}
+                </div>
+                <div className="flex items-center gap-1.5 mt-0.5 font-mono text-[11px]">
+                  <span className="text-[#ffd43b] font-bold">LVL 01</span>
+                  <span className="text-slate-600">•</span>
+                  <span className="text-slate-400">Rookie</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-2 py-3 px-2 bg-[#071a2b]/80 border border-slate-800 rounded-xl mb-5 font-mono text-center">
+              <div>
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider">RANK</div>
+                <div className="text-xs font-bold text-slate-300 mt-0.5">—</div>
+              </div>
+
+              <div>
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider">XP</div>
+                <div className="text-xs font-bold text-[#ffd43b] mt-0.5">0</div>
+              </div>
+
+              <div>
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider">STREAK</div>
+                <div className="text-xs font-bold text-slate-300 mt-0.5">0</div>
+              </div>
+            </div>
+
+            {/* Bottom Status */}
+            <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between font-mono text-[11px]">
+              <span className="flex items-center gap-1.5 text-emerald-400 font-semibold tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                READY TO COMPETE.
+              </span>
+            </div>
           </div>
-          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-        </button>
-
-        <button
-          type="button"
-          onClick={handleGithubSignup}
-          disabled={loading || oauthLoading !== null}
-          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl font-medium text-xs text-slate-700 shadow-2xs transition-colors cursor-pointer flex items-center justify-between"
-        >
-          <div className="flex items-center gap-2.5">
-            <svg className="w-4 h-4 shrink-0 text-slate-900 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.25c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.17.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57A12 12 0 0 0 12 .5z" />
-            </svg>
-            <span>{oauthLoading === 'github' ? 'Connecting...' : 'Continue with GitHub'}</span>
-          </div>
-          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-        </button>
+        </aside>
       </div>
-
-      {/* Switch to Login */}
-      <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
-        <span className="text-xs text-slate-500">
-          Already on Apticks?
-        </span>
-        <Link
-          to="/login"
-          className="text-xs font-semibold text-[#0c1d2d] hover:text-blue-600 transition-colors flex items-center gap-1"
-        >
-          Sign in →
-        </Link>
-      </div>
-    </AuthShell>
+    </AuthBackground>
   )
 }

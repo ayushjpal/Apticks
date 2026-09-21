@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react'
+import { Mail, ArrowRight, ArrowLeft, HelpCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import AuthShell from '../../components/auth/AuthShell'
+import AuthBackground from '../../components/auth/AuthBackground'
+import AuthInput from '../../components/auth/AuthInput'
+import AuthPrimaryButton from '../../components/auth/AuthPrimaryButton'
+import AuthAlert from '../../components/auth/AuthAlert'
 
 export default function ForgotPassword() {
   const [identifier, setIdentifier] = useState('')
@@ -66,83 +69,139 @@ export default function ForgotPassword() {
   }
 
   return (
-    <AuthShell
-      eyebrow="Account Recovery"
-      title="Forgot Password?"
-      subtitle="Enter your username or verified email connected to your Apticks account to receive a reset link."
-      showBrandFeatures={false}
-    >
-      {/* Error notification */}
-      {error && (
-        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-medium flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Success notification */}
-      {success && (
-        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-start gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
-          <span>{success}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleResetPassword} className="space-y-4">
-        <div>
-          <label
-            htmlFor="forgot-identifier"
-            className="block mb-1.5 text-xs font-semibold tracking-wider text-slate-700 uppercase"
+    <AuthBackground
+      variant="forgot"
+      navRight={
+        <div className="flex items-center gap-1.5 font-mono text-xs text-slate-400">
+          <span className="hidden sm:inline">Remember your password?</span>
+          <Link
+            to="/login"
+            className="font-display font-semibold text-[#ffd43b] hover:text-[#facc15] transition-colors inline-flex items-center gap-1"
           >
-            Username or Email
-          </label>
-          <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-xs focus-within:border-[#0c1d2d] focus-within:ring-1 focus-within:ring-[#0c1d2d] overflow-hidden transition-all">
-            <span className="px-3 py-2.5 border-r border-slate-200 bg-slate-50 text-slate-500 font-semibold text-xs flex items-center">
-              <Mail className="w-3.5 h-3.5 text-slate-400 mr-1" />
-              @
-            </span>
-            <input
-              id="forgot-identifier"
-              type="text"
-              placeholder="e.g. your_username or you@gmail.com"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              autoComplete="username"
-              autoFocus
-              className="w-full py-2.5 px-3 outline-none font-medium text-sm bg-transparent placeholder:text-slate-400 text-slate-900"
-            />
+            <span>Sign in</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      }
+    >
+      <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+        {/* ======================================================= */}
+        {/* LEFT: EDITORIAL SECTION                                 */}
+        {/* ======================================================= */}
+        <div className="lg:col-span-6 flex flex-col justify-center">
+          <div className="font-mono text-xs sm:text-sm tracking-[0.25em] text-[#ffd43b]/90 font-bold uppercase mb-3">
+            03
+          </div>
+          <div className="w-12 sm:w-16 h-px bg-slate-700/80 mb-6 sm:mb-8" />
+          <h1 className="font-display font-extrabold text-4xl sm:text-6xl lg:text-7xl text-white tracking-tight leading-[1.05]">
+            Recover<br />
+            <span className="text-[#ffd43b]">Access.</span>
+          </h1>
+          <p className="font-display text-base sm:text-lg font-semibold text-slate-200 mt-6 sm:mt-8 leading-relaxed max-w-md">
+            Enter your username or verified email to receive a reset link.
+          </p>
+        </div>
+
+        {/* ======================================================= */}
+        {/* RIGHT: RECOVERY CARD                                    */}
+        {/* ======================================================= */}
+        <div className="lg:col-span-6 flex justify-center lg:justify-end">
+          <div className="w-full max-w-[450px] bg-[#0c1d2d] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            {/* Top Subtle Amber/Cyan Line */}
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
+
+            {/* Central Recovery Visual: Envelope inside concentric circular geometry */}
+            <div className="flex justify-center mb-6">
+              <div className="relative w-24 h-24 flex items-center justify-center">
+                {/* Outermost circle */}
+                <div className="absolute inset-0 rounded-full border border-slate-700/50" />
+                {/* Middle circle */}
+                <div className="absolute inset-3 rounded-full border border-sky-400/25 bg-sky-500/[0.03]" />
+                {/* Inner circle */}
+                <div className="absolute inset-6 rounded-full border border-amber-400/20" />
+                {/* Center icon badge */}
+                <div className="w-10 h-10 rounded-xl bg-[#071a2b] border border-sky-400/40 flex items-center justify-center text-[#ffd43b] shadow-inner relative z-10">
+                  <Mail className="w-5 h-5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Error Alert */}
+            {error && <AuthAlert type="error" message={error} className="mb-4" />}
+
+            {/* Success State Visual */}
+            {success ? (
+              <div className="space-y-5">
+                <div className="p-4 bg-emerald-950/40 border border-emerald-800/60 rounded-xl">
+                  <div className="font-mono text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">
+                    CHECK YOUR EMAIL
+                  </div>
+                  <p className="font-sans text-xs text-slate-300 leading-relaxed">
+                    {success}
+                  </p>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    to="/login"
+                    className="w-full py-3.5 px-5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-display font-bold text-sm tracking-wider uppercase rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Back to Sign In</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              /* Reset Request Form */
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <AuthInput
+                  id="forgot-identifier"
+                  label="USERNAME OR EMAIL"
+                  icon={<Mail className="w-3.5 h-3.5" />}
+                  prefixText="@"
+                  placeholder="e.g. your_username or you@gmail.com"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  autoComplete="username"
+                  autoFocus
+                />
+
+                <div className="pt-2">
+                  <AuthPrimaryButton
+                    type="submit"
+                    disabled={loading}
+                    loading={loading}
+                    loadingText="Sending Link..."
+                  >
+                    Send Reset Link
+                  </AuthPrimaryButton>
+                </div>
+              </form>
+            )}
+
+            {/* Secondary Action: Back to sign in */}
+            {!success && (
+              <div className="mt-6 flex justify-center">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-white transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to sign in</span>
+                </Link>
+              </div>
+            )}
+
+            {/* Informative Security Guidance Note */}
+            <div className="mt-6 p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex items-start gap-2.5 text-xs text-slate-400 leading-relaxed">
+              <HelpCircle className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+              <p>
+                For accounts without a linked email, sign in using your username and password, then add a recovery email inside Profile settings.
+              </p>
+            </div>
           </div>
         </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2.5 sm:py-3 bg-[#ffd43b] hover:bg-[#fcc419] text-[#0c1d2d] border border-amber-400/60 rounded-xl font-semibold text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
-        >
-          <span>{loading ? 'Sending Link...' : 'Send Reset Link'}</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </form>
-
-      {/* Back to Sign In */}
-      <div className="mt-6 flex justify-center">
-        <Link
-          to="/login"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-[#0c1d2d] transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to sign in</span>
-        </Link>
       </div>
-
-      {/* Help info note */}
-      <div className="mt-6 p-3 bg-sky-50 border border-sky-200 rounded-xl flex items-start gap-2.5 text-xs text-sky-900 leading-relaxed">
-        <HelpCircle className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
-        <p>
-          For accounts without a linked email, sign in using your username and password, then add a recovery email inside Profile settings.
-        </p>
-      </div>
-    </AuthShell>
+    </AuthBackground>
   )
 }

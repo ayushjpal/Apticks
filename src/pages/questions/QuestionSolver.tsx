@@ -21,7 +21,7 @@ import { supabase } from '../../lib/supabase'
 import { QuestionService } from '../../services/questionService'
 import { ChallengeService } from '../../services/challengeService'
 import type { Question, UserQuestionProgress } from '../../types/questions'
-import { StatusBadge, NeoBadge } from '../../components/ui'
+import { StatusBadge } from '../../components/ui'
 import { useUserSession } from '../../contexts/UserSessionContext'
 
 export default function QuestionSolver() {
@@ -457,212 +457,152 @@ export default function QuestionSolver() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-5 animate-entry">
-        {/* ================================================= */}
-        {/* TOP BAR / NAVIGATION                              */}
-        {/* ================================================= */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#0c1d2d]/10">
-          <Link
-            to="/questions"
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-slate-50 border border-[#0c1d2d]/15 rounded-lg text-xs font-semibold text-slate-700 shadow-sm transition-colors"
+    <div className="space-y-3.5 sm:space-y-4 animate-entry">
+      {/* ================================================= */}
+      {/* TOP UTILITY BAR                                   */}
+      {/* ================================================= */}
+      <div className="flex items-center justify-between gap-3 pb-2.5 mb-1 border-b border-slate-800/60">
+        <Link
+          to="/questions"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors py-1 px-2 -ml-2 rounded hover:bg-slate-800/40"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+          <span>Problems</span>
+        </Link>
+
+        <div className="flex items-center gap-2">
+          {/* Stopwatch HUD */}
+          <div
+            className={`
+              px-2.5 py-1 rounded font-mono text-xs flex items-center gap-1.5 border transition-colors
+              ${
+                timerActive && !isSubmitted
+                  ? 'bg-slate-800/80 border-slate-700 text-slate-200'
+                  : 'bg-slate-800/40 border-slate-800 text-slate-400'
+              }
+            `}
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
-            <span>Back to Problem Directory</span>
-          </Link>
+            <Timer className="w-3.5 h-3.5 text-slate-400" />
+            <span>{formatTimer(timeSpent)}</span>
+          </div>
 
+          {/* Bookmark Button */}
+          <button
+            type="button"
+            onClick={handleToggleBookmark}
+            aria-label={isBookmarked ? 'Remove Bookmark' : 'Bookmark Question'}
+            className={`
+              p-1.5 rounded transition-colors cursor-pointer border
+              ${
+                isBookmarked
+                  ? 'bg-amber-400/10 border-amber-400/30 text-amber-400'
+                  : 'bg-slate-800/40 hover:bg-slate-800/80 border-slate-800 text-slate-400 hover:text-slate-200'
+              }
+            `}
+          >
+            <Bookmark
+              className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* ================================================= */}
+      {/* DAILY CHALLENGE BANNER (COMPACT)                  */}
+      {/* ================================================= */}
+      {isChallengeMode && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/25 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2.5 animate-entry">
           <div className="flex items-center gap-2.5">
-            {/* Stopwatch HUD */}
-            <div
-              className={`
-                px-3 py-1.5 border rounded-lg font-mono font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm
-                ${timerActive && !isSubmitted ? 'bg-amber-50 border-amber-300 text-amber-900' : 'bg-white border-[#0c1d2d]/15 text-slate-700'}
-              `}
-            >
-              <Timer className="w-3.5 h-3.5 text-slate-500" />
-              <span>{formatTimer(timeSpent)}</span>
+            <div className="w-7 h-7 rounded-md bg-[#0c1d2d] flex items-center justify-center shrink-0 border border-amber-400/30">
+              <Flame className="w-4 h-4 text-[#ffd43b] fill-[#ffd43b]" />
             </div>
-
-            {/* Bookmark Button */}
-            <button
-              type="button"
-              onClick={handleToggleBookmark}
-              aria-label={isBookmarked ? 'Remove Bookmark' : 'Bookmark Question'}
-              className={`
-                p-2 border rounded-lg shadow-sm transition-colors cursor-pointer
-                ${isBookmarked ? 'bg-amber-50 border-amber-300 text-amber-600' : 'bg-white hover:bg-slate-50 border-[#0c1d2d]/15 text-slate-600'}
-              `}
-            >
-              <Bookmark
-                className={`w-4 h-4 ${isBookmarked ? 'fill-amber-500 text-amber-500' : 'text-slate-600'}`}
-              />
-            </button>
+            <div>
+              <div className="font-bold text-xs sm:text-sm text-amber-200 leading-tight">
+                Daily Challenge Arena
+              </div>
+              <div className="text-[11px] text-slate-400">
+                Authoritative daily problem. First correct solve unlocks +50 Bonus XP & extends your streak.
+              </div>
+            </div>
+          </div>
+          <div className="bg-amber-400/15 text-amber-300 border border-amber-400/30 rounded px-2 py-0.5 font-mono text-xs font-bold">
+            +50 Bonus XP
           </div>
         </div>
+      )}
 
-        {/* ================================================= */}
-        {/* DAILY CHALLENGE BANNER                            */}
-        {/* ================================================= */}
-        {isChallengeMode && (
-          <div className="bg-gradient-to-r from-amber-50 via-amber-50/60 to-white border border-amber-200/80 rounded-xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 animate-entry">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#0c1d2d] flex items-center justify-center shrink-0">
-                <Flame className="w-5 h-5 text-[#ffd43b] fill-[#ffd43b]" />
-              </div>
-              <div>
-                <div className="font-bold text-sm text-slate-900 leading-tight">
-                  Daily Challenge Arena
-                </div>
-                <div className="text-xs text-slate-600 mt-0.5">
-                  Authoritative daily problem. First correct solve unlocks +50 Bonus XP & extends your streak.
-                </div>
+      {/* ================================================= */}
+      {/* TWO-COLUMN QUESTION + OPTIONS ARENA               */}
+      {/* ================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
+        {/* =============================================== */}
+        {/* 1. LEFT COLUMN: QUESTION HERO WORKSPACE (~58%)  */}
+        {/* =============================================== */}
+        <div className="order-1 lg:order-1 lg:col-span-7 flex flex-col gap-3">
+          <div className="bg-white border border-slate-200/90 rounded-xl shadow-xs p-5 sm:p-6 lg:p-7">
+            {/* Metadata Bar */}
+            <div className="flex flex-wrap items-center gap-2 mb-3.5">
+              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/80 uppercase tracking-wider font-mono">
+                {question.category}
+              </span>
+              <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200/60">
+                {question.topic}
+              </span>
+              <StatusBadge status={question.difficulty} density="xs" />
+
+              <div className="ml-auto flex items-center gap-1 font-mono text-xs font-semibold text-slate-500">
+                <Award className="w-3.5 h-3.5 text-amber-500" />
+                <span>{question.points} XP</span>
               </div>
             </div>
-            <div className="bg-rose-50 text-rose-700 border border-rose-200 rounded-md px-2.5 py-1 font-mono text-xs font-bold shadow-xs">
-              +50 Bonus XP
-            </div>
-          </div>
-        )}
 
-        {/* ================================================= */}
-        {/* TWO-COLUMN QUESTION + OPTIONS ARENA               */}
-        {/* ================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* =============================================== */}
-          {/* 1. LEFT COLUMN: QUESTION CARD (~60% width)      */}
-          {/* =============================================== */}
-          <div className="order-1 lg:order-1 lg:col-span-7 flex flex-col">
-            <div className="bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm p-6 sm:p-7">
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <NeoBadge variant="dark" density="xs">
-                  {question.category}
-                </NeoBadge>
-                <NeoBadge variant="outline" density="xs">
-                  {question.topic}
-                </NeoBadge>
-                <StatusBadge status={question.difficulty} density="xs" />
+            {/* Question Title */}
+            <h1 className="font-display font-bold text-xl sm:text-2xl text-slate-900 tracking-tight leading-snug">
+              {question.title}
+            </h1>
 
-                <div className="ml-auto flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200/70 rounded-md font-mono font-bold text-xs text-amber-900">
-                  <Award className="w-3.5 h-3.5 text-amber-600" />
-                  <span>{question.points} XP</span>
-                </div>
-              </div>
-
-              <h1 className="font-bold text-xl sm:text-2xl text-slate-900 tracking-tight leading-tight">
-                {question.title}
-              </h1>
-
-              <div className="mt-4 pt-4 border-t border-slate-100 font-normal text-base text-slate-800 leading-relaxed whitespace-pre-line break-words">
-                {question.prompt}
-              </div>
+            {/* Question Prompt */}
+            <div className="mt-4 pt-4 border-t border-slate-100 font-sans text-base sm:text-lg text-slate-800 leading-relaxed sm:leading-relaxed whitespace-pre-line break-words selection:bg-amber-100">
+              {question.prompt}
             </div>
           </div>
 
-          {/* =============================================== */}
-          {/* 2. RIGHT COLUMN: OPTIONS CARD (~40% width)      */}
-          {/* =============================================== */}
-          <section
-            aria-label="Options"
-            className="order-2 lg:order-2 lg:col-span-5 bg-white border border-[#0c1d2d]/12 rounded-xl shadow-sm p-6 sm:p-7 flex flex-col justify-between"
-          >
-            <div>
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3.5">
-                Select Your Answer:
-              </div>
-
-              <div className="grid grid-cols-1 gap-2.5">
-                {question.options.map((opt) => {
-                  const isSelected = selectedOption === opt.id
-                  const effectiveCorrect = authoritativeCorrectOption || question.correctOption
-                  const isCorrectOption = opt.id === effectiveCorrect
-
-                  let cardStyle = 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
-
-                  if (isSubmitted) {
-                    if (isCorrectOption) {
-                      cardStyle = 'bg-emerald-50/90 border-emerald-300 text-emerald-950'
-                    } else if (isSelected && !isCorrectOption) {
-                      cardStyle = 'bg-rose-50/90 border-rose-300 text-rose-950'
-                    } else {
-                      cardStyle = 'bg-slate-50/60 border-slate-200 opacity-60'
-                    }
-                  } else if (isSelected) {
-                    cardStyle = 'bg-amber-50/70 border-amber-400 ring-1 ring-amber-400/60 text-slate-900'
-                  }
-
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      disabled={isSubmitted}
-                      aria-pressed={isSelected}
-                      onClick={() => setSelectedOption(opt.id)}
-                      className={`
-                        p-3 sm:p-3.5 rounded-xl border ${cardStyle}
-                        flex items-center justify-between text-left transition-colors cursor-pointer
-                      `}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`
-                            w-7 h-7 rounded-md border flex items-center justify-center font-mono font-bold text-xs shrink-0
-                            ${isSelected ? 'bg-[#0c1d2d] text-white border-[#0c1d2d]' : 'bg-slate-100 text-slate-700 border-slate-200'}
-                          `}
-                        >
-                          {opt.id}
-                        </span>
-                        <span className="font-medium text-sm text-slate-900 leading-snug">
-                          {opt.text}
-                        </span>
-                      </div>
-
-                      {isSubmitted && isCorrectOption && (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                      )}
-                      {isSubmitted && isSelected && !isCorrectOption && (
-                        <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </section>
-
-          {/* =============================================== */}
-          {/* 3. HINT & SCRATCHPAD CONTROLS & DRAWERS         */}
-          {/* (Desktop: Col 1-7, Mobile: order-3)             */}
-          {/* =============================================== */}
-          <div className="order-3 lg:order-3 lg:col-span-7 flex flex-col gap-3">
+          {/* Secondary Utilities: Hint & Scratchpad */}
+          <div className="flex flex-col gap-2.5">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setShowHint(!showHint)}
-                className={`px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs ${
-                  showHint ? 'bg-amber-50 border-amber-300 text-amber-900' : 'bg-white hover:bg-slate-50 border-[#0c1d2d]/15 text-slate-700'
+                className={`px-2.5 py-1 border rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  showHint
+                    ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+                    : 'bg-slate-800/40 hover:bg-slate-800/70 border-slate-700/50 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-                <span>{showHint ? 'Hide Hint' : 'Need a Hint?'}</span>
+                <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                <span>{showHint ? 'Hide Hint' : 'Hint'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowScratchpad(!showScratchpad)}
-                className={`px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs ${
-                  showScratchpad ? 'bg-sky-50 border-sky-300 text-sky-900' : 'bg-white hover:bg-slate-50 border-[#0c1d2d]/15 text-slate-700'
+                className={`px-2.5 py-1 border rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  showScratchpad
+                    ? 'bg-sky-950/40 border-sky-500/40 text-sky-300'
+                    : 'bg-slate-800/40 hover:bg-slate-800/70 border-slate-700/50 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+                <Edit3 className="w-3.5 h-3.5 text-slate-400" />
                 <span>Scratchpad</span>
               </button>
             </div>
 
             {/* Hint Drawer */}
             {showHint && question.hints && question.hints.length > 0 && (
-              <div className="p-4 bg-amber-50/60 border border-amber-200/80 rounded-xl shadow-xs animate-entry">
+              <div className="p-3.5 bg-amber-50/70 border border-amber-200/80 rounded-xl shadow-xs animate-entry">
                 <div className="flex items-center gap-2 font-bold text-xs text-amber-900 mb-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-600" />
-                  <span>Problem Hints:</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Problem Hints</span>
                 </div>
                 <ul className="space-y-1 list-disc list-inside font-normal text-xs sm:text-sm text-slate-800 leading-relaxed">
                   {question.hints.map((hintText, idx) => (
@@ -674,176 +614,248 @@ export default function QuestionSolver() {
 
             {/* Scratchpad Drawer */}
             {showScratchpad && (
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl shadow-xs animate-entry">
-                <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-200">
-                  <span className="font-semibold text-xs text-slate-800">
-                    Rough Calculation Scratchpad
+              <div className="p-3.5 bg-white border border-slate-200 rounded-xl shadow-xs animate-entry">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+                  <span className="font-semibold text-xs text-slate-700">
+                    Calculation Scratchpad
                   </span>
-                  <span className="font-mono text-[10px] text-slate-500">
-                    Persisted in current session only
+                  <span className="font-mono text-[10px] text-slate-400">
+                    Session notes only
                   </span>
                 </div>
                 <textarea
                   value={scratchpadNotes}
                   onChange={(e) => setScratchpadNotes(e.target.value)}
                   placeholder="Jot down rough calculations, formulas, or step-by-step logic here..."
-                  rows={4}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-lg font-mono text-xs text-slate-800 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                  rows={3}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs text-slate-800 outline-none focus:border-sky-400 focus:bg-white focus:ring-1 focus:ring-sky-400 transition-colors"
                 />
               </div>
             )}
           </div>
+        </div>
 
-          {/* =============================================== */}
-          {/* 4. SUBMIT / NEXT PROBLEM ACTION                 */}
-          {/* (Desktop: Col 8-12, Mobile: order-4)            */}
-          {/* =============================================== */}
-          <div className="order-4 lg:order-4 lg:col-span-5">
-            {!isSubmitted ? (
-              <button
-                type="button"
-                onClick={handleSubmitAnswer}
-                disabled={!selectedOption || isSubmitting}
-                className="w-full py-3 px-6 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-xl shadow-xs font-bold text-sm tracking-wide transition-all active:scale-[0.99] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <span>{isSubmitting ? 'Verifying Solution...' : 'Submit Answer'}</span>
-                <CheckCircle2 className="w-4 h-4" />
-              </button>
-            ) : (
-              <div className="flex items-center gap-2.5">
-                {/* Re-attempt button: Only show for normal practice questions OR if daily challenge attempt was incorrect */}
-                {(!isChallengeMode || !isCorrect) && (
+        {/* =============================================== */}
+        {/* 2. RIGHT COLUMN: OPTIONS & SUBMIT (~42%)        */}
+        {/* =============================================== */}
+        <div className="order-2 lg:order-2 lg:col-span-5 flex flex-col gap-3">
+          <section
+            aria-label="Options"
+            className="bg-white border border-slate-200/90 rounded-xl shadow-xs p-5 sm:p-6 flex flex-col"
+          >
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono mb-3">
+              Answer Choices
+            </div>
+
+            <div className="grid grid-cols-1 gap-2.5">
+              {question.options.map((opt) => {
+                const isSelected = selectedOption === opt.id
+                const effectiveCorrect = authoritativeCorrectOption || question.correctOption
+                const isCorrectOption = opt.id === effectiveCorrect
+
+                let cardStyle = 'bg-slate-50/50 hover:bg-slate-100/70 border-slate-200/80 text-slate-800'
+
+                if (isSubmitted) {
+                  if (isCorrectOption) {
+                    cardStyle = 'bg-emerald-50/90 border-emerald-400 text-emerald-950 ring-1 ring-emerald-400'
+                  } else if (isSelected && !isCorrectOption) {
+                    cardStyle = 'bg-rose-50/90 border-rose-400 text-rose-950 ring-1 ring-rose-400'
+                  } else {
+                    cardStyle = 'bg-slate-50/40 border-slate-200/60 opacity-50 cursor-default'
+                  }
+                } else if (isSelected) {
+                  cardStyle = 'bg-amber-50/90 border-amber-400 ring-2 ring-amber-400/40 text-slate-900 shadow-xs'
+                }
+
+                return (
                   <button
+                    key={opt.id}
                     type="button"
-                    onClick={() => {
-                      setIsSubmitted(false)
-                      setIsCorrect(null)
-                      setSelectedOption(null)
-                      setTimerActive(true)
-                    }}
-                    className="px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors"
+                    disabled={isSubmitted}
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedOption(opt.id)}
+                    className={`
+                      p-3 rounded-lg border ${cardStyle}
+                      flex items-center justify-between text-left transition-all cursor-pointer select-none
+                    `}
                   >
-                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Re-attempt</span>
-                  </button>
-                )}
-
-                {isChallengeMode ? (
-                  <button
-                    type="button"
-                    onClick={() => navigate('/dashboard')}
-                    className="flex-1 py-2.5 px-4 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span>Return to Dashboard</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleNextQuestion}
-                    className="flex-1 py-2.5 px-4 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400/80 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span>Next Problem</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* =============================================== */}
-          {/* 5. EXPLANATION & SUMMARY (AFTER SUBMIT)         */}
-          {/* (Desktop: Col 1-12 full width, Mobile: order-5) */}
-          {/* =============================================== */}
-          {isSubmitted && (
-            <div
-              className={`
-                order-5 lg:order-5 lg:col-span-12 p-5 sm:p-6 border rounded-xl shadow-sm animate-entry
-                ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'}
-              `}
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3.5 border-b border-slate-200">
-                <div className="flex items-center gap-2.5">
-                  {isCorrect ? (
-                    <>
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                      <div>
-                        <span className="font-bold text-base text-emerald-950">
-                          {xpResult && xpResult.xpChange === 0
-                            ? 'Correct Reattempt! (+0 XP — Already Earned)'
-                            : `Correct Solution! +${xpResult?.xpChange ?? question.points} XP Earned`}
-                        </span>
-                        {xpResult?.xpReason && (
-                          <div className="font-mono text-xs text-emerald-800">
-                            {xpResult.xpReason}
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
-                      <div>
-                        <span className="font-bold text-base text-rose-950">
-                          Incorrect Attempt • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP Penalty
-                        </span>
-                        <div className="font-mono text-xs text-rose-800">
-                          Correct Answer is Option {authoritativeCorrectOption || question.correctOption}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Question-Specific Attempt Breakdown */}
-                <div className="flex items-center gap-2.5">
-                  {questionAttemptStats && (
-                    <div className="flex items-center gap-2 font-mono text-xs bg-white px-2.5 py-1 border border-slate-200 rounded-md shadow-xs">
-                      <span className="text-slate-600">Attempts: {questionAttemptStats.totalAttempts}</span>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-emerald-600 font-semibold">Correct: {questionAttemptStats.correctCount}</span>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-rose-600 font-semibold">Incorrect: {questionAttemptStats.incorrectCount}</span>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`
+                          w-6 h-6 rounded border flex items-center justify-center font-mono font-bold text-xs shrink-0 transition-colors
+                          ${
+                            isSelected
+                              ? 'bg-[#0c1d2d] text-[#ffd43b] border-[#0c1d2d]'
+                              : 'bg-white text-slate-600 border-slate-300/80'
+                          }
+                        `}
+                      >
+                        {opt.id}
+                      </span>
+                      <span className="font-medium text-sm leading-snug">
+                        {opt.text}
+                      </span>
                     </div>
-                  )}
-                  <div className="font-mono text-xs font-semibold text-slate-600">
-                    Solve Time: {formatTimer(timeSpent)}
-                  </div>
-                </div>
-              </div>
 
-              <div className="p-4 bg-white border border-slate-200/80 rounded-xl font-normal text-xs sm:text-sm text-slate-800 leading-relaxed">
-                <div className="font-bold text-xs uppercase tracking-wider text-slate-700 mb-1.5">
-                  Step-by-Step Mathematical Solution:
-                </div>
-                <div className="whitespace-pre-line">{authoritativeExplanation || question.explanation}</div>
+                    {isSubmitted && isCorrectOption && (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    )}
+                    {isSubmitted && isSelected && !isCorrectOption && (
+                      <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
 
-                {question.formulaOrRule && (
-                  <div className="mt-3 p-2.5 bg-amber-50/60 border border-amber-200/60 rounded-md font-mono text-xs font-medium text-amber-950 flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>Formula / Key Principle: {question.formulaOrRule}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Question Tags */}
-              {question.tags && question.tags.length > 0 && (
-                <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-slate-400" />
-                  {question.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono text-[11px]"
+            {/* Primary Action Button (Directly follows Answer Choices) */}
+            <div className="mt-4 pt-3.5 border-t border-slate-100">
+              {!isSubmitted ? (
+                <button
+                  type="button"
+                  onClick={handleSubmitAnswer}
+                  disabled={!selectedOption || isSubmitting}
+                  className="w-full py-2.5 px-5 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400 rounded-lg shadow-xs font-bold text-sm tracking-wide transition-all active:scale-[0.99] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <span>{isSubmitting ? 'Verifying Solution...' : 'Submit Answer'}</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {(!isChallengeMode || !isCorrect) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSubmitted(false)
+                        setIsCorrect(null)
+                        setSelectedOption(null)
+                        setTimerActive(true)
+                      }}
+                      className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors"
                     >
-                      #{tag}
-                    </span>
-                  ))}
+                      <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Re-attempt</span>
+                    </button>
+                  )}
+
+                  {isChallengeMode ? (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/dashboard')}
+                      className="flex-1 py-2 px-4 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400 rounded-lg font-bold text-xs sm:text-sm tracking-wide shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                    >
+                      <span>Return to Dashboard</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleNextQuestion}
+                      className="flex-1 py-2 px-4 bg-[#ffd43b] hover:bg-[#facb15] text-[#0c1d2d] border border-amber-400 rounded-lg font-bold text-xs sm:text-sm tracking-wide shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                    >
+                      <span>Next Problem</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               )}
             </div>
-          )}
+          </section>
         </div>
+
+        {/* =============================================== */}
+        {/* 3. EXPLANATION & SUMMARY (AFTER SUBMIT)         */}
+        {/* (Spans full width Col 1-12 below both columns)  */}
+        {/* =============================================== */}
+        {isSubmitted && (
+          <div
+            className={`
+              order-3 lg:col-span-12 p-5 sm:p-6 border rounded-xl shadow-xs animate-entry
+              ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'}
+            `}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3.5 border-b border-slate-200/80">
+              <div className="flex items-center gap-2.5">
+                {isCorrect ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <span className="font-bold text-base text-emerald-950">
+                        {xpResult && xpResult.xpChange === 0
+                          ? 'Correct Reattempt! (+0 XP — Already Earned)'
+                          : `Correct Solution! +${xpResult?.xpChange ?? question.points} XP Earned`}
+                      </span>
+                      {xpResult?.xpReason && (
+                        <div className="font-mono text-xs text-emerald-800">
+                          {xpResult.xpReason}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
+                    <div>
+                      <span className="font-bold text-base text-rose-950">
+                        Incorrect Attempt • {xpResult?.xpChange ?? -Math.max(1, Math.round(question.points * 0.25))} XP Penalty
+                      </span>
+                      <div className="font-mono text-xs text-rose-800">
+                        Correct Answer is Option {authoritativeCorrectOption || question.correctOption}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Question-Specific Attempt Breakdown */}
+              <div className="flex items-center gap-2.5">
+                {questionAttemptStats && (
+                  <div className="flex items-center gap-2 font-mono text-xs bg-white px-2.5 py-1 border border-slate-200 rounded-md shadow-xs">
+                    <span className="text-slate-600">Attempts: {questionAttemptStats.totalAttempts}</span>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-emerald-600 font-semibold">Correct: {questionAttemptStats.correctCount}</span>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-rose-600 font-semibold">Incorrect: {questionAttemptStats.incorrectCount}</span>
+                  </div>
+                )}
+                <div className="font-mono text-xs font-semibold text-slate-600">
+                  Solve Time: {formatTimer(timeSpent)}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-white border border-slate-200/80 rounded-xl font-normal text-xs sm:text-sm text-slate-800 leading-relaxed">
+              <div className="font-bold text-xs uppercase tracking-wider text-slate-700 mb-1.5">
+                Step-by-Step Mathematical Solution:
+              </div>
+              <div className="whitespace-pre-line">{authoritativeExplanation || question.explanation}</div>
+
+              {question.formulaOrRule && (
+                <div className="mt-3 p-2.5 bg-amber-50/60 border border-amber-200/60 rounded-md font-mono text-xs font-medium text-amber-950 flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Formula / Key Principle: {question.formulaOrRule}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Question Tags */}
+            {question.tags && question.tags.length > 0 && (
+              <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-slate-400" />
+                {question.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono text-[11px]"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
+    </div>
   )
 }
 
