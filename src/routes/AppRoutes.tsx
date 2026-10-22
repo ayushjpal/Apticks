@@ -1,10 +1,11 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
-import { Routes, Route, Navigate, Link } from 'react-router-dom'
+import { Routes, Route, Navigate, Link, Outlet } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import AppLayout from '../components/layout/AppLayout'
 import { UserSessionProvider } from '../contexts/UserSessionContext'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
 import { RouteSkeleton, ArenaSkeleton, AuthSkeleton } from '../components/ui/RouteSkeleton'
+import { ArenaErrorBoundary } from '../components/ui/ArenaErrorBoundary'
 
 // -----------------------------
 // Public & Authentication Pages (Lazy Loaded)
@@ -151,10 +152,20 @@ export default function AppRoutes() {
         <Route path="/profile/:username" element={<PublicProfile />} />
       </Route>
 
-      {/* Immersion Full-Screen Arenas (Independent HUDs outside AppLayout) */}
-      <Route path="/contests/:id/arena" element={<Suspense fallback={<ArenaSkeleton />}><ContestArena /></Suspense>} />
-      <Route path="/1v1/:matchId" element={<Suspense fallback={<ArenaSkeleton />}><Match1v1Lobby /></Suspense>} />
-      <Route path="/1v1/:matchId/battle" element={<Suspense fallback={<ArenaSkeleton />}><Match1v1Arena /></Suspense>} />
+      {/* Immersion Full-Screen Arenas (Independent HUDs outside AppLayout, with UserSession Context & Error Boundary) */}
+      <Route
+        element={
+          <UserSessionProvider>
+            <ArenaErrorBoundary>
+              <Outlet />
+            </ArenaErrorBoundary>
+          </UserSessionProvider>
+        }
+      >
+        <Route path="/contests/:id/arena" element={<Suspense fallback={<ArenaSkeleton />}><ContestArena /></Suspense>} />
+        <Route path="/1v1/:matchId" element={<Suspense fallback={<ArenaSkeleton />}><Match1v1Lobby /></Suspense>} />
+        <Route path="/1v1/:matchId/battle" element={<Suspense fallback={<ArenaSkeleton />}><Match1v1Arena /></Suspense>} />
+      </Route>
 
       {/* Staff Control Center Routes (Protected) */}
       <Route

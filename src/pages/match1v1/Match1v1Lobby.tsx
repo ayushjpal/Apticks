@@ -22,8 +22,9 @@ import { supabase } from '../../lib/supabase'
 import { Match1v1Service } from '../../services/match1v1Service'
 import type { Match1v1, Match1v1Question } from '../../types/match1v1'
 import type { RealtimeChannel } from '@supabase/supabase-js'
+import { ArenaErrorBoundary } from '../../components/ui/ArenaErrorBoundary'
 
-export default function Match1v1Lobby() {
+function Match1v1LobbyContent() {
   const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
 
@@ -58,11 +59,17 @@ export default function Match1v1Lobby() {
         return
       }
 
+      // If match is already in_progress or completed, immediately transition to Battle Arena!
+      if (res.match.status === 'in_progress' || res.match.status === 'completed') {
+        navigate(`/1v1/${id}/battle`, { replace: true })
+        return
+      }
+
       setMatch(res.match)
       setErrorMessage(null)
 
-      // If match is accepted or in_progress, also fetch sanitized questions (anti-cheat verified)
-      if (['accepted', 'in_progress', 'completed'].includes(res.match.status)) {
+      // If match is accepted, also fetch sanitized questions (anti-cheat verified)
+      if (res.match.status === 'accepted') {
         const qRes = await Match1v1Service.getMatchQuestions(id)
         if (qRes.success && qRes.questions) {
           setQuestions(qRes.questions)
@@ -73,7 +80,7 @@ export default function Match1v1Lobby() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [navigate])
 
   useEffect(() => {
     let isMounted = true
@@ -102,7 +109,7 @@ export default function Match1v1Lobby() {
   }, [matchId, navigate, fetchMatchData])
 
   // ----------------------------------------------------------------------------
-  // 2. Realtime Synchronization
+  // 2. Realtime Synchronization & Polling Fallback
   // ----------------------------------------------------------------------------
   useEffect(() => {
     if (!matchId) return
@@ -119,9 +126,9 @@ export default function Match1v1Lobby() {
           }
         })
 
-        // If match transitioned to in_progress, transition to Battle Arena!
-        if (updatedRow.status === 'in_progress') {
-          navigate(`/1v1/${matchId}/battle`)
+        // If match transitioned to in_progress or completed, transition to Battle Arena!
+        if (updatedRow.status === 'in_progress' || updatedRow.status === 'completed') {
+          navigate(`/1v1/${matchId}/battle`, { replace: true })
           return
         }
 
@@ -130,12 +137,25 @@ export default function Match1v1Lobby() {
       }
     })
 
+    // Polling fallback while in lobby (every 2.5 seconds)
+    const lobbyPoll = setInterval(async () => {
+      const res = await Match1v1Service.getMatch(matchId)
+      if (res.success && res.match) {
+        if (res.match.status === 'in_progress' || res.match.status === 'completed') {
+          navigate(`/1v1/${matchId}/battle`, { replace: true })
+        } else if (res.match.status !== match?.status) {
+          setMatch(res.match)
+        }
+      }
+    }, 2500)
+
     return () => {
       if (realtimeSubRef.current) {
         supabase.removeChannel(realtimeSubRef.current)
       }
+      clearInterval(lobbyPoll)
     }
-  }, [matchId, fetchMatchData, navigate])
+  }, [matchId, fetchMatchData, navigate, match?.status])
 
   // ----------------------------------------------------------------------------
   // 3. Match Actions (Start, Accept, Decline, Cancel)
@@ -198,6 +218,22 @@ export default function Match1v1Lobby() {
         navigate('/1v1')
       } else {
         showToast(res.message || 'Failed to cancel challenge', 'error')
+      }
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleLeaveLobby = async () => {
+    if (!matchId || actionLoading) return
+    setActionLoading(true)
+    try {
+      const res = await Match1v1Service.leaveMatch(matchId)
+      if (res.success) {
+        showToast('Left match lobby. No XP deducted.')
+        navigate('/1v1')
+      } else {
+        showToast(res.message || 'Failed to leave match', 'error')
       }
     } finally {
       setActionLoading(false)
@@ -481,17 +517,27 @@ export default function Match1v1Lobby() {
                 </button>
               )}
 
-              {/* If Accepted: Start Match */}
+              {/* If Accepted: Start Match or Leave Lobby */}
               {isAccepted && (
-                <button
-                  type="button"
-                  disabled={actionLoading}
-                  onClick={handleStartBattle}
-                  className="w-full sm:w-auto px-6 py-3.5 bg-[#ffd43b] hover:bg-[#facc15] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#000] flex items-center justify-center gap-2 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer animate-pulse"
-                >
-                  <Swords className="w-4 h-4" />
-                  <span>START BATTLE NOW</span>
-                </button>
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    disabled={actionLoading}
+                    onClick={handleStartBattle}
+                    className="w-full sm:w-auto px-6 py-3.5 bg-[#ffd43b] hover:bg-[#facc15] text-black border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#000] flex items-center justify-center gap-2 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer animate-pulse"
+                  >
+                    <Swords className="w-4 h-4" />
+                    <span>START BATTLE NOW</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={actionLoading}
+                    onClick={handleLeaveLobby}
+                    className="w-full sm:w-auto px-4 py-3 bg-white/5 hover:bg-rose-500/10 text-slate-300 hover:text-rose-300 border border-white/10 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer"
+                  >
+                    LEAVE LOBBY
+                  </button>
+                </div>
               )}
 
               {/* If In Progress: Enter Battle Arena */}
@@ -563,5 +609,13 @@ export default function Match1v1Lobby() {
 
       </div>
     </div>
+  )
+}
+
+export default function Match1v1Lobby() {
+  return (
+    <ArenaErrorBoundary fallbackTitle="1v1 MATCH LOBBY ERROR">
+      <Match1v1LobbyContent />
+    </ArenaErrorBoundary>
   )
 }

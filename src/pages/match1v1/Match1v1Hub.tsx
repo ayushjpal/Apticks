@@ -259,7 +259,7 @@ export default function Match1v1Hub() {
       }
 
       if (res.status === 'matched' && res.match_id) {
-        showToast('Opponent matched! Entering battle lobby...')
+        showToast(res.message || 'Opponent matched! Entering battle lobby...')
         setIsQueuing(false)
         navigate(`/1v1/${res.match_id}`)
         return
@@ -297,13 +297,40 @@ export default function Match1v1Hub() {
     }
   }, [isQueuing])
 
-  // Realtime listener for matchmaking queue resolution
+  // Realtime & Polling listener for matchmaking queue resolution
   useEffect(() => {
     if (!currentUserId || !isQueuing) return
 
-    let sub: RealtimeChannel | null = null
+    let matchSub: RealtimeChannel | null = null
+    let notifSub: RealtimeChannel | null = null
 
-    sub = supabase
+    // 1. Listen for match_ready notification delivered privately to this user
+    notifSub = supabase
+      .channel(`queue_notifs_${currentUserId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        (payload) => {
+          const newNotif = payload.new as {
+            type: string
+            data?: { match_id?: string }
+          }
+          if (newNotif.type === 'match_ready' && newNotif.data?.match_id) {
+            setIsQueuing(false)
+            showToast('Match found! Entering battle lobby...')
+            navigate(`/1v1/${newNotif.data.match_id}`)
+          }
+        }
+      )
+      .subscribe()
+
+    // 2. Listen for matches_1v1 INSERT where user is a participant
+    matchSub = supabase
       .channel(`queue_matches_${currentUserId}`)
       .on(
         'postgres_changes',
@@ -321,7 +348,7 @@ export default function Match1v1Hub() {
           }
           if (
             (newMatch.challenger_id === currentUserId || newMatch.opponent_id === currentUserId) &&
-            newMatch.status === 'accepted'
+            (newMatch.status === 'accepted' || newMatch.status === 'in_progress')
           ) {
             setIsQueuing(false)
             showToast('Match found! Entering battle lobby...')
@@ -331,21 +358,22 @@ export default function Match1v1Hub() {
       )
       .subscribe()
 
-    // Also poll every 3 seconds while in queue
+    // 3. Fallback active polling every 2 seconds while searching
     const pollInterval = setInterval(async () => {
       if (!isQueuing) return
       const res = await Match1v1Service.getMyChallenges()
       if (res.success && res.data && res.data.active.length > 0) {
         const latest = res.data.active[0]
-        if (latest.status === 'accepted') {
+        if (latest.status === 'accepted' || latest.status === 'in_progress') {
           setIsQueuing(false)
           navigate(`/1v1/${latest.id}`)
         }
       }
-    }, 3000)
+    }, 2000)
 
     return () => {
-      if (sub) supabase.removeChannel(sub)
+      if (notifSub) supabase.removeChannel(notifSub)
+      if (matchSub) supabase.removeChannel(matchSub)
       clearInterval(pollInterval)
     }
   }, [currentUserId, isQueuing, navigate, showToast])

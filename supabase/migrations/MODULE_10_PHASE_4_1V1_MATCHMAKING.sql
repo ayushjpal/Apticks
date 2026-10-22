@@ -569,6 +569,8 @@ DECLARE
   v_match_id UUID;
   v_queue_id UUID;
   v_valid_category TEXT;
+  v_effective_category TEXT;
+  v_existing_active RECORD;
   v_q RECORD;
   v_order INTEGER := 1;
 BEGIN
@@ -576,15 +578,7 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'UNAUTHORIZED', 'message', 'Authentication required.');
   END IF;
 
-  -- Reject if caller has an active match in progress or accepted
-  IF EXISTS (
-    SELECT 1 FROM public.matches_1v1
-    WHERE (challenger_id = v_caller_id OR opponent_id = v_caller_id)
-      AND status IN ('in_progress', 'accepted')
-  ) THEN
-    RETURN jsonb_build_object('success', false, 'error', 'ACTIVE_MATCH_EXISTS', 'message', 'Cannot enter queue while in an active match.');
-  END IF;
-
+  -- 1. Validate & sanitize configurations
   IF p_question_count NOT IN (3, 5, 10) THEN
     p_question_count := 5;
   END IF;
@@ -595,29 +589,89 @@ BEGIN
 
   v_valid_category := COALESCE(NULLIF(TRIM(p_category), ''), 'All Topics');
 
+  -- 2. Stale queue cleanup: purge unrefreshed queue entries older than 3 minutes
+  DELETE FROM public.matchmaking_queue
+  WHERE created_at < NOW() - INTERVAL '3 minutes';
+
+  -- 3. Stale / abandoned match cleanup for caller:
+  -- Auto-abandon accepted matches older than 5 minutes that never started
+  UPDATE public.matches_1v1
+  SET status = 'abandoned', updated_at = NOW()
+  WHERE (challenger_id = v_caller_id OR opponent_id = v_caller_id)
+    AND status = 'accepted'
+    AND created_at < NOW() - INTERVAL '5 minutes';
+
+  -- Auto-finalize in_progress matches that exceeded deadline
+  UPDATE public.matches_1v1
+  SET status = 'completed', completed_at = NOW(), updated_at = NOW()
+  WHERE (challenger_id = v_caller_id OR opponent_id = v_caller_id)
+    AND status = 'in_progress'
+    AND NOW() > started_at + ((question_count * time_per_question_seconds + 15) * INTERVAL '1 second');
+
+  -- 4. Check if caller already has an active, live match in progress
+  SELECT id, status INTO v_existing_active
+  FROM public.matches_1v1
+  WHERE (challenger_id = v_caller_id OR opponent_id = v_caller_id)
+    AND status IN ('in_progress', 'accepted')
+  ORDER BY updated_at DESC
+  LIMIT 1;
+
+  IF v_existing_active.id IS NOT NULL THEN
+    -- Clean caller from queue if present and rejoin active match
+    DELETE FROM public.matchmaking_queue WHERE user_id = v_caller_id;
+    RETURN jsonb_build_object(
+      'success', true,
+      'status', 'matched',
+      'match_id', v_existing_active.id,
+      'message', 'You already have an active battle. Rejoining lobby.'
+    );
+  END IF;
+
   SELECT username INTO v_caller_username
   FROM public.profiles
   WHERE id = v_caller_id;
 
-  -- ----------------------------------------------------------------------------
-  -- Attempt to pair with an existing queued user (FOR UPDATE SKIP LOCKED)
-  -- ----------------------------------------------------------------------------
+  -- 5. Atomic compatible opponent lookup using FOR UPDATE SKIP LOCKED
   SELECT * INTO v_opponent
   FROM public.matchmaking_queue q
   WHERE q.user_id <> v_caller_id
+    -- Compatible category: exact match OR either party accepted 'All Topics'
+    AND (q.category = v_valid_category OR q.category = 'All Topics' OR v_valid_category = 'All Topics')
+    -- Matching question count
+    AND q.question_count = p_question_count
+    -- Matching timer
+    AND q.time_per_question_seconds = p_time_per_question_seconds
+    -- Block restrictions in both directions
     AND NOT EXISTS (
       SELECT 1 FROM public.user_blocks b
       WHERE (b.blocker_id = v_caller_id AND b.blocked_id = q.user_id)
          OR (b.blocker_id = q.user_id AND b.blocked_id = v_caller_id)
+    )
+    -- Candidate opponent must not have an active match
+    AND NOT EXISTS (
+      SELECT 1 FROM public.matches_1v1 m
+      WHERE (m.challenger_id = q.user_id OR m.opponent_id = q.user_id)
+        AND m.status IN ('in_progress', 'accepted')
+        AND (
+          (m.status = 'accepted' AND m.created_at >= NOW() - INTERVAL '5 minutes')
+          OR
+          (m.status = 'in_progress' AND NOW() <= m.started_at + ((m.question_count * m.time_per_question_seconds + 15) * INTERVAL '1 second'))
+        )
     )
   ORDER BY q.created_at ASC
   LIMIT 1
   FOR UPDATE SKIP LOCKED;
 
   IF v_opponent.id IS NOT NULL THEN
-    -- Match found! Atomically remove opponent from queue and clean caller if present
+    -- Match found! Atomically remove opponent and caller from queue
     DELETE FROM public.matchmaking_queue WHERE id = v_opponent.id;
     DELETE FROM public.matchmaking_queue WHERE user_id = v_caller_id;
+
+    -- Pick effective category: specific category wins over 'All Topics'
+    v_effective_category := CASE
+      WHEN v_valid_category <> 'All Topics' THEN v_valid_category
+      ELSE v_opponent.category
+    END;
 
     -- Create match in matches_1v1 (instantly accepted for both queued users)
     INSERT INTO public.matches_1v1 (
@@ -630,7 +684,7 @@ BEGIN
     ) VALUES (
       v_opponent.user_id,
       v_caller_id,
-      v_valid_category,
+      v_effective_category,
       p_question_count,
       p_time_per_question_seconds,
       'accepted'
@@ -641,7 +695,7 @@ BEGIN
     FOR v_q IN (
       SELECT id FROM public.questions
       WHERE is_active = TRUE
-        AND (v_valid_category = 'All Topics' OR category = v_valid_category)
+        AND (v_effective_category = 'All Topics' OR category = v_effective_category)
       ORDER BY random()
       LIMIT p_question_count
     ) LOOP
@@ -704,19 +758,19 @@ BEGIN
     );
   END IF;
 
-  -- ----------------------------------------------------------------------------
-  -- No opponent found: insert caller into queue (or update existing entry)
-  -- ----------------------------------------------------------------------------
+  -- 6. No opponent found: insert caller into queue (or update existing entry)
   INSERT INTO public.matchmaking_queue (
     user_id,
     category,
     question_count,
-    time_per_question_seconds
+    time_per_question_seconds,
+    created_at
   ) VALUES (
     v_caller_id,
     v_valid_category,
     p_question_count,
-    p_time_per_question_seconds
+    p_time_per_question_seconds,
+    NOW()
   )
   ON CONFLICT (user_id) DO UPDATE SET
     category = EXCLUDED.category,

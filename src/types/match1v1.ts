@@ -146,6 +146,7 @@ export interface Match1v1GameState {
   challenger_xp_awarded?: number | null
   opponent_xp_awarded?: number | null
   caller_xp_awarded?: number | null
+  forfeited_by?: string | null
 }
 
 export interface Submit1v1AnswerResponse {
@@ -169,10 +170,23 @@ export interface Finalize1v1MatchResponse {
   opponent_score?: number
   winner_id?: string | null
   is_draw?: boolean
+  forfeited_by?: string | null
   challenger_xp_awarded?: number
   opponent_xp_awarded?: number
   caller_xp_awarded?: number | null
   completed_at?: string
+  error?: string
+  message?: string
+}
+
+export interface Leave1v1MatchResponse {
+  success: boolean
+  status?: Match1v1Status
+  match_id?: string
+  winner_id?: string | null
+  forfeited_by?: string | null
+  xp_deducted?: number
+  caller_xp_awarded?: number | null
   error?: string
   message?: string
 }

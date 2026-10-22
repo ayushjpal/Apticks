@@ -12,6 +12,7 @@ import type {
   Match1v1GameState,
   Submit1v1AnswerResponse,
   Finalize1v1MatchResponse,
+  Leave1v1MatchResponse,
 } from '../types/match1v1'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
@@ -369,4 +370,27 @@ export class Match1v1Service {
       return { success: false, error: 'CLIENT_ERROR', message }
     }
   }
+
+  /**
+   * Leave or forfeit a 1v1 match
+   * - If pre-match (pending, waiting, accepted): cancels with 0 XP deduction
+   * - If active (in_progress): marks forfeit, -50 XP penalty (never below 0), opponent wins by forfeit
+   */
+  static async leaveMatch(matchId: string): Promise<Leave1v1MatchResponse> {
+    try {
+      const { data, error } = await supabase.rpc('leave_1v1_match', {
+        p_match_id: matchId,
+      })
+
+      if (error) {
+        return { success: false, error: 'RPC_ERROR', message: error.message }
+      }
+
+      return data as Leave1v1MatchResponse
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to leave match'
+      return { success: false, error: 'CLIENT_ERROR', message }
+    }
+  }
 }
+

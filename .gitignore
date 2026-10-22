@@ -35,3 +35,9 @@ supabase/.temp/
 
 # Scratch & local scripts
 scratch/
+
+# Temporary files
+~$*
+
+# Documentation binaries
+documentation/

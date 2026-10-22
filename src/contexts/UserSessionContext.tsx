@@ -233,11 +233,25 @@ export const UserSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   )
 }
 
+const defaultFallbackSession: UserSessionContextValue = {
+  user: null,
+  profile: null,
+  streak: null,
+  rank: null,
+  level: 1,
+  levelTitle: 'Novice',
+  totalXp: 0,
+  levelProgress: null,
+  loading: false,
+  error: null,
+  refreshUserMetrics: async () => {},
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
 export function useUserSession(): UserSessionContextValue {
   const context = useContext(UserSessionContext)
   if (!context) {
-    throw new Error('useUserSession must be used within a UserSessionProvider')
+    return defaultFallbackSession
   }
   return context
 }

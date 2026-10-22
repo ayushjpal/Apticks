@@ -29,13 +29,15 @@ import {
   Zap,
   Award,
   Sparkles,
+  Flag,
 } from 'lucide-react'
+import { ArenaErrorBoundary } from '../../components/ui/ArenaErrorBoundary'
 
 export const Match1v1Arena: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
   const { user: sessionUser, refreshUserMetrics } = useUserSession()
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(sessionUser?.id || null)
 
   // ----------------------------------------------------------------------------
   // State
@@ -51,6 +53,8 @@ export const Match1v1Arena: React.FC = () => {
   const [submitFeedback, setSubmitFeedback] = useState<{ isCorrect: boolean; points: number } | null>(null)
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0)
   const [actionLoading, setActionLoading] = useState<boolean>(false)
+  const [showLeaveModal, setShowLeaveModal] = useState<boolean>(false)
+  const [leaveLoading, setLeaveLoading] = useState<boolean>(false)
 
   const realtimeChannelRef = useRef<RealtimeChannel | null>(null)
   const countdownIntervalRef = useRef<number | null>(null)
@@ -85,6 +89,11 @@ export const Match1v1Arena: React.FC = () => {
   // User Authentication Init
   // ----------------------------------------------------------------------------
   useEffect(() => {
+    if (sessionUser?.id) {
+      setCurrentUserId(sessionUser.id)
+      return
+    }
+
     let isMounted = true
     async function init() {
       const {
@@ -102,7 +111,7 @@ export const Match1v1Arena: React.FC = () => {
     return () => {
       isMounted = false
     }
-  }, [matchId, navigate])
+  }, [sessionUser?.id, matchId, navigate])
 
   // ----------------------------------------------------------------------------
   // Authoritative Initial Load
@@ -126,13 +135,20 @@ export const Match1v1Arena: React.FC = () => {
           return
         }
 
-        if (!qRes.success || !qRes.questions) {
-          setErrorMessage(qRes.message || 'Failed to load battle questions.')
+        const st = stateRes.state
+
+        // If match has not yet started, redirect back to the match lobby
+        if (['pending', 'waiting', 'accepted'].includes(st.status)) {
+          navigate(`/1v1/${matchId}`, { replace: true })
+          return
+        }
+
+        if (!qRes.success || !qRes.questions || qRes.questions.length === 0) {
+          setErrorMessage(qRes.message || 'No battle questions found for this match.')
           setLoading(false)
           return
         }
 
-        const st = stateRes.state
         const qs = qRes.questions
 
         setGameState(st)
@@ -140,7 +156,8 @@ export const Match1v1Arena: React.FC = () => {
         setRemainingSeconds(st.remaining_seconds)
 
         // Determine initial active question index (first unanswered question)
-        const answeredQIds = new Set(st.caller_answers.map((a) => a.question_id))
+        const callerAns = st.caller_answers || []
+        const answeredQIds = new Set(callerAns.map((a) => a.question_id))
         const firstUnanswered = qs.findIndex((q) => !answeredQIds.has(q.question_id))
 
         if (firstUnanswered !== -1) {
@@ -248,6 +265,7 @@ export const Match1v1Arena: React.FC = () => {
           opponent_score: number
           winner_id: string | null
           is_draw: boolean
+          forfeited_by?: string | null
           completed_at: string | null
         }
 
@@ -266,6 +284,7 @@ export const Match1v1Arena: React.FC = () => {
             },
             winner_id: updatedRow.winner_id,
             is_draw: updatedRow.is_draw,
+            forfeited_by: updatedRow.forfeited_by ?? prev.forfeited_by,
             completed_at: updatedRow.completed_at,
           }
         })
@@ -425,6 +444,28 @@ export const Match1v1Arena: React.FC = () => {
   }
 
   // ----------------------------------------------------------------------------
+  // Leave / Forfeit Match Handler (Authoritative Server Deduction)
+  // ----------------------------------------------------------------------------
+  const handleConfirmLeave = async () => {
+    if (!matchId || leaveLoading) return
+    setLeaveLoading(true)
+    try {
+      const res = await Match1v1Service.leaveMatch(matchId)
+      setShowLeaveModal(false)
+      if (res.success) {
+        await refreshAuthoritativeState()
+        refreshUserMetrics()
+      } else {
+        setErrorMessage(res.message || 'Failed to leave match')
+      }
+    } catch {
+      setErrorMessage('Network error while leaving match')
+    } finally {
+      setLeaveLoading(false)
+    }
+  }
+
+  // ----------------------------------------------------------------------------
   // Format Countdown: MM:SS
   // ----------------------------------------------------------------------------
   const formatCountdown = (secs: number) => {
@@ -484,16 +525,26 @@ export const Match1v1Arena: React.FC = () => {
   const you = isChallenger ? gameState.challenger : gameState.opponent
   const opponent = isChallenger ? gameState.opponent : gameState.challenger
   const isCompleted = gameState.status === 'completed'
-  const allCallerAnswered = gameState.caller_answers.length >= gameState.question_count
+  const callerAnswers = gameState.caller_answers || []
+  const opponentAnswers = gameState.opponent_answers || []
+  const allCallerAnswered = callerAnswers.length >= gameState.question_count
 
   // ============================================================================
   // TERMINAL RESULTS VIEW (MATCH COMPLETED)
   // ============================================================================
   if (isCompleted) {
+    const isForfeited = Boolean(gameState.forfeited_by)
+    const youForfeited = gameState.forfeited_by === you.id
+    const opponentForfeited = Boolean(gameState.forfeited_by && gameState.forfeited_by !== you.id)
+
     const isWinner = gameState.winner_id === you.id
-    const isDraw = gameState.is_draw
-    const serverCallerXp = gameState.caller_xp_awarded ?? (isWinner ? 50 : isDraw ? 20 : 5)
-    const serverOpponentXp = (isChallenger ? gameState.opponent_xp_awarded : gameState.challenger_xp_awarded) ?? (!isWinner && !isDraw ? 50 : isDraw ? 20 : 5)
+    const isDraw = gameState.is_draw && !isForfeited
+
+    const defaultCallerXp = youForfeited ? -50 : isWinner ? 50 : isDraw ? 20 : 5
+    const defaultOpponentXp = opponentForfeited ? -50 : (!isWinner && !isDraw) ? 50 : isDraw ? 20 : 5
+
+    const serverCallerXp = gameState.caller_xp_awarded ?? defaultCallerXp
+    const serverOpponentXp = (isChallenger ? gameState.opponent_xp_awarded : gameState.challenger_xp_awarded) ?? defaultOpponentXp
 
     return (
       <div className="min-h-screen bg-[#071a2b] text-white pt-20 pb-16 px-4 sm:px-6 lg:px-8 arena-bg-grid">
@@ -502,7 +553,9 @@ export const Match1v1Arena: React.FC = () => {
           {/* Result Banner */}
           <div
             className={`border-2 rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden ${
-              isWinner
+              youForfeited
+                ? 'bg-gradient-to-b from-rose-500/10 to-[#091522] border-rose-500/40 shadow-[0_0_40px_rgba(244,63,94,0.15)]'
+                : isWinner
                 ? 'bg-gradient-to-b from-amber-500/10 to-[#091522] border-amber-400/40 shadow-[0_0_40px_rgba(251,191,36,0.15)]'
                 : isDraw
                 ? 'bg-gradient-to-b from-blue-500/10 to-[#091522] border-blue-400/40 shadow-[0_0_40px_rgba(96,165,250,0.15)]'
@@ -510,7 +563,11 @@ export const Match1v1Arena: React.FC = () => {
             }`}
           >
             <div className="flex justify-center mb-3">
-              {isWinner ? (
+              {youForfeited ? (
+                <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                  <XCircle className="w-8 h-8" />
+                </div>
+              ) : isWinner ? (
                 <div className="w-16 h-16 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400 animate-bounce">
                   <Trophy className="w-8 h-8" />
                 </div>
@@ -526,10 +583,22 @@ export const Match1v1Arena: React.FC = () => {
             </div>
 
             <h1 className="font-display font-black text-3xl sm:text-4xl uppercase tracking-tight">
-              {isWinner ? 'VICTORY' : isDraw ? 'MATCH DRAW' : 'DEFEAT'}
+              {youForfeited
+                ? 'MATCH FORFEITED'
+                : opponentForfeited
+                ? 'VICTORY BY FORFEIT'
+                : isWinner
+                ? 'VICTORY'
+                : isDraw
+                ? 'MATCH DRAW'
+                : 'DEFEAT'}
             </h1>
             <p className="font-mono text-xs text-slate-300 mt-1 uppercase tracking-wider">
-              {isWinner
+              {youForfeited
+                ? 'You left the active battle. A -50 XP penalty was deducted from your balance.'
+                : opponentForfeited
+                ? `@${opponent?.username || 'Opponent'} left the 1v1 battle. You won by forfeit!`
+                : isWinner
                 ? 'Outstanding performance. You outmatched your opponent!'
                 : isDraw
                 ? 'Dead heat! Both competitors finished with identical scores.'
@@ -541,20 +610,40 @@ export const Match1v1Arena: React.FC = () => {
           <div className="bg-[#091522] border border-amber-400/30 rounded-2xl p-5 sm:p-6 shadow-[0_0_30px_rgba(255,212,59,0.08)] space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 text-center sm:text-left">
-                <div className="w-12 h-12 rounded-xl bg-[#ffd43b]/10 border border-[#ffd43b]/30 flex items-center justify-center text-[#ffd43b] shrink-0">
-                  <Sparkles className="w-6 h-6" />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                  serverCallerXp < 0
+                    ? 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
+                    : 'bg-[#ffd43b]/10 border border-[#ffd43b]/30 text-[#ffd43b]'
+                }`}>
+                  {serverCallerXp < 0 ? <AlertCircle className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
                 </div>
                 <div>
                   <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <span className="font-display font-black text-2xl text-[#ffd43b]">
-                      +{serverCallerXp} XP
+                    <span className={`font-display font-black text-2xl ${
+                      serverCallerXp < 0 ? 'text-rose-400' : 'text-[#ffd43b]'
+                    }`}>
+                      {serverCallerXp > 0 ? `+${serverCallerXp}` : serverCallerXp} XP
                     </span>
-                    <span className="px-2 py-0.5 rounded bg-white/10 text-slate-300 font-mono text-[10px] font-bold uppercase tracking-wider">
-                      {isWinner ? 'Victory Reward' : isDraw ? 'Stalemate Reward' : 'Match Participation'}
+                    <span className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold uppercase tracking-wider ${
+                      serverCallerXp < 0
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                        : 'bg-white/10 text-slate-300'
+                    }`}>
+                      {youForfeited
+                        ? 'Forfeit Penalty'
+                        : opponentForfeited
+                        ? 'Forfeit Victory'
+                        : isWinner
+                        ? 'Victory Reward'
+                        : isDraw
+                        ? 'Stalemate Reward'
+                        : 'Match Participation'}
                     </span>
                   </div>
                   <p className="font-mono text-xs text-slate-400 mt-0.5">
-                    Server-authoritative match XP added to your unified Apticks progression.
+                    {serverCallerXp < 0
+                      ? 'Server-authoritative forfeit penalty applied to your unified Apticks progression.'
+                      : 'Server-authoritative match XP added to your unified Apticks progression.'}
                   </p>
                 </div>
               </div>
@@ -586,25 +675,29 @@ export const Match1v1Arena: React.FC = () => {
             <div className={`p-4 rounded-xl text-center border ${isWinner ? 'bg-amber-500/5 border-amber-500/30' : 'bg-white/5 border-white/5'}`}>
               <div className="w-12 h-12 rounded-full overflow-hidden mx-auto mb-2 border-2 border-white/20">
                 {you.avatar_url ? (
-                  <img src={you.avatar_url} alt={you.username} className="w-full h-full object-cover" />
+                  <img src={you.avatar_url} alt={you?.username || 'You'} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-[#ffd43b] text-black font-display font-black flex items-center justify-center text-sm">
-                    {you.username.slice(0, 2).toUpperCase()}
+                    {(you?.username || 'You').slice(0, 2).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="font-display font-bold text-sm text-white truncate">
-                @{you.username} (You)
+                @{you?.username || 'You'} (You)
               </div>
               <div className="font-display font-black text-3xl sm:text-4xl text-[#ffd43b] mt-2">
                 {you.score}
               </div>
               <div className="font-mono text-[11px] text-slate-400 mt-0.5">
-                {gameState.caller_answers.filter((a) => a.is_correct).length} / {gameState.question_count} Correct
+                {callerAnswers.filter((a) => a.is_correct).length} / {gameState.question_count} Correct
               </div>
-              <div className="inline-flex items-center gap-1 mt-2.5 px-2.5 py-1 rounded-lg bg-[#ffd43b]/10 text-[#ffd43b] font-mono text-xs font-bold border border-[#ffd43b]/30">
+              <div className={`inline-flex items-center gap-1 mt-2.5 px-2.5 py-1 rounded-lg font-mono text-xs font-bold border ${
+                serverCallerXp < 0
+                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                  : 'bg-[#ffd43b]/10 text-[#ffd43b] border-[#ffd43b]/30'
+              }`}>
                 <Zap className="w-3.5 h-3.5" />
-                <span>+{serverCallerXp} XP</span>
+                <span>{serverCallerXp > 0 ? `+${serverCallerXp}` : serverCallerXp} XP</span>
               </div>
             </div>
 
@@ -612,25 +705,29 @@ export const Match1v1Arena: React.FC = () => {
             <div className={`p-4 rounded-xl text-center border ${!isWinner && !isDraw ? 'bg-amber-500/5 border-amber-500/30' : 'bg-white/5 border-white/5'}`}>
               <div className="w-12 h-12 rounded-full overflow-hidden mx-auto mb-2 border-2 border-white/20">
                 {opponent.avatar_url ? (
-                  <img src={opponent.avatar_url} alt={opponent.username} className="w-full h-full object-cover" />
+                  <img src={opponent.avatar_url} alt={opponent?.username || 'Opponent'} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-slate-700 text-white font-display font-black flex items-center justify-center text-sm">
-                    {opponent.username.slice(0, 2).toUpperCase()}
+                    {(opponent?.username || 'Opponent').slice(0, 2).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="font-display font-bold text-sm text-slate-200 truncate">
-                @{opponent.username}
+                @{opponent?.username || 'Opponent'}
               </div>
               <div className="font-display font-black text-3xl sm:text-4xl text-slate-200 mt-2">
                 {opponent.score}
               </div>
               <div className="font-mono text-[11px] text-slate-400 mt-0.5">
-                {gameState.opponent_answers.filter((a) => a.is_correct).length} / {gameState.question_count} Correct
+                {opponentAnswers.filter((a) => a.is_correct).length} / {gameState.question_count} Correct
               </div>
-              <div className="inline-flex items-center gap-1 mt-2.5 px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 font-mono text-xs font-bold border border-white/10">
+              <div className={`inline-flex items-center gap-1 mt-2.5 px-2.5 py-1 rounded-lg font-mono text-xs font-bold border ${
+                serverOpponentXp < 0
+                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                  : 'bg-white/5 text-slate-300 border-white/10'
+              }`}>
                 <Zap className="w-3.5 h-3.5 text-slate-400" />
-                <span>+{serverOpponentXp} XP</span>
+                <span>{serverOpponentXp > 0 ? `+${serverOpponentXp}` : serverOpponentXp} XP</span>
               </div>
             </div>
           </div>
@@ -643,7 +740,7 @@ export const Match1v1Arena: React.FC = () => {
             <div className="space-y-3">
               {questions.map((q, idx) => {
                 const callerAns = callerAnswerMap.get(q.question_id)
-                const opponentAns = gameState.opponent_answers.find((a) => a.question_id === q.question_id)
+                const opponentAns = opponentAnswers.find((a) => a.question_id === q.question_id)
 
                 return (
                   <div
@@ -743,14 +840,27 @@ export const Match1v1Arena: React.FC = () => {
             QUESTION {currentIndex + 1} / {questions.length}
           </div>
 
-          {/* Authoritative Countdown */}
-          <div className={`flex items-center gap-1.5 font-mono font-black text-sm px-3 py-1 rounded-lg border ${
-            remainingSeconds <= 30
-              ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 animate-pulse'
-              : 'bg-white/5 text-[#ffd43b] border-white/10'
-          }`}>
-            <Timer className="w-4 h-4" />
-            <span>{formatCountdown(remainingSeconds)}</span>
+          {/* Right: Authoritative Countdown + Leave Match Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className={`flex items-center gap-1.5 font-mono font-black text-xs sm:text-sm px-2.5 sm:px-3 py-1 rounded-lg border ${
+              remainingSeconds <= 30
+                ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 animate-pulse'
+                : 'bg-white/5 text-[#ffd43b] border-white/10'
+            }`}>
+              <Timer className="w-4 h-4" />
+              <span>{formatCountdown(remainingSeconds)}</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowLeaveModal(true)}
+              disabled={actionLoading || leaveLoading || isCompleted}
+              className="px-3 py-1 sm:py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 hover:border-rose-500/50 rounded-xl font-display font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-xs"
+              title="Leave and forfeit match"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              <span>LEAVE MATCH</span>
+            </button>
           </div>
         </div>
 
@@ -763,19 +873,19 @@ export const Match1v1Arena: React.FC = () => {
             <div className="col-span-5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/20 shrink-0">
                 {you.avatar_url ? (
-                  <img src={you.avatar_url} alt={you.username} className="w-full h-full object-cover" />
+                  <img src={you.avatar_url} alt={you?.username || 'You'} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-[#ffd43b] text-black font-display font-black flex items-center justify-center text-xs">
-                    {you.username.slice(0, 2).toUpperCase()}
+                    {(you?.username || 'You').slice(0, 2).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="min-w-0">
                 <div className="font-display font-bold text-xs text-white truncate">
-                  @{you.username} <span className="text-[#ffd43b] text-[10px] font-mono">(You)</span>
+                  @{you?.username || 'You'} <span className="text-[#ffd43b] text-[10px] font-mono">(You)</span>
                 </div>
                 <div className="font-mono text-[11px] text-slate-400">
-                  Answered: {gameState.caller_answers.length} / {gameState.question_count}
+                  Answered: {callerAnswers.length} / {gameState.question_count}
                 </div>
               </div>
               <div className="ml-auto font-display font-black text-xl text-[#ffd43b] pr-2">
@@ -795,7 +905,7 @@ export const Match1v1Arena: React.FC = () => {
               </div>
               <div className="min-w-0">
                 <div className="font-display font-bold text-xs text-slate-300 truncate">
-                  @{opponent.username}
+                  @{opponent?.username || 'Opponent'}
                 </div>
                 <div className="font-mono text-[11px] text-slate-400">
                   Answered: {opponent.answered_count} / {gameState.question_count}
@@ -803,10 +913,10 @@ export const Match1v1Arena: React.FC = () => {
               </div>
               <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shrink-0">
                 {opponent.avatar_url ? (
-                  <img src={opponent.avatar_url} alt={opponent.username} className="w-full h-full object-cover" />
+                  <img src={opponent.avatar_url} alt={opponent?.username || 'Opponent'} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-slate-700 text-white font-display font-black flex items-center justify-center text-xs">
-                    {opponent.username.slice(0, 2).toUpperCase()}
+                    {(opponent?.username || 'Opponent').slice(0, 2).toUpperCase()}
                   </div>
                 )}
               </div>
@@ -1024,7 +1134,7 @@ export const Match1v1Arena: React.FC = () => {
               <span>YOU HAVE COMPLETED ALL QUESTIONS</span>
             </div>
             <p className="font-mono text-xs text-slate-300 max-w-md mx-auto">
-              Waiting for @{opponent.username} to finish their round ({opponent.answered_count} / {gameState.question_count} answered) or until the match timer expires.
+              Waiting for @{opponent?.username || 'Opponent'} to finish their round ({opponent.answered_count} / {gameState.question_count} answered) or until the match timer expires.
             </p>
             {remainingSeconds <= 0 && (
               <button
@@ -1039,8 +1149,67 @@ export const Match1v1Arena: React.FC = () => {
           </div>
         )}
 
+        {/* ===================================================================== */}
+        {/* LEAVE MATCH CONFIRMATION MODAL                                        */}
+        {/* ===================================================================== */}
+        {showLeaveModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in">
+            <div className="bg-[#091522] border-3 border-black p-6 sm:p-8 text-center max-w-md w-full rounded-2xl shadow-[8px_8px_0_#000] space-y-4 animate-in zoom-in-95">
+              <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mx-auto text-rose-400">
+                <AlertCircle className="w-7 h-7" />
+              </div>
+
+              <h2 className="font-display font-black text-xl sm:text-2xl uppercase tracking-tight text-white leading-tight">
+                Are you sure you want to leave? You will lose XP.
+              </h2>
+
+              <p className="font-mono text-xs text-slate-300 leading-relaxed">
+                Leaving an active match marks you as forfeited. Your opponent will be awarded the victory and a 50 XP penalty will be deducted from your account balance.
+              </p>
+
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center justify-center gap-2 font-mono text-xs text-rose-400 font-bold">
+                <Zap className="w-4 h-4" />
+                <span>FORFEIT PENALTY: -50 XP</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={leaveLoading}
+                  onClick={() => setShowLeaveModal(false)}
+                  className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-display font-black text-xs uppercase tracking-wider transition-all cursor-pointer"
+                >
+                  CONTINUE MATCH
+                </button>
+                <button
+                  type="button"
+                  disabled={leaveLoading}
+                  onClick={handleConfirmLeave}
+                  className="flex-1 py-3 px-4 bg-rose-600 hover:bg-rose-500 text-white border-2 border-black rounded-xl font-display font-black text-xs uppercase tracking-wider shadow-[3px_3px_0_#000] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {leaveLoading ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>LEAVING...</span>
+                    </>
+                  ) : (
+                    <span>LEAVE MATCH</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
 }
-export default Match1v1Arena
+
+export const Match1v1ArenaScreen: React.FC = () => (
+  <ArenaErrorBoundary fallbackTitle="1v1 BATTLE ARENA ERROR">
+    <Match1v1Arena />
+  </ArenaErrorBoundary>
+)
+
+export default Match1v1ArenaScreen
