@@ -37,7 +37,8 @@ export const Match1v1Arena: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
   const { user: sessionUser, refreshUserMetrics } = useUserSession()
-  const [currentUserId, setCurrentUserId] = useState<string | null>(sessionUser?.id || null)
+  const [authUserId, setAuthUserId] = useState<string | null>(null)
+  const currentUserId = sessionUser?.id || authUserId
 
   // ----------------------------------------------------------------------------
   // State
@@ -89,10 +90,7 @@ export const Match1v1Arena: React.FC = () => {
   // User Authentication Init
   // ----------------------------------------------------------------------------
   useEffect(() => {
-    if (sessionUser?.id) {
-      setCurrentUserId(sessionUser.id)
-      return
-    }
+    if (sessionUser?.id) return
 
     let isMounted = true
     async function init() {
@@ -104,7 +102,7 @@ export const Match1v1Arena: React.FC = () => {
         return
       }
       if (isMounted) {
-        setCurrentUserId(user.id)
+        setAuthUserId(user.id)
       }
     }
     init()
@@ -183,7 +181,7 @@ export const Match1v1Arena: React.FC = () => {
     return () => {
       isMounted = false
     }
-  }, [matchId, currentUserId])
+  }, [matchId, currentUserId, navigate])
 
   // ----------------------------------------------------------------------------
   // Helper to re-fetch state on finalization or deadline expiry

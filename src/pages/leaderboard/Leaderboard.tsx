@@ -76,7 +76,7 @@ export default function Leaderboard() {
 
       if (!isMounted) return
 
-      if (response.success) {
+      if (response.success || (Array.isArray(response.leaderboard) && !response.error)) {
         setGlobalEntries(response.leaderboard)
       } else {
         setGlobalError(
@@ -294,8 +294,13 @@ export default function Leaderboard() {
                       </div>
 
                       {/* Name & Handle */}
-                      <h3 className="relative font-display font-bold text-xs text-white truncate max-w-full">
-                        {topThree[1].displayName}
+                      <h3 className="relative font-display font-bold text-xs text-white truncate max-w-full flex items-center justify-center gap-1.5">
+                        <span className="truncate">{topThree[1].displayName}</span>
+                        {topThree[1].userId === currentUserId && (
+                          <span className="px-1.5 py-0.2 bg-[#ffd43b] text-[#0c1d2d] border border-[#0c1d2d]/20 rounded text-[9px] font-mono font-black uppercase tracking-wider shrink-0">
+                            You
+                          </span>
+                        )}
                       </h3>
                       <span className="relative font-mono text-[10px] text-cyan-200/75 truncate max-w-full">
                         @{topThree[1].username}
@@ -338,8 +343,13 @@ export default function Leaderboard() {
                       </div>
 
                       {/* Name & Handle */}
-                      <h3 className="relative font-display font-black text-sm text-white truncate max-w-full drop-shadow-xs">
-                        {topThree[0].displayName}
+                      <h3 className="relative font-display font-black text-sm text-white truncate max-w-full drop-shadow-xs flex items-center justify-center gap-1.5">
+                        <span className="truncate">{topThree[0].displayName}</span>
+                        {topThree[0].userId === currentUserId && (
+                          <span className="px-1.5 py-0.2 bg-[#ffd43b] text-[#0c1d2d] border border-[#0c1d2d]/20 rounded text-[9px] font-mono font-black uppercase tracking-wider shrink-0">
+                            You
+                          </span>
+                        )}
                       </h3>
                       <span className="relative font-mono text-[11px] text-purple-300/85 truncate max-w-full">
                         @{topThree[0].username}
@@ -382,8 +392,13 @@ export default function Leaderboard() {
                       </div>
 
                       {/* Name & Handle */}
-                      <h3 className="relative font-display font-bold text-xs text-white truncate max-w-full">
-                        {topThree[2].displayName}
+                      <h3 className="relative font-display font-bold text-xs text-white truncate max-w-full flex items-center justify-center gap-1.5">
+                        <span className="truncate">{topThree[2].displayName}</span>
+                        {topThree[2].userId === currentUserId && (
+                          <span className="px-1.5 py-0.2 bg-[#ffd43b] text-[#0c1d2d] border border-[#0c1d2d]/20 rounded text-[9px] font-mono font-black uppercase tracking-wider shrink-0">
+                            You
+                          </span>
+                        )}
                       </h3>
                       <span className="relative font-mono text-[10px] text-amber-200/75 truncate max-w-full">
                         @{topThree[2].username}

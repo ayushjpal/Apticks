@@ -141,7 +141,10 @@ export class LeaderboardService {
         )
 
         const result: GlobalLeaderboardResponse = {
-          success: Boolean(data?.success),
+          success:
+            data?.success !== undefined
+              ? Boolean(data.success)
+              : Array.isArray(data?.leaderboard),
           totalCount: Number(data?.total_count) || entries.length,
           limit: Number(data?.limit) || limit,
           offset: Number(data?.offset) || offset,
@@ -220,7 +223,10 @@ export class LeaderboardService {
           )
           leaderboardCache.set(key, {
             data: {
-              success: Boolean(data?.success),
+              success:
+                data?.success !== undefined
+                  ? Boolean(data.success)
+                  : Array.isArray(data?.leaderboard),
               totalCount: Number(data?.total_count) || entries.length,
               limit: Number(data?.limit) || limit,
               offset: Number(data?.offset) || offset,
